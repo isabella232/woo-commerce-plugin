@@ -1,0 +1,85 @@
+.box {
+    padding: 1em;
+    margin: 1em;
+    width: 80%;
+}
+.text-center {
+    text-align: center;
+}
+.text-left {
+    text-align: left;
+}
+.text-right {
+    text-align: right;
+}
+.text-justify {
+    text-align: justify;
+}
+
+.main-container {
+    background: #fff;
+    padding: 5em;
+    margin: 1em auto;
+}
+.campaign-monitor-woocommerce .logo {
+
+    width: 100%;
+    fill:   #429bd1;
+}
+
+.logo-container {
+    width: 20%;
+    margin: 0.5em auto;
+}
+.campaign-monitor-woocommerce .static {
+    position: static;
+    float: none;
+}
+
+/* Common button styles */
+.button {
+    float: left;
+    min-width: 180px;
+    max-width: 250px;
+    display: block;
+    margin: 0.5em;
+    padding: 1em 2em;
+    border: none;
+    background: none;
+    color: inherit;
+    vertical-align: middle;
+    position: relative;
+    z-index: 1;
+    -webkit-backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    cursor: pointer;
+}
+
+.button:focus {
+    outline: none;
+}
+.button > span {
+    vertical-align: middle;
+}
+
+#connect-account {
+}
+
+/* Lists */
+
+.campaign-monitor-woocommerce .list {
+
+}
+.campaign-monitor-woocommerce .list li {
+     padding: 1em 0.5em;
+     width: 100%;
+     border-bottom: 1px solid #f3f3f3;
+    margin:0;
+ }
+.campaign-monitor-woocommerce .list li:first-child {
+    border-top: 1px solid #f3f3f3;
+}
+
+.campaign-monitor-woocommerce .list li:hover {
+    background-color: #f8f8f8;
+}
