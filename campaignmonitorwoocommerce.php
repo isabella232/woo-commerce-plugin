@@ -71,5 +71,5 @@ add_action('plugins_loaded', function(){
 
 	core\App::$pluginPath = __FILE__;
 	core\App::run();
-	core\Log::write("testing");
+
 });

@@ -11,6 +11,9 @@ class App
     public static $session = null;
     public static $pluginPath = '';
 
+    public static $CampaignMonitor = null;
+    public static $Cron = null;
+
     public static function run()
     {
 
@@ -45,18 +48,92 @@ class App
             add_action('admin_menu', array(__CLASS__, 'create_menu'));
             add_action( 'admin_enqueue_scripts', array(__CLASS__, 'load_custom_wp_admin_style') );
             add_filter( 'admin_body_class', array(__CLASS__, 'add_admin_body_class') );
+            add_action( 'admin_menu', array(__CLASS__, 'custom_menu_page_removing') );
+            add_action( 'admin_post_handle_request', array(__CLASS__, 'handle_request') );
 
+
+            self::$Cron = new Cron();
+
+            $accessToken = Settings::get('access_token');
+            $refreshToken = Settings::get('refresh_token');
+            self::$CampaignMonitor = new CampaignMonitor($accessToken, $refreshToken);
             self::$session = new Session();
+
+            // handle ajax
+            Ajax::run();
 
         }
 
     } // end constructor
 
+    public static function cron(){
+
+    }
+
+    public static function get_custom_fields(){
+
+    }
+
+    public static function handle_request(){
+        status_header(200);
+//        die("Server received '{$_REQUEST['data']}' from your browser.");
+        Helper::display($_REQUEST);
+//        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        $data = $_REQUEST['data'];
+
+        $nonce = $data['new_client_nonce'];
+        $type = $data['type'];
+
+        $nonce = wp_verify_nonce( $nonce, 'new_client_nonce' );
+        switch ( $nonce ) {
+            case TRUE :
+
+                if ($type == 'create_client'){
+                    $clientName = $data['client_name'];
+                    $clientSettings =array(
+                        'CompanyName' => $clientName,
+                        'Country' => 'United States of America',
+                        'Timezone' => '(GMT) Coordinated Universal Time'
+                    );
+
+                    $newClient = App::$CampaignMonitor->create_client($clientSettings);
+                   Helper::updateOption('selectedClient', $newClient );
+                }
+
+                if ($type == 'create_list'){
+                    $clientId = $data['client_id'];
+                    $listName = $data['list_name'];
+                    $optIn = $data['opt_in'];
+                    $optIn = ($optIn == 2) ? true : false;
+                    $newList = App::$CampaignMonitor->create_list($clientId, $listName, $optIn);
+
+                    Helper::updateOption('selectedClient', $clientId );
+                    Helper::updateOption('selectedList', $newList );
+                }
+                break;
+            case 1:
+//                echo 'Nonce is less than 12 hours old';
+                break;
+
+            case 2:
+//                echo 'Nonce is between 12 and 24 hours old';
+                break;
+
+            default:
+                die( 'Nonce is invalid' );
+
+        }
+
+
+
+
+        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        exit();
+    }
+
     public static function  add_admin_body_class( $classes ) {
         return "$classes campaign-monitor-woocommerce";
     }
-
-
 
 
     /**
@@ -68,6 +145,10 @@ class App
 
     }
 
+    public  static function custom_menu_page_removing() {
+       // remove_menu_page( 'campaign_monitor_woocommerce' );
+    }
+
     public static function create_menu()
     {
 
@@ -77,11 +158,11 @@ class App
         $capability = 'administrator';
         $menuSlug = 'campaign_monitor_woocommerce';
         $callable = 'register_settings_page';
-        $iconUrl = plugins_url('/campaignmonitorwoocommerce/images/icon.svg');
+        $iconUrl = plugins_url('/campaignmonitorwoocommerce/views/admin/images/icon.svg');
         $position = 100;
 
         add_menu_page($pageTitle,$menuTitle,$capability,$menuSlug,array(__CLASS__,$callable),$iconUrl, $position);
-        add_submenu_page($menuSlug, 'Settings', 'Settings', $capability,'campaign_monitor_woocommerce_settings',array(__CLASS__,'admin_sub_page'));
+       // add_submenu_page($menuSlug, 'Settings', 'Settings', $capability,'campaign_monitor_woocommerce_settings',array(__CLASS__,'admin_sub_page'));
 
         //call register settings function
         add_action('admin_init', array(__CLASS__, 'register_settings_settings'));
@@ -89,9 +170,20 @@ class App
     }
 
     public static function load_custom_wp_admin_style() {
+
         $plugins_url = plugins_url('campaignmonitorwoocommerce');
         wp_register_style( 'custom_wp_admin_css', $plugins_url  . '/views/admin/css/main.css', false, '1.0.0' );
         wp_enqueue_style( 'custom_wp_admin_css' );
+
+
+
+        wp_enqueue_script( 'app-script', $plugins_url . '/views/admin/js/app.js', array('jquery') );
+        wp_enqueue_script( 'ajax-script', $plugins_url . '/views/admin/js/ajax.js', array('jquery') );
+        // in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
+        wp_localize_script( 'ajax-script', 'ajax_request', array(
+            'ajax_url' => admin_url( 'admin-ajax.php' )
+        ));
+        
     }
 
     public static function admin_sub_page(){
@@ -159,7 +251,7 @@ class App
 
                 $html = '<div id="message" class="updated notice is-dismissible">';
                 $html .= '<p>';
-                $html .= __('Campaign Monitor <a href="admin.php?page=campaign_monitor_woocommerce_settings">Settings</a>.', 'campaign-monitor-woocommerce');
+                $html .= __('Campaign Monitor <a href="admin.php?page=campaign_monitor_woocommerce">Connect Account</a>.', 'campaign-monitor-woocommerce');
                 $html .= '</p>';
                 $html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
 
@@ -178,6 +270,11 @@ class App
      */
     public static function plugin_deactivation()
     {
+        // remove cron jobs
+        if (null != self::$Cron){
+            self::$Cron->unschedule();
+        }
+
         // Display an error message if the option isn't properly deleted.
         if (false == delete_option('campaign_monitor_woocommerce')) {
 

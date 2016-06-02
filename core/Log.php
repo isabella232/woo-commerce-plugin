@@ -8,10 +8,12 @@ abstract class Log
 
     public static function getFileName()
     {
-        $filePath = CAMPAIGN_MONITOR_WOOCOMMERCE_DIR . '/var/log/System.log';
+        $filePath = CAMPAIGN_MONITOR_WOOCOMMERCE_DIR . 'var/log/System.log';
+
         try{
-            if (file_exists(self::$filename)) {
-                chmod(self::$filename, 0777);
+            if (file_exists($filePath)) {
+                chmod($filePath, 0777);
+                self::$filename = $filePath;
             } else {
                 $handle = fopen($filePath, 'w');
                 fclose($handle);
@@ -31,17 +33,18 @@ abstract class Log
 
     public static function write($message)
     {
-
         $file = self::getFileName();
-
         $date = self::getTimestamp();
-        file_put_contents($file, '['.$date.']'. print_r($message, true) . PHP_EOL, FILE_APPEND);
+        $message = '['.$date.'] ' . print_r($message, true) . PHP_EOL;
+        file_put_contents($file,  $message, FILE_APPEND);
+
     }
 
     private static function getTimestamp()
     {
 
         date_default_timezone_set('UTC');
+
         list($usec, $sec) = explode(' ', microtime());
         $usec = substr($usec, 2, 6);
         $datetime_now = date('Y-m-d H:i:s\.', $sec).$usec;
