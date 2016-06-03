@@ -47,6 +47,13 @@ jQuery(document).ready(function($) {
         var dataToSend = JSON.parse('{"' + decodeURI(params).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
 
         dataToSend.action = 'set_client_list';
+
+        var subscribe = $('#autoNewsletter').is(':checked');
+        var debug = $('#logToggle').is(':checked');
+
+        dataToSend.debug = debug;
+        dataToSend.subscribe = subscribe;
+        
         $.ajax({
             type: "POST",
             url: ajax_request.ajax_url,
@@ -54,9 +61,9 @@ jQuery(document).ready(function($) {
             dataType: "text json",
             success: function (data, textStatus, request) {
                 console.log(dataToSend.action);
+                console.log(dataToSend);
                 $("#clientList").slideUp();
                 var container = $(".content #variable");
-
                 if (data.modal != ''){
                     container.append(data.content);
                     container.append(data.modal);
@@ -64,7 +71,10 @@ jQuery(document).ready(function($) {
                     container.html(data.content);
                 }
 
-                $('#poststuff').slideUp();
+                if (typeof data.error == 'undefined' || data.error == 'false'){
+                    $('#poststuff').slideUp();
+                }
+
                 $('.campaign-monitor-woocommerce .progress-notice').slideUp();
 
                 $("#selector .content").slideDown();

@@ -2,6 +2,28 @@ jQuery.noConflict();
 jQuery(document).ready(function($) {
 
 
+    $(document).on('change', '.mapped-fields', function (e) {
+        var value = $(this).val();
+        var currentElement = $(this);
+
+        $('.mapped-fields').each(function (index, element) {
+
+
+
+            if (currentElement.attr('name') == $(element).attr('name') || $(element).val() == ''){
+               return;
+            }
+
+            if (value == $(element).val()){
+                currentElement.val('');
+               $(element).css('border', '1px solid red');
+               alert('This field is already mapped');
+                return false;
+            }
+
+        });
+    });
+
     $(document).on('click', '.save-settings', function (e) {
         $("#clientList").slideDown();
         var container = $("#selector .content #variable");

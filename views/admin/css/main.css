@@ -22,7 +22,6 @@
     margin: 1em auto;
 }
 .campaign-monitor-woocommerce .logo {
-
     width: 100%;
     fill:   #429bd1;
 }
@@ -259,7 +258,9 @@
 }
 
 .segments li {
-    float:left;
+    display: inline-block;
+    *display:inline; /*IE7*/
+    *zoom:1; /*IE7*/
     width: 48%;
     margin: 0.5em;
 }

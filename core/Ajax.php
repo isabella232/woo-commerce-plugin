@@ -74,9 +74,12 @@ abstract class Ajax
 
     protected static function generate_custom_fields_list($customFields){
         $html = '<ul class="list custom-fields">';
+        $count = 1;
         foreach ($customFields as $field) {
             $html .= '<li>';
             $html .= '<p  href="" data-visibleinpreferencecenter="' . $field->VisibleInPreferenceCenter . '" data-fieldoptions="' . $field->FieldOptions . '" data-key="' . $field->Key . '" data-datatype="' . $field->DataType . '" >';
+            $html .= $count++;
+            $html .=  "&nbsp;&nbsp;&nbsp;";
             $html .= $field->FieldName;
             $html .= '</p>';
             $html .= '</li>';
@@ -93,29 +96,54 @@ abstract class Ajax
         $params = $_POST;
         $clientId = '';
         $requestResults = new \stdClass();
-
         if (array_key_exists('ClientID', $params)) {
+
+            $subscribe = false;
+            $debug = false;
+
+            if (array_key_exists('subscribe', $params )){
+                $subscribe = ($params['subscribe'] == 'true') ? true : false;
+                Helper::updateOption('automatic_subscription',$subscribe);
+            }
+            if (array_key_exists('debug', $params )){
+                $debug = ($params['debug'] == 'true') ? true : false;
+                Helper::updateOption('debug', $debug );
+            }
 
             $user = wp_get_current_user();
 
             $clientId = $params['ClientID'];
             $listId = $params['ListID'];
 
-            $fields = Fields::get();
+            $fields = Fields::get_required();
 
-            $lists = App::$CampaignMonitor->get_client_list($clientId);
+           // $lists = App::$CampaignMonitor->get_client_list($clientId);
             $segmentsInAccount = App::$CampaignMonitor->get_segments($listId);
             $customFields = App::$CampaignMonitor->get_custom_fields($listId);
 
-            if (count($customFields)  == Helper::getMaximumFieldsCount()) {
+            $maximumFieldsCount = Helper::getMaximumFieldsCount();
+            $campaignMonitorFieldCount = count($customFields);
+            $usableFieldCount = $maximumFieldsCount - $campaignMonitorFieldCount;
+            $requiredFieldsCount = count($fields);
+
+            $maximumReached = ($campaignMonitorFieldCount == $maximumFieldsCount);
+
+            if ($maximumReached || ($usableFieldCount < $requiredFieldsCount)  ) {
                 $message = ' <div class="notice notice-error is-dismissible">';
-                $message .= '<p>You already have '.Helper::getMaximumFieldsCount().' custom fields defined for this list.</p>';
+
+
                 $message .= '<p>There are not enough custom fields in this list to transfer.</p>';
+                if ($maximumReached){
+                    $message .= '<p>You already have '. $maximumFieldsCount .' custom fields defined for this list.</p>';
+                } else {
+                    $message .= '<p>You need at least '. $requiredFieldsCount .' custom fields available.</p>';
+                }
                 $message .= '<p>Please delete some of the custom fields on Campaign Monitor or Create a New List.</p>';
                 $message .= '</div>';
                 $message .= self::generate_custom_fields_list($customFields);
 
                 $requestResults->content = '';
+                $requestResults->error = true;
                 $requestResults->modal = self::generate_modal($message);
                 wp_send_json($requestResults);
                 return;
@@ -123,14 +151,14 @@ abstract class Ajax
 
 
 
-            $createdFields = array();
+        //    $createdFields = array();
             $prefix = get_bloginfo('name');
             $segmentedFields = array();
 
             foreach ($fields as $item) {
-                $isRequired = $item['field']['required'];
-
-                if (!$isRequired) continue;
+//                $isRequired = $item['field']['required'];
+//
+//                if (!$isRequired) continue;
                 $fieldName = $prefix . " " . $item['field']['name'];
                 $suffix = 1;
 
@@ -144,8 +172,11 @@ abstract class Ajax
                 }
 
                 $createdField = App::$CampaignMonitor->create_custom_field($listId, $fieldName, $item['field']['type']);
-                $createdFields[] = $createdField;
-                Map::add($item['field']['code'], $createdField);
+//                $createdFields[] = $createdField;
+                if (!empty($createdField)){
+                    Map::add($item['field']['code'], $createdField);
+                }
+
 //                $createdFields[] =  $fieldName;
             }
 
@@ -197,25 +228,20 @@ abstract class Ajax
             $html .= '<p>';
             $html .= 'Segments help you focus email content on smaller, more targeted groups of subscribers for more  creative email marketing and lead nurturing.';
             $html .= '</p>';
-            $html .= '<div class="segments">
-                        <ul>
-            
-                        <li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-10.png"><span class="segmentTitle">High spending customers</span></li>
-            
-                        <li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-06.png"><span class="segmentTitle">Repeat customers</span></li>
-            
-                        <li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-05.png"><span class="segmentTitle">First time customers</span></li>
-            
-                        <li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-08.png"><span class="segmentTitle">Newsletter subscribers</span></li>
-                        
-                         </ul>
-                    </div>';
+            $html .= '<div class="segments">';
+            $html .= '<ul>';
+            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-10.png"><span class="segmentTitle">High spending customers</span></li>';
+            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-06.png"><span class="segmentTitle">Repeat customers</span></li>';
+            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-05.png"><span class="segmentTitle">First time customers</span></li>';
+            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-08.png"><span class="segmentTitle">Newsletter subscribers</span></li>';
+            $html .= '</ul>';
             $html .= '</div>';
-
-
+            $html .= '</div>';
+            $html .= '<script>';
+            $html .= 'setTimeout(function () { window.location = "'.Helper::getActionUrl().'"; }, 5000);';
+            $html .= '</script>';
 
             $requestResults->content = $html;
-
         }
 
         wp_send_json($requestResults);

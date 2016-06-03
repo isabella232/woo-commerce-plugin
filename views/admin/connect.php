@@ -22,7 +22,7 @@ $prefix = 'campaign_monitor_woocommerce_';
 \core\Settings::add('client_secret', 'y6iX6c6P1664tNnG7W66iITD46X6eZ61d6766aD6q69qn6yGk69Jx6666h6n6YTJx6rO6n6IN50ihg2U' );
 \core\Settings::add('client_id', 104245 );
 $appSettings  = \core\Settings::get();
-//\core\Helper::display($_GET);
+
 
 $isFieldDefault = true;
 \core\Fields::add('orders_count', 'Total Order Count', 'Number', 'description for this item', $isFieldDefault);
@@ -30,31 +30,27 @@ $isFieldDefault = true;
 \core\Fields::add('verified_email', 'User Email', 'Text', 'description for this item', $isFieldDefault);
 \core\Fields::add('created_at', 'User Registered', 'Date', 'description for this item', $isFieldDefault);
 \core\Fields::add('company', 'Company', 'Text', 'Company name', false);
-\core\Fields::add('billing_address1', 'Address1', 'Text', 'Billing Address 1', false);
-\core\Fields::add('billing_address2', 'Address2', 'Text', 'Billing Address 2', false);
-\core\Fields::add('billing_city', 'City', 'Text', 'Billing City', false);
-\core\Fields::add('billing_zip', 'Postal Code', 'Text', 'Billing Postal Code', false);
-\core\Fields::add('billing_country', 'Country', 'Text', 'Billing Country', false);
-\core\Fields::add('billing_state', 'Country/State', 'Text', 'Billing County', false);
-\core\Fields::add('billing_phone', 'Telephone', 'Text', 'Billing telephone', false);
+\core\Fields::add('billing_address1', 'Billing Address1', 'Text', 'Billing Address 1', false);
+\core\Fields::add('billing_address2', 'Billing Address2', 'Text', 'Billing Address 2', false);
+\core\Fields::add('billing_city', 'Billing City', 'Text', 'Billing City', false);
+\core\Fields::add('billing_zip', 'Billing Postal Code', 'Text', 'Billing Postal Code', false);
+\core\Fields::add('billing_country', 'Billing Country', 'Text', 'Billing Country', false);
+\core\Fields::add('billing_state', 'Billing Country/State', 'Text', 'Billing County', false);
+\core\Fields::add('phone', 'Telephone', 'Text', 'telephone', false);
+\core\Fields::add('shipping_address1', 'Shipping Address1', 'Text', 'Shipping Address 1', false);
+\core\Fields::add('shipping_address2', 'Shipping Address2', 'Text', 'Shipping Address 2', false);
+\core\Fields::add('shipping_city', 'Shipping City', 'Text', 'Shipping City', false);
+\core\Fields::add('shipping_zip', 'Shipping Postal Code', 'Text', 'Shipping Postal Code', false);
+\core\Fields::add('shipping_country', 'Shipping Country', 'Text', 'Shipping Country', false);
+\core\Fields::add('shipping_state', 'Shipping Country/State', 'Text', 'Shipping County', false);
 
-////
-//$fields = \core\Fields::get();
-//\core\Helper::display($fields);
-
-//// current user
-//$user = wp_get_current_user();
-//
-////\core\Helper::display($user);
-//
-//$metaName = \core\Helper::getPrefix() . '_account_settings';
 
 if (isset($_GET['disconnect'])){
     \core\Settings::add('default_list', null);
 }
 
 
-// check if user loggin on campaigm monitor
+// check if user logging on campaign monitor
 if (isset($_GET['code']) && !empty($_GET['code'])){
     $code = $_GET['code'];
     $redirectUrl = 'http://104.130.155.207/wordpress/wp-admin/admin.php?page=campaign_monitor_woocommerce&connected=true';
@@ -94,33 +90,8 @@ if (!empty($appSettings) && !empty($accessToken) && empty($defaultList)){
 
 }
 
-if (isset($_GET['create_client'])){
-/*    $appSettings = (object)$appSettings;
-    $auth = array('access_token' => $appSettings->access_token,
-        'refresh_token' => $appSettings->refresh_token);
-    $client = array();
-    $client['CompanyName'] = '';
-    $client['Country'] = '';
-    $client['Timezone'] = '';
-
-    $clients = \core\App::$CampaignMonitor->create_client($client, $auth);*/
-}
 $actionUrl = get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce';
 
-//
-//$rule = new \core\Rule('order_count', array('GREATER_THAN_OR_EQUAL 5', 'EQUALS 0') );
-//$rule2 = new \core\Rule('total_spent', array('GREATER_THAN_OR_EQUAL 500') );
-//
-//$segment = new \core\Segment('High Spending Repeat Customers', array($rule, $rule2) );
-//
-//\core\Helper::display($segment->toArray());
-
-
-/*
-foreach ($customers as $customer){
-    echo $customer->ID;
-
-}*/
 
 //$crons = get_option('cron');
 //\core\Helper::display($crons);
@@ -143,41 +114,25 @@ if (!empty($defaultList)) {
     $mappedFields = \core\Map::get();
     $fields = \core\Fields::get();
     $campaignMonitorFields = \core\App::$CampaignMonitor->get_custom_fields($defaultList);
-    $counter = 0;
-
-    $dateSelect = '<select id="select2-drop-mask" class="select2-drop-mask"><option value="">- Woocommerce fields -</option>';
-    $textSelect = '<select class="select2-drop-mask"><option value="">- Woocommerce fields -</option>';
-    $numberSelect = '<select class="select2-drop-mask"><option value="">- Woocommerce fields -</option>';
-    foreach ($fields as $item) {
-        $field = (object)$item['field'];
-        switch ($field->type){
-            case 'Number' :
-                $numberSelect .= '<option>';
-                $numberSelect .= $field->name;
-                $numberSelect .= '</option>';
-                break;
-            case 'Text' :
-                $textSelect .= '<option>';
-                $textSelect .= $field->name;
-                $textSelect .= '</option>';
-                break;
-            case 'Date' :
-                $dateSelect .= '<option>';
-                $dateSelect .= $field->name;
-                $dateSelect .= '</option>';
-                break;
-        }
+    if (!empty($campaignMonitorFields)){
+        // put the map fields first
+        $campaignMonitorFields = (object)array_reverse((array)$campaignMonitorFields) ;
     }
-    $dateSelect .= '</select>';
-    $textSelect .= '</select>';
-    $numberSelect .= '</select>';
+
+    $counter = 1;
+
+    $currentList = \core\App::$CampaignMonitor->get_list_details($defaultList);
+    if (empty($currentList)) {
+        \core\Settings::add('default_list', null);
+        echo "<script>location.reload();</script>";
+
+    }
 }
 $srcUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
-
 $selectedClient = \core\Helper::getOption('selectedClient');
 $selectedList = \core\Helper::getOption('selectedList');
 $canViewLog = \core\Helper::getOption('debug');
-
+$subscription = \core\Helper::getOption('automatic_subscription');
 
 ?>
 <?php if (!empty($selectedClient) ) : ?>
@@ -194,51 +149,107 @@ $canViewLog = \core\Helper::getOption('debug');
             <span class="btn-close dashicons dashicons-no"></span>
         <div class="box main-container text-center">
         <?php if (!empty($defaultList)) : ?>
-        <form>
+            <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
+
+                <input type="hidden" name="action" value="handle_request">
+                <input type="hidden" name="data[type]" value="map_custom_fields">
+                <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
+
+
+            <div class="text-left">
+                <p>&nbsp;&nbsp;You are currently mapping custom fields for <strong>
+                        <?php echo (isset($currentList->Title)) ? $currentList->Title : ''; ?>
+                    </strong>.
+                </p>
+            </div>
             <table>
                 <thead>
                 <tr>
+                    <th colspan="4">
+
+                    </th>
+                </tr>
+                <tr>
                     <th>#</th>
                     <th>
-                        Campaign Monitor Custom Field
+                        Campaign Monitor Custom Fields
                     </th>
-                    <th>Shopify Custom Field</th>
+                    <th>Woocommerce Fields</th>
+                    <th>Field Type</th>
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($campaignMonitorFields as $field): ?>
+                <?php foreach ($campaignMonitorFields as $field):
+                    $fieldName = str_replace(array('[', ']'),'' , $field->Key );
+                    $fieldName = htmlentities($fieldName);
+                    ?>
                     <tr>
                         <td>
                             <?php echo $counter++; ?>
                         </td>
                         <td>
-                            <input type="text" class="regular-text ltr" name="<?php echo $field->Key; ?>" placeholder="<?php echo $field->FieldName; ?>">
+                            <input type="text" class="regular-text ltr" name="data[fields][<?php echo $fieldName; ?>][name]" value="<?php echo $field->FieldName; ?>">
                         </td>
                         <td>
+                            <?php
+                            $matches = array_keys($mappedFields, $field->Key);
+                            $isSelected = false;
+
+                             if (!empty($matches)){
+                                 foreach ($matches as $match){
+                                     if  ($mappedFields[$match] == $field->Key){
+                                         $isSelected = $match;
+                                     }
+                                 }
+                             }
+                                  $attributes =  array(
+                                        'id'       => $field->Key,
+                                        'name'     => "data[fields][{$fieldName}][map_to]",
+                                        'class'    => 'dropdown-select mapped-fields',
+                                    );
+                            ?>
                             <?php switch ($field->DataType) {
                                 case 'Number' :
-                                    echo $numberSelect;
+                                    echo \core\Fields::get_select(\core\FieldType::NUMBER, $isSelected, $attributes );
                                     break;
                                 case 'Text' :
-                                    echo $textSelect;
+                                    echo \core\Fields::get_select(\core\FieldType::TEXT, $isSelected, $attributes);
                                     break;
                                 case 'Date' :
-                                    echo $dateSelect;
+                                    echo \core\Fields::get_select(\core\FieldType::DATE, $isSelected, $attributes);
                                     break;
                             }
                             ?>
                         </td>
+                        <td>
+                            <?php switch ($field->DataType) {
+                                case 'Number' :
+                                    echo '<span class="dashicons dashicons-editor-ol"></span>';
+                                    break;
+                                case 'Text' :
+                                    echo '<span class="dashicons dashicons-editor-textcolor"></span>';
+                                    break;
+                                case 'Date' :
+                                    echo '<span class="dashicons dashicons-calendar-alt"></span>';
+                                    break;
+                            }
+                            ?>
+                        </td>
+
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
                 </table>
+                <button id="btnSaveMapping" type="submit" class="button button-primary regular-text ltr">
+                    Save Mapping
+                </button>
         </form>
         <?php endif; ?>
             </div>
     </div>
         </div>
-    <div id="message" class="updated notice is-dismissible">
-       <p>Check out hte  <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture ubscriber data.
+    <div id="message" class="updated notice ">
+       <p>Check out the  <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture ubscriber data.
         </p>
     </div>
     <?php if (empty($accessToken)) : ?>
@@ -308,7 +319,7 @@ $canViewLog = \core\Helper::getOption('debug');
 
                                                         <input type="hidden" name="action" value="handle_request">
                                                         <input type="hidden" name="data[type]" value="create_client">
-                                                        <input type="hidden" name="data[new_client_nonce]" value="<?php echo wp_create_nonce( 'new_client_nonce' ); ?>">
+                                                        <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
                                                         <input type="hidden" id="clientNameData" name="data[client_name]" placeholder="New Client Name" value="">
 
                                             <button id="btnCreateNewClient" type="submit" class="regular-text ltr" placeholder="List Name">
@@ -362,7 +373,7 @@ $canViewLog = \core\Helper::getOption('debug');
                                         <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
                                             <input type="hidden" name="action" value="handle_request">
                                             <input type="hidden" name="data[type]" value="create_list">
-                                            <input type="hidden" name="data[new_client_nonce]" value="<?php echo wp_create_nonce( 'new_client_nonce' ); ?>">
+                                            <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
                                             <input type="hidden" id="listNameData" name="data[list_name]" value="">
                                             <input type="hidden" id="clientIdData" name="data[client_id]" value="">
                                             <input type="hidden" id="optInData" name="data[opt_in]" value="">
@@ -385,11 +396,11 @@ $canViewLog = \core\Helper::getOption('debug');
                                 </tr>
                                 <tr>
                                     <th scope="row">
-
+                                        Newsletter
                                     </th>
                                     <td>
                                         <label for="autoNewsletter">
-                                        <input id="autoNewsletter" type="checkbox"> Automatically subscribe customers to your newsletter.</label>
+                                        <input id="autoNewsletter" name="auto_newsletter"  <?php echo ($subscription) ? 'checked="checked"': ''; ?>  type="checkbox"> Automatically subscribe customers to your newsletter.</label>
                                     </td>
                                 </tr>
                                 <tr>
@@ -399,7 +410,7 @@ $canViewLog = \core\Helper::getOption('debug');
                                     <td>
                                         <label>
                                             <label for="logToggle">
-                                            <input id="logToggle" type="checkbox"> Enable Logging <?php echo ($canViewLog) ? '| View Log' : ''; ?></label>
+                                            <input id="logToggle" name="log_toggle" <?php echo ($canViewLog) ? 'checked="checked"': ''; ?> type="checkbox"> Enable Logging <?php echo ($canViewLog) ? '| View Log' : ''; ?></label>
                                         </label>
                                     </td>
                                 </tr>
@@ -449,8 +460,9 @@ $canViewLog = \core\Helper::getOption('debug');
                         </tr>
                         <tr>
                             <td>
-                                <input type="hidden" name="action" value="create_client">
-                                <input type="hidden" name="data[new_client_nonce]" value="<?php echo wp_create_nonce( 'new_client_nonce' ); ?>">
+                                <input type="hidden" name="action" value="handle_request">
+                                <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
+                                <input type="hidden" name="data[type]" value="create_client">
                                 <input type="text" name="data[client_name]" placeholder="New Client Name">
                             </td>
                         </tr>
@@ -466,9 +478,8 @@ $canViewLog = \core\Helper::getOption('debug');
             <?php endif; ?>
 
             <?php if (!empty($defaultList)) : ?>
-                <div class="box main-container text-center">
 
-                    <?php $currentList = \core\App::$CampaignMonitor->get_list_details($defaultList); ?>
+                <div class="box main-container text-center">
                     <img style="width:200px" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">
                     <h1>You're Connected</h1>
                     <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in

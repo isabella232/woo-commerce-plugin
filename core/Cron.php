@@ -19,7 +19,7 @@ class Cron
 
 
         if ($timestamp == FALSE) {
-            wp_schedule_event(time(), '5min', $cronHook);
+            wp_schedule_event(time(), '1min', $cronHook);
         }
 
 
@@ -61,36 +61,24 @@ class Cron
                     'offset' => $offset,
                 );
 
-
-
                 $customersQuery = new \WP_User_Query($customer_args);
                 $customers = $customersQuery->get_results();
-
-
 
                 $mappedFields = Map::get();
                 $subscribers = array();
 
                 foreach ($customers as $customer) {
-                    Log::write($customer);
                     $id = $customer->ID;
-                    $userToExport = new stdClass();
+                    $customer  = get_userdata($id);
+                    $userToExport = new \stdClass();
+                    $name = $customer->first_name . " " . $customer->last_name;
 
-                    Log::write($customer->first_name);
-
-                    try {
-                        $name = $customer->first_name . " " . $customer->last_name;
-                        if (empty($name)) $name = $customer->user_nicename;
-                    } catch (\Exception $e){
-                        Log::write($e->getMessage());
+                    if (empty($name)) {
+                        $name = $customer->user_nicename;
                     }
-
-                    Log::write("Creating customer array");
 
                     $userToExport->Name = $name;
                     $userToExport->EmailAddress = $customer->user_email;
-
-                    Log::write("Getting orders");
 
                     // Get all customer orders
                     $customer_orders = get_posts(array(
@@ -107,9 +95,6 @@ class Cron
                     $fields['verified_email'] = $customer->user_email;
                     $fields['created_at'] = $customer->user_registered;
 
-
-
-
                     $customFields = array();
                     foreach ($mappedFields as $mapField => $value) {
                         $customFields[] = array("Key" => $value, 'Value' => $fields[$mapField]);
@@ -118,13 +103,13 @@ class Cron
                     $userToExport->CustomFields = $customFields;
                     $subscribers[] = (array)$userToExport;
                 }
-                Log::write("Sending to campaign monitor");
+                Log::write("Sending customer $name data to campaign monitor");
                 $results = App::$CampaignMonitor->import_subscribers(Settings::get('default_list'), $subscribers);
                 Log::write($results);
             }
 
+            wp_mail('leandro@sunriseintegration.com', 'Data Sync', 'Data was successfully synchronized');
             Settings::add('data_sync', null);
-
         }
 
     }

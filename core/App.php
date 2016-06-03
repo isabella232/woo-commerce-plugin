@@ -74,42 +74,67 @@ class App
 
     }
 
-    public static function handle_request(){
+    public static function handle_request()
+    {
         status_header(200);
 //        die("Server received '{$_REQUEST['data']}' from your browser.");
-        Helper::display($_REQUEST);
+
 //        wp_redirect( $_SERVER['HTTP_REFERER'] );
         $data = $_REQUEST['data'];
 
-        $nonce = $data['new_client_nonce'];
+        $nonce = $data['app_nonce'];
         $type = $data['type'];
 
-        $nonce = wp_verify_nonce( $nonce, 'new_client_nonce' );
-        switch ( $nonce ) {
+        $nonce = wp_verify_nonce($nonce, 'app_nonce');
+        switch ($nonce) {
             case TRUE :
 
-                if ($type == 'create_client'){
+                if ($type == 'create_client') {
                     $clientName = $data['client_name'];
-                    $clientSettings =array(
+                    $clientSettings = array(
                         'CompanyName' => $clientName,
                         'Country' => 'United States of America',
                         'Timezone' => '(GMT) Coordinated Universal Time'
                     );
 
                     $newClient = App::$CampaignMonitor->create_client($clientSettings);
-                   Helper::updateOption('selectedClient', $newClient );
+                    Helper::updateOption('selectedClient', $newClient);
                 }
 
-                if ($type == 'create_list'){
+                if ($type == 'create_list') {
                     $clientId = $data['client_id'];
                     $listName = $data['list_name'];
                     $optIn = $data['opt_in'];
                     $optIn = ($optIn == 2) ? true : false;
                     $newList = App::$CampaignMonitor->create_list($clientId, $listName, $optIn);
 
-                    Helper::updateOption('selectedClient', $clientId );
-                    Helper::updateOption('selectedList', $newList );
+                    Helper::updateOption('selectedClient', $clientId);
+                    Helper::updateOption('selectedList', $newList);
                 }
+
+                if ($type == 'map_custom_fields') {
+
+                    Helper::display($_REQUEST);
+                    if (array_key_exists('fields', $data)) {
+                        $fields = $data['fields'];
+                        $listId = Settings::get('default_list');
+
+                        foreach ($fields as $fieldKey => $options) {
+                            $fieldKey = "[{$fieldKey}]";
+                            $fieldName = $options['name'];
+                            $mapTo = $options['map_to'];
+
+                            if (empty($mapTo)) {
+                                $removeByValue = true;
+                                Map::remove($fieldKey, $removeByValue);
+                            } else {
+                                $updatedKey = App::$CampaignMonitor->update_custom_field($listId, $fieldKey, $fieldName);
+                                Map::add($mapTo, $updatedKey);
+                            }
+                        }
+                    }
+                }
+
                 break;
             case 1:
 //                echo 'Nonce is less than 12 hours old';
@@ -120,14 +145,12 @@ class App
                 break;
 
             default:
-                die( 'Nonce is invalid' );
+                die('You killed the app!');
 
         }
 
 
-
-
-        wp_redirect( $_SERVER['HTTP_REFERER'] );
+        wp_redirect($_SERVER['HTTP_REFERER']);
         exit();
     }
 

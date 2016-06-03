@@ -176,7 +176,6 @@ class CampaignMonitor
      */
     public function get_list_details($listId, $auth = array())
     {
-
         $clientsClass = Helper::getPluginDirectory('class/csrest_lists.php');
         require_once $clientsClass;
 
@@ -191,10 +190,8 @@ class CampaignMonitor
         if ($result->was_successful()) {
              return $result->response;
         } else {
-            // TODO log exception
-            return $result->response;
+           Log::write($result->response);
            self::$errors[] = $result->response;
-           //$requestResults->status_code = $result->http_status_code;
         }
 
         return null;
@@ -322,6 +319,41 @@ class CampaignMonitor
      * @param array $auth override the class authentication credentials
      * @return mixed|null list of clients
      */
+    public function update_custom_field($listId,$fieldKey, $fieldName, $visibleInPreferenceCenter = true, $auth = array())
+    {
+
+        $clientsClass = Helper::getPluginDirectory('class/csrest_lists.php');
+        require_once $clientsClass;
+        $requestResults = new \stdClass();
+
+        if (empty($auth)) {
+            $auth = $this->auth;
+        }
+
+        $instance = new \CS_REST_Lists($listId, $auth);
+        $params = array(
+            'FieldName' => $fieldName,
+            'VisibleInPreferenceCenter'=> $visibleInPreferenceCenter
+        );
+        $result = $instance->update_custom_field($fieldKey, $params);
+
+        if ($result->was_successful()) {
+             return $result->response;
+        } else {
+            // TODO log exception
+            $result->response->name = $fieldName;
+            Log::write($result->response);
+           self::$errors[] = $result->response;
+           //$requestResults->status_code = $result->http_status_code;
+        }
+
+        return null;
+    }
+    /**
+     * @param $clientId for which client to get the lists
+     * @param array $auth override the class authentication credentials
+     * @return mixed|null list of clients
+     */
     public function create_custom_field($listId,$fieldName, $dataType, $options = array(), $visibleInPreferenceCenter = true, $auth = array())
     {
 
@@ -347,7 +379,7 @@ class CampaignMonitor
         } else {
             // TODO log exception
             $result->response->name = $fieldName;
-            return $result->response;
+            Log::write($result->response);
            self::$errors[] = $result->response;
            //$requestResults->status_code = $result->http_status_code;
         }

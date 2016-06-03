@@ -8,7 +8,7 @@ abstract class Log
 
     public static function getFileName()
     {
-        $filePath = CAMPAIGN_MONITOR_WOOCOMMERCE_DIR . 'var/log/System.log';
+        $filePath = CAMPAIGN_MONITOR_WOOCOMMERCE_DIR . 'var/log/system.log';
 
         try{
             if (file_exists($filePath)) {

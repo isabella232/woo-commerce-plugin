@@ -38,7 +38,7 @@ class Fields
 
         Helper::updateOption($this->_code, $record);
 
-        print_r($this);
+        //print_r($this);
     }
     public static function add($code, $name, $type, $description, $isDefault = false, $sort = 0)
     {
@@ -78,5 +78,102 @@ class Fields
         }
 
         return null;
+    }
+
+    public static function clear()
+    {
+
+            global $wpdb;
+            $results = $wpdb->get_results( 'DELETE  FROM '.$wpdb->options.' WHERE option_name LIKE "%' . self::name . '%"', OBJECT );
+
+    }
+
+    public static function get_required()
+    {
+
+            global $wpdb;
+            $results = $wpdb->get_results( 'SELECT * FROM '.$wpdb->options.' WHERE option_name LIKE "%' . self::name . '%"', OBJECT );
+
+            $fields = array();
+            if (!empty($results)){
+                foreach ($results as $result) {
+                    $values = unserialize($result->option_value);
+                    $isRequired = $values['required'];
+                    if (!$isRequired) continue;
+                    $fields[] = array('internal_code' => $result->option_name, 'field' => $values);
+
+                }
+            }
+
+            return $fields;
+
+    }
+
+    protected static function mapAttributes($key, $value)
+    {
+        if (is_bool($value)) {
+            return $value ? $key : '';
+        }
+        return $key . '="' . htmlspecialchars($value) . '"';
+    }
+
+    public static function get_select($type, $selectedOption = '', $options = array()){
+        $fields = self::get();
+
+
+        $properties = implode(' ',array_map(array(__CLASS__, 'mapAttributes'), array_keys($options), $options ) );
+
+        if (empty($properties)){
+            $properties = 'class="dropdown-select"';
+        }
+
+        $dateSelect = '<select '.$properties.'><option value="">- Woocommerce fields -</option>';
+        $textSelect = '<select '.$properties.'><option value="">- Woocommerce fields -</option>';
+        $numberSelect = '<select '.$properties.'><option value="">- Woocommerce fields -</option>';
+
+        foreach ($fields as $item) {
+            $field = (object)$item['field'];
+            $code = $field->code;
+
+            $selected = '';
+            if ($selectedOption == $code){
+
+                    $selected = 'selected="selected"';
+            }
+
+            switch ($field->type){
+                case 'Number' :
+                    $numberSelect .= '<option '.$selected.' value="'.$code.'">';
+                    $numberSelect .= $field->name;
+                    $numberSelect .= '</option>';
+                    break;
+                case 'Text' :
+                    $textSelect .= '<option '.$selected.' value="'.$code.'">';
+                    $textSelect .= $field->name;
+                    $textSelect .= '</option>';
+                    break;
+                case 'Date' :
+                    $dateSelect .= '<option '.$selected.' value="'.$code.'">';
+                    $dateSelect .= $field->name;
+                    $dateSelect .= '</option>';
+                    break;
+            }
+        }
+        $dateSelect .= '</select>';
+        $textSelect .= '</select>';
+        $numberSelect .= '</select>';
+
+        switch ($type){
+            case FieldType::NUMBER:
+                return $numberSelect;
+                break;
+            case FieldType::DATE:
+                return $dateSelect;
+                break;
+            case FieldType::TEXT:
+                return $textSelect;
+                break;
+        }
+
     }
 }

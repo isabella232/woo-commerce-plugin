@@ -29,6 +29,10 @@ abstract class Helper {
         return $option;
     }
 
+    public static function getActionUrl(){
+       return get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce';
+    }
+
     public static function addOption($name, $value = '', $deprecated = '', $autoload = 'yes' ){
         $optionName = self::$pluginName . '_' . $name;
         add_option($optionName, $value, $deprecated, $autoload  );
@@ -48,7 +52,7 @@ abstract class Helper {
         }
     }
 
-    public static function getPluginDirectory($file = ''){
+    public static function getPluginDirectory($file = '', $url = false){
         if (empty($file)){
             return CAMPAIGN_MONITOR_WOOCOMMERCE_DIR;
         } else {
