@@ -41,15 +41,16 @@ class App
             add_action('admin_notices', array(__CLASS__, 'plugin_notices'));
 
         } else {
+            // install app
             register_activation_hook(self::$pluginPath, array(__CLASS__, 'plugin_activation'));
             register_deactivation_hook(self::$pluginPath, array(__CLASS__, 'plugin_deactivation'));
 
             add_action('admin_notices', array(__CLASS__, 'plugin_notices'));
             add_action('admin_menu', array(__CLASS__, 'create_menu'));
-            add_action( 'admin_enqueue_scripts', array(__CLASS__, 'load_custom_wp_admin_style') );
-            add_filter( 'admin_body_class', array(__CLASS__, 'add_admin_body_class') );
-            add_action( 'admin_menu', array(__CLASS__, 'custom_menu_page_removing') );
-            add_action( 'admin_post_handle_request', array(__CLASS__, 'handle_request') );
+            add_action('admin_enqueue_scripts', array(__CLASS__, 'load_custom_wp_admin_style'));
+            add_filter('admin_body_class', array(__CLASS__, 'add_admin_body_class'));
+            add_action('admin_menu', array(__CLASS__, 'custom_menu_page_removing'));
+            add_action('admin_post_handle_request', array(__CLASS__, 'handle_request'));
 
 
             self::$Cron = new Cron();
@@ -61,27 +62,53 @@ class App
 
             // handle ajax
             Ajax::run();
+            self::create_fields();
 
         }
 
     } // end constructor
 
-    public static function cron(){
+    public static function cron()
+    {
 
     }
 
-    public static function get_custom_fields(){
+    protected static function create_fields()
+    {
+        $isFieldDefault = true;
+        \core\Fields::add('orders_count', 'Total Order Count', 'Number', 'description for this item', $isFieldDefault);
+        \core\Fields::add('total_spent', 'Total Spent', 'Number', 'description for this item', $isFieldDefault);
+        //\core\Fields::add('verified_email', 'User Email', 'Text', 'description for this item', $isFieldDefault, false);
+        \core\Fields::add('created_at', 'User Registered', 'Date', 'description for this item', $isFieldDefault);
+        \core\Fields::add('total_price', 'Last Order Amount', 'Number', 'description for this item', $isFieldDefault);
+        \core\Fields::add('company', 'Company', 'Text', 'Company name', false);
+        \core\Fields::add('billing_address1', 'Billing Address1', 'Text', 'Billing Address 1', false);
+        \core\Fields::add('billing_address2', 'Billing Address2', 'Text', 'Billing Address 2', false);
+        \core\Fields::add('billing_city', 'Billing City', 'Text', 'Billing City', false);
+        \core\Fields::add('billing_zip', 'Billing Postal Code', 'Text', 'Billing Postal Code', false);
+        \core\Fields::add('billing_country', 'Billing Country', 'Text', 'Billing Country', false);
+        \core\Fields::add('billing_state', 'Billing Country/State', 'Text', 'Billing County', false);
+        \core\Fields::add('phone', 'Telephone', 'Text', 'telephone', false);
+        \core\Fields::add('shipping_address1', 'Shipping Address1', 'Text', 'Shipping Address 1', false);
+        \core\Fields::add('shipping_address2', 'Shipping Address2', 'Text', 'Shipping Address 2', false);
+        \core\Fields::add('shipping_city', 'Shipping City', 'Text', 'Shipping City', false);
+        \core\Fields::add('shipping_zip', 'Shipping Postal Code', 'Text', 'Shipping Postal Code', false);
+        \core\Fields::add('shipping_country', 'Shipping Country', 'Text', 'Shipping Country', false);
+        \core\Fields::add('shipping_state', 'Shipping Country/State', 'Text', 'Shipping County', false);
+    }
+
+    public static function get_custom_fields()
+    {
 
     }
 
+    /**
+     * TODO create handler class for http requests
+     */
     public static function handle_request()
     {
         status_header(200);
-//        die("Server received '{$_REQUEST['data']}' from your browser.");
-
-//        wp_redirect( $_SERVER['HTTP_REFERER'] );
         $data = $_REQUEST['data'];
-
         $nonce = $data['app_nonce'];
         $type = $data['type'];
 
@@ -114,10 +141,25 @@ class App
 
                 if ($type == 'map_custom_fields') {
 
-                    Helper::display($_REQUEST);
+
                     if (array_key_exists('fields', $data)) {
                         $fields = $data['fields'];
                         $listId = Settings::get('default_list');
+
+                        if (array_key_exists('new_fields', $fields)) {
+                            $newFields = $fields['new_fields'];
+                            $items = $newFields['items'];
+
+
+                            foreach ($items as $item) {
+
+                                $createdField = App::$CampaignMonitor->create_custom_field($listId, $item['name'], ucfirst($item['type']));
+
+                                if (!empty($createdField)) {
+                                    Map::add($item['map_to'], $createdField);
+                                }
+                            }
+                        }
 
                         foreach ($fields as $fieldKey => $options) {
                             $fieldKey = "[{$fieldKey}]";
@@ -132,6 +174,7 @@ class App
                                 Map::add($mapTo, $updatedKey);
                             }
                         }
+                        Settings::add('data_sync', true);
                     }
                 }
 
@@ -149,12 +192,13 @@ class App
 
         }
 
-
-        wp_redirect($_SERVER['HTTP_REFERER']);
+        $actionUrl = Helper::getActionUrl();
+        wp_redirect($actionUrl);
         exit();
     }
 
-    public static function  add_admin_body_class( $classes ) {
+    public static function add_admin_body_class($classes)
+    {
         return "$classes campaign-monitor-woocommerce";
     }
 
@@ -168,8 +212,9 @@ class App
 
     }
 
-    public  static function custom_menu_page_removing() {
-       // remove_menu_page( 'campaign_monitor_woocommerce' );
+    public static function custom_menu_page_removing()
+    {
+        // remove_menu_page( 'campaign_monitor_woocommerce' );
     }
 
     public static function create_menu()
@@ -184,36 +229,37 @@ class App
         $iconUrl = plugins_url('/campaignmonitorwoocommerce/views/admin/images/icon.svg');
         $position = 100;
 
-        add_menu_page($pageTitle,$menuTitle,$capability,$menuSlug,array(__CLASS__,$callable),$iconUrl, $position);
-       // add_submenu_page($menuSlug, 'Settings', 'Settings', $capability,'campaign_monitor_woocommerce_settings',array(__CLASS__,'admin_sub_page'));
+        add_menu_page($pageTitle, $menuTitle, $capability, $menuSlug, array(__CLASS__, $callable), $iconUrl, $position);
 
         //call register settings function
         add_action('admin_init', array(__CLASS__, 'register_settings_settings'));
 
     }
 
-    public static function load_custom_wp_admin_style() {
+    public static function load_custom_wp_admin_style()
+    {
 
         $plugins_url = plugins_url('campaignmonitorwoocommerce');
-        wp_register_style( 'custom_wp_admin_css', $plugins_url  . '/views/admin/css/main.css', false, '1.0.0' );
-        wp_enqueue_style( 'custom_wp_admin_css' );
+        wp_register_style('custom_wp_admin_css', $plugins_url . '/views/admin/css/main.css', false, '1.0.0');
+        wp_enqueue_style('custom_wp_admin_css');
 
 
-
-        wp_enqueue_script( 'app-script', $plugins_url . '/views/admin/js/app.js', array('jquery') );
-        wp_enqueue_script( 'ajax-script', $plugins_url . '/views/admin/js/ajax.js', array('jquery') );
+        wp_enqueue_script('app-script', $plugins_url . '/views/admin/js/app.js', array('jquery'));
+        wp_enqueue_script('ajax-script', $plugins_url . '/views/admin/js/ajax.js', array('jquery'));
         // in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
-        wp_localize_script( 'ajax-script', 'ajax_request', array(
-            'ajax_url' => admin_url( 'admin-ajax.php' )
+        wp_localize_script('ajax-script', 'ajax_request', array(
+            'ajax_url' => admin_url('admin-ajax.php')
         ));
-        
+
     }
 
-    public static function admin_sub_page(){
+    public static function admin_sub_page()
+    {
         Helper::renderer('settings');
     }
 
-    public static function register_settings_settings(){
+    public static function register_settings_settings()
+    {
         //register our settings
         register_setting('settings_page_group', self::$optionPrefix . '_client_id');
         register_setting('settings_page_group', self::$optionPrefix . '_client_secret');
@@ -225,28 +271,12 @@ class App
 
     public static function register_settings_page()
     {
-//        $pluginUrl = plugins_url('campaignmonitorwoocommerce');
-//        $logoSrc = $pluginUrl . '/images/icon.svg';
-//        ob_start();
-//        settings_fields( 'settings_page_group' );
-//        $settingsFields = ob_get_contents();
-//        do_settings_sections( 'settings_page_group' );
-//        $settingsSections = ob_get_contents();
-//        ob_end_clean();
-
-
-        $blogUrl = str_replace("http://", "", get_bloginfo('url'));
-        $hostUrl = $_SERVER['HTTP_HOST'];
-
-        $folder = str_replace($hostUrl, "", $blogUrl);
-        $realSlug = str_replace($folder, "", $_SERVER['REQUEST_URI']);
-
         Helper::renderer('connect');
     }
 
-    public static function  auto_deactivate()
+    public static function auto_deactivate()
     {
-        if (get_option('campaign_monitor_woocommerce')){
+        if (get_option('campaign_monitor_woocommerce')) {
             delete_option('campaign_monitor_woocommerce');
         }
         deactivate_plugins(self::$pluginPath);
@@ -294,7 +324,7 @@ class App
     public static function plugin_deactivation()
     {
         // remove cron jobs
-        if (null != self::$Cron){
+        if (null != self::$Cron) {
             self::$Cron->unschedule();
         }
 

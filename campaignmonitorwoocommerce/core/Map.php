@@ -38,8 +38,23 @@ class Map
 
     }
 
-    public static function get(){
-        return Helper::getOption('field_mapping');
+    public static function get($visibleOnly = false){
+        $mappedFields = Helper::getOption('field_mapping');
+        if (!$visibleOnly){
+            return $mappedFields;
+        } else {
+            $returnFieldsOnly = true;
+            $hiddenFields = Fields::get_hidden($returnFieldsOnly, 'code');
+
+            if (!empty($hiddenFields)){
+                foreach ($hiddenFields as $field){
+                    if (array_key_exists($field,$mappedFields )){
+                        unset($mappedFields[$field]);
+                    }
+                }
+            }
+            return $mappedFields;
+        }
     }
 
     public static function clear(){

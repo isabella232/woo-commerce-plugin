@@ -14,4 +14,5 @@ abstract class FieldType
     const NUMBER = 'Number';
     const TEXT = 'Text';
     const DATE = 'Date';
+    const ALL = 'All';
 }

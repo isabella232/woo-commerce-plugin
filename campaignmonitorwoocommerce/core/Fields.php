@@ -40,7 +40,7 @@ class Fields
 
         //print_r($this);
     }
-    public static function add($code, $name, $type, $description, $isDefault = false, $sort = 0)
+    public static function add($code, $name, $type, $description, $isDefault = false, $isVisible = true, $sort = 0)
     {
         $record = array();
         $record['code'] = $code;
@@ -49,6 +49,7 @@ class Fields
         $record['description'] = $description;
        // $record['mapping'] = $mapping;
         $record['required'] = $isDefault;
+        $record['is_visible'] = $isVisible;
         $record['sort'] = $sort;
      //   $record['rules'] = $rules;
 
@@ -70,7 +71,6 @@ class Fields
 
                 }
             }
-
             return $fields;
         } else {
             $fieldCode = self::name . '_' . $code;
@@ -109,6 +109,75 @@ class Fields
 
     }
 
+    public static function get_visible($onlyField = false, $return = 'all')
+    {
+
+            global $wpdb;
+            $results = $wpdb->get_results( 'SELECT * FROM '.$wpdb->options.' WHERE option_name LIKE "%' . self::name . '%"', OBJECT );
+
+            $fields = array();
+            if (!empty($results)){
+                foreach ($results as $result) {
+                    $values = unserialize($result->option_value);
+                    $isVisible = $values['is_visible'];
+                    if (!$isVisible) continue;
+
+                    if ($return != 'all'){
+                        if (array_key_exists($return,$values )){
+                            $values = $values[$return];
+                        }else {
+                            Log::write('Key doesn\'t exists');
+                            return null;
+                        }
+                    }
+
+                    if ($onlyField){
+                        $fields[] = $values;
+                    } else {
+                        $fields[] = array('internal_code' => $result->option_name, 'field' => $values);
+                    }
+
+
+                }
+            }
+            return $fields;
+
+    }
+    public static function get_hidden($onlyField = false, $return = 'all')
+    {
+
+            global $wpdb;
+            $results = $wpdb->get_results( 'SELECT * FROM '.$wpdb->options.' WHERE option_name LIKE "%' . self::name . '%"', OBJECT );
+
+            $fields = array();
+            if (!empty($results)){
+                foreach ($results as $result) {
+                    $values = unserialize($result->option_value);
+                    $isVisible = $values['is_visible'];
+                    if ($isVisible) continue;
+
+                    if ($return != 'all'){
+                        if (array_key_exists($return,$values )){
+                            $values = $values[$return];
+                        }else {
+                            Log::write('Key doesn\'t exists');
+                            return null;
+                        }
+                    }
+
+                    if ($onlyField){
+                        $fields[] = $values;
+                    } else {
+                        $fields[] = array('internal_code' => $result->option_name, 'field' => $values);
+                    }
+
+
+                }
+            }
+            return $fields;
+
+    }
+
     protected static function mapAttributes($key, $value)
     {
         if (is_bool($value)) {
@@ -130,6 +199,7 @@ class Fields
         $dateSelect = '<select '.$properties.'><option value="">- Woocommerce fields -</option>';
         $textSelect = '<select '.$properties.'><option value="">- Woocommerce fields -</option>';
         $numberSelect = '<select '.$properties.'><option value="">- Woocommerce fields -</option>';
+        $default = '<select '.$properties.'><option value="">- Woocommerce fields -</option>';
 
         foreach ($fields as $item) {
             $field = (object)$item['field'];
@@ -146,22 +216,33 @@ class Fields
                     $numberSelect .= '<option '.$selected.' value="'.$code.'">';
                     $numberSelect .= $field->name;
                     $numberSelect .= '</option>';
+                    $default .= '<option data-type="number" value="'.$code.'">';
+                    $default .= $field->name;
+                    $default .= '</option>';
                     break;
                 case 'Text' :
                     $textSelect .= '<option '.$selected.' value="'.$code.'">';
                     $textSelect .= $field->name;
                     $textSelect .= '</option>';
+                    $default .= '<option data-type="text" value="'.$code.'">';
+                    $default .= $field->name;
+                    $default .= '</option>';
                     break;
                 case 'Date' :
                     $dateSelect .= '<option '.$selected.' value="'.$code.'">';
                     $dateSelect .= $field->name;
                     $dateSelect .= '</option>';
+                    $default .= '<option data-type="date" value="'.$code.'">';
+                    $default .= $field->name;
+                    $default .= '</option>';
                     break;
             }
         }
+
         $dateSelect .= '</select>';
         $textSelect .= '</select>';
         $numberSelect .= '</select>';
+        $default .= '</select>';
 
         switch ($type){
             case FieldType::NUMBER:
@@ -173,6 +254,9 @@ class Fields
             case FieldType::TEXT:
                 return $textSelect;
                 break;
+            case FieldType::ALL:
+                return $default;
+            break;
         }
 
     }

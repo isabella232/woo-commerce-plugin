@@ -261,7 +261,7 @@
     display: inline-block;
     *display:inline; /*IE7*/
     *zoom:1; /*IE7*/
-    width: 48%;
+    width: 18%;
     margin: 0.5em;
 }
 
@@ -293,3 +293,15 @@
      padding: 0.5em;
 
 }
+ #btnCreateCustomField, #btnSaveMapping {
+     margin: 0.5em;
+ }
+ #fieldMapperTable {
+     margin-bottom: 2.5em;
+ }
+ #newFieldSelect {
+     display: none ;
+ }
+ .connected-icon {
+     width:20%;
+ }

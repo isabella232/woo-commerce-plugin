@@ -1,6 +1,44 @@
 jQuery.noConflict();
+var abortAjax = false;
 jQuery(document).ready(function($) {
 
+
+
+    $(document).on('change', '.custom-field-new-mapping', function (e) {
+        var index = $(this).attr('data-index');
+        var selectedOption = $('option:selected',this);
+        var type = selectedOption.attr('data-type');
+        $('input[name="data[fields][new_fields][items]['+count+'][name]"]').val(selectedOption.text());
+        $('input[name="data[fields][new_fields][items]['+count+'][type]"]').val(type);
+    });
+    
+    $(document).on('click', '#btnCreateCustomField', function (e) {
+        var table = $('#fieldMapperTable tr:last');
+        var select = $('#newFieldSelect').clone();
+
+
+        count = table.children().first().text();
+        count = parseInt(count);
+
+
+        var html = '<tr>';
+        html += '<td>';
+        html += count + 1;
+        html += '</td>';
+        html += '<td>';
+        html += '<input type="text" value="" name="data[fields][new_fields][items]['+count+'][name]" class="regular-text ltr">';
+        html += '<input type="hidden" value="" name="data[fields][new_fields][items]['+count+'][type]" class="regular-text ltr">';
+        html += '</td>';
+        html += '<td>';
+        html += '<select class="dropdown-select mapped-fields custom-field-new-mapping" name="data[fields][new_fields][items]['+count+'][map_to]">';
+        html += select.html();
+        html += '</select>';
+        html += '</td>';
+        html += '</tr>';
+
+        table.after(html);
+
+    });
 
     $(document).on('change', '.mapped-fields', function (e) {
         var value = $(this).val();
@@ -22,6 +60,16 @@ jQuery(document).ready(function($) {
             }
 
         });
+    });
+
+    $(document).on('click', '#btnRecreateSegments', function (e) {
+
+        var canContinue = confirm("We'll create new segments, in addition to any segments you have in Campaign Monitor for Custom Map.");
+        if (!canContinue){
+           abortAjax = true;
+        } else {
+            abortAjax = false;
+        }
     });
 
     $(document).on('click', '.save-settings', function (e) {
@@ -87,7 +135,6 @@ jQuery(document).ready(function($) {
         var isEmpty = $('#newListName').val();
         var url = $(this).attr('data-url');
 
-        console.log(url);
         if ($(this).hasClass('ajax-call')) return;
 
         if (isEmpty == ''){

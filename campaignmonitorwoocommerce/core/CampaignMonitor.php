@@ -555,8 +555,9 @@ class CampaignMonitor
             return $segment;
         } else {
             // TODO log exception
-           self::$errors[] = "Error trying to get segment with id:$segmentID  ". $result->response;
-           //$requestResults->status_code = $result->http_status_code;
+            $message = "Error trying to get segment with id:$segmentID  ". print_r($result->response, true);
+           self::$errors[] = $message;
+            Log::write($message);
         }
 
         return null;
@@ -566,9 +567,7 @@ class CampaignMonitor
     function get_list_segments($listId, $include_details=0)
     {
         $wrap = $this->get_wrap_list($listId);
-
         $result = $wrap->get_segments();
-
         $return_val = $this->process_api_return($result);
 
 
@@ -576,8 +575,6 @@ class CampaignMonitor
         {
             foreach ($return_val as $k=>$seg)
             {
-                //sr_dump($seg);
-
                 $result=$this->get_segment_details($seg->SegmentID);
                 if (is_object($result))
                 {
@@ -586,7 +583,6 @@ class CampaignMonitor
                         $return_val[$k]->details = $result;
                     }
                 }
-                //sr_dump($return_val);
             }
         }
 

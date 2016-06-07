@@ -29,7 +29,7 @@ abstract class Ajax
 
     public static function ajax_handler()
     {
-        // print_r(json_encode($_REQUEST));
+        // we could further optimize the plugin with one entry point for all ajax requests
     }
 
     protected static function print_data($data)
@@ -45,7 +45,6 @@ abstract class Ajax
         $html = "";
         $html .= '<div class="modal">';
         $html .= '<div class="modal-header">';
-
         $html .= '</div>';
         $html .= '<div class="content">';
         $html .= '<span class="btn-close dashicons dashicons-no"></span>';
@@ -56,8 +55,6 @@ abstract class Ajax
         $html .= '</td>';
         $html .= '</tr>';
         $html .= '<tr>';
-
-
         $html .= '<td>';
         $html .= '<button class="button btn-close " name="cancel">Close</button>';
         $html .= '</td>';
@@ -91,10 +88,17 @@ abstract class Ajax
         return $html;
     }
 
-    public static function set_client_list($clientId = '', $listName = '')
+    public static function set_client_list($clientId = '', $listID = '')
     {
         $params = $_POST;
-        $clientId = '';
+
+        if (!empty($clientId)){
+            $params['ClientID'] = $clientId;
+        }
+
+        if (!empty($listID)){
+            $params['ListID'] = $listID;
+        }
         $requestResults = new \stdClass();
         if (array_key_exists('ClientID', $params)) {
 
@@ -116,8 +120,6 @@ abstract class Ajax
             $listId = $params['ListID'];
 
             $fields = Fields::get_required();
-
-           // $lists = App::$CampaignMonitor->get_client_list($clientId);
             $segmentsInAccount = App::$CampaignMonitor->get_segments($listId);
             $customFields = App::$CampaignMonitor->get_custom_fields($listId);
 
@@ -130,8 +132,6 @@ abstract class Ajax
 
             if ($maximumReached || ($usableFieldCount < $requiredFieldsCount)  ) {
                 $message = ' <div class="notice notice-error is-dismissible">';
-
-
                 $message .= '<p>There are not enough custom fields in this list to transfer.</p>';
                 if ($maximumReached){
                     $message .= '<p>You already have '. $maximumFieldsCount .' custom fields defined for this list.</p>';
@@ -150,15 +150,10 @@ abstract class Ajax
             }
 
 
-
-        //    $createdFields = array();
             $prefix = get_bloginfo('name');
             $segmentedFields = array();
 
             foreach ($fields as $item) {
-//                $isRequired = $item['field']['required'];
-//
-//                if (!$isRequired) continue;
                 $fieldName = $prefix . " " . $item['field']['name'];
                 $suffix = 1;
 
@@ -172,12 +167,9 @@ abstract class Ajax
                 }
 
                 $createdField = App::$CampaignMonitor->create_custom_field($listId, $fieldName, $item['field']['type']);
-//                $createdFields[] = $createdField;
                 if (!empty($createdField)){
                     Map::add($item['field']['code'], $createdField);
                 }
-
-//                $createdFields[] =  $fieldName;
             }
 
             $mapped = Map::get();
@@ -217,11 +209,12 @@ abstract class Ajax
             }
 
             Settings::add('default_list', $listId);
+            Settings::add('default_client',$clientId );
             Settings::add('data_sync', true );
             $imagesUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
             $html = "";
             $html .= '<div class="box main-container text-center">';
-            $html .= '<img style="width:200px" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">';
+            $html .= '<img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">';
             $html .= '<h1>Success! Your list is now syncing.</h1>';
             $html .= '<p>It might take a while to sync your data from Shopify to Campaign Monitor. We\'ll email you the moment the data sync is complete.</p>';
             $html .= '<h2>We\'ve created these segments for you</h2>';
@@ -343,7 +336,6 @@ abstract class Ajax
                     $viewClientListUrl = http_build_query((array)$list);
                     $fields = App::$CampaignMonitor->get_stats($id);
 
-//                    $html .= (!empty($fields->TotalActiveSubscribers)) ? $fields->TotalActiveSubscribers : 0;
                     $selected = ($id == $selectedList) ? 'selected="selected"' : '';
 
                     $html .= '<option '.$selected .' value="'.$clientId.'" data-id="'.$id.'"  data-url="' . self::$actionUrl . '&' . $viewClientListUrl . '&ClientID=' . $clientId . '&action=">';
@@ -412,11 +404,9 @@ abstract class Ajax
 
             } else {
                 $html .= '<ul class="list custom-fields">';
-
                 $html .= '<li>';
                 $html .= '<p>This list has no custom fields yet!</p>';
                 $html .= '</li>';
-
                 $html .= '</ul>';
                 $html .= '</div>';
                 $html .= '</div>';

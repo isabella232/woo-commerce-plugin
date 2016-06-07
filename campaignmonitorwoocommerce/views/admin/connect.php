@@ -24,25 +24,7 @@ $prefix = 'campaign_monitor_woocommerce_';
 $appSettings  = \core\Settings::get();
 
 
-$isFieldDefault = true;
-\core\Fields::add('orders_count', 'Total Order Count', 'Number', 'description for this item', $isFieldDefault);
-\core\Fields::add('total_spent', 'Total Spent', 'Number', 'description for this item', $isFieldDefault);
-\core\Fields::add('verified_email', 'User Email', 'Text', 'description for this item', $isFieldDefault);
-\core\Fields::add('created_at', 'User Registered', 'Date', 'description for this item', $isFieldDefault);
-\core\Fields::add('company', 'Company', 'Text', 'Company name', false);
-\core\Fields::add('billing_address1', 'Billing Address1', 'Text', 'Billing Address 1', false);
-\core\Fields::add('billing_address2', 'Billing Address2', 'Text', 'Billing Address 2', false);
-\core\Fields::add('billing_city', 'Billing City', 'Text', 'Billing City', false);
-\core\Fields::add('billing_zip', 'Billing Postal Code', 'Text', 'Billing Postal Code', false);
-\core\Fields::add('billing_country', 'Billing Country', 'Text', 'Billing Country', false);
-\core\Fields::add('billing_state', 'Billing Country/State', 'Text', 'Billing County', false);
-\core\Fields::add('phone', 'Telephone', 'Text', 'telephone', false);
-\core\Fields::add('shipping_address1', 'Shipping Address1', 'Text', 'Shipping Address 1', false);
-\core\Fields::add('shipping_address2', 'Shipping Address2', 'Text', 'Shipping Address 2', false);
-\core\Fields::add('shipping_city', 'Shipping City', 'Text', 'Shipping City', false);
-\core\Fields::add('shipping_zip', 'Shipping Postal Code', 'Text', 'Shipping Postal Code', false);
-\core\Fields::add('shipping_country', 'Shipping Country', 'Text', 'Shipping Country', false);
-\core\Fields::add('shipping_state', 'Shipping Country/State', 'Text', 'Shipping County', false);
+
 
 
 if (isset($_GET['disconnect'])){
@@ -61,7 +43,7 @@ if (isset($_GET['code']) && !empty($_GET['code'])){
         'client_id' => urlencode($appSettings['client_id']),
         'client_secret' => urlencode($appSettings['client_secret']),
         'code' => $code,
-        'redirect_uri' =>  ($redirectUrl) );
+        'redirect_uri' =>  ($redirectUrl));
 
     $postUrl = \core\Connect::getTransport('oauth/token', $params);
     $endpoint = 'https://api.createsend.com/oauth/token';
@@ -79,6 +61,7 @@ if (isset($_GET['code']) && !empty($_GET['code'])){
 }
 
 $defaultList = \core\Settings::get('default_list');
+$defaultClient = \core\Settings::get('default_client');
 $accessToken = \core\Settings::get('access_token');
 $code = \core\Helper::getOption('code');
 $clients = array();
@@ -111,7 +94,8 @@ $result = \core\App::$CampaignMonitor->send_email($complex_message);
 \core\Helper::display($result);*/
 
 if (!empty($defaultList)) {
-    $mappedFields = \core\Map::get();
+    $getOnlyVisibleFields = true;
+    $mappedFields = \core\Map::get($getOnlyVisibleFields);
     $fields = \core\Fields::get();
     $campaignMonitorFields = \core\App::$CampaignMonitor->get_custom_fields($defaultList);
     if (!empty($campaignMonitorFields)){
@@ -127,6 +111,7 @@ if (!empty($defaultList)) {
         echo "<script>location.reload();</script>";
 
     }
+
 }
 $srcUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
 $selectedClient = \core\Helper::getOption('selectedClient');
@@ -135,6 +120,7 @@ $canViewLog = \core\Helper::getOption('debug');
 $subscription = \core\Helper::getOption('automatic_subscription');
 
 ?>
+
 <?php if (!empty($selectedClient) ) : ?>
     <script>
         jQuery(document).ready(function($) {
@@ -150,19 +136,16 @@ $subscription = \core\Helper::getOption('automatic_subscription');
         <div class="box main-container text-center">
         <?php if (!empty($defaultList)) : ?>
             <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
-
                 <input type="hidden" name="action" value="handle_request">
                 <input type="hidden" name="data[type]" value="map_custom_fields">
                 <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
-
-
             <div class="text-left">
                 <p>&nbsp;&nbsp;You are currently mapping custom fields for <strong>
                         <?php echo (isset($currentList->Title)) ? $currentList->Title : ''; ?>
                     </strong>.
                 </p>
             </div>
-            <table>
+            <table id="fieldMapperTable">
                 <thead>
                 <tr>
                     <th colspan="4">
@@ -175,7 +158,7 @@ $subscription = \core\Helper::getOption('automatic_subscription');
                         Campaign Monitor Custom Fields
                     </th>
                     <th>Woocommerce Fields</th>
-                    <th>Field Type</th>
+<!--                    <th>Field Type</th>-->
                 </tr>
                 </thead>
                 <tbody>
@@ -221,8 +204,8 @@ $subscription = \core\Helper::getOption('automatic_subscription');
                             }
                             ?>
                         </td>
-                        <td>
-                            <?php switch ($field->DataType) {
+<!--                        <td>
+                            <?php /*switch ($field->DataType) {
                                 case 'Number' :
                                     echo '<span class="dashicons dashicons-editor-ol"></span>';
                                     break;
@@ -233,16 +216,29 @@ $subscription = \core\Helper::getOption('automatic_subscription');
                                     echo '<span class="dashicons dashicons-calendar-alt"></span>';
                                     break;
                             }
-                            ?>
-                        </td>
+                            */?>
+                        </td>-->
 
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
                 </table>
+                <?php
+                $attributes =  array(
+                    'id'       => 'newFieldSelect',
+                    'name'     => "",
+                    'class'    => 'dropdown-select mapped-fields',
+                );
+               echo \core\Fields::get_select(\core\FieldType::ALL, false, $attributes);
+
+                ?>
+                <button id="btnCreateCustomField" type="button" class="button regular-text ltr">
+                    Add Custom Field
+                </button>
                 <button id="btnSaveMapping" type="submit" class="button button-primary regular-text ltr">
                     Save Mapping
                 </button>
+
         </form>
         <?php endif; ?>
             </div>
@@ -259,11 +255,10 @@ $subscription = \core\Helper::getOption('automatic_subscription');
         </div>
         <h2>Get started with Campaign Monitor for Woocommerce </h2>
         <p>
-            <a class="static button  button-primary button-large" href="<?php echo $postUrl; ?>"
-               target="_blank">Connect</a>
+            <a class="static button  button-primary button-large" href="<?php echo $postUrl; ?>">Connect</a>
         </p>
-        <p>Connect your Campaign Monitor account so you can transfer data from Shopify and send personalized emails.</p>
-        <p>Don\'t have a Campaign Monitor account? <a href="https://www.campaignmonitor.com/signup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral">Sign up for free today</a></p>
+        <p>Connect your Campaign Monitor account so you can transfer data from Woocommerce and send personalized emails.</p>
+        <p>Don't have a Campaign Monitor account? <a href="https://www.campaignmonitor.com/signup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral">Sign up for free today</a></p>
     </div>
     <?php else : ?>
 
@@ -480,7 +475,7 @@ $subscription = \core\Helper::getOption('automatic_subscription');
             <?php if (!empty($defaultList)) : ?>
 
                 <div class="box main-container text-center">
-                    <img style="width:200px" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">
+                    <img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">
                     <h1>You're Connected</h1>
                     <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
                         <a href="https://www.campaignmonitor.com/" target="_blank">
@@ -491,7 +486,7 @@ $subscription = \core\Helper::getOption('automatic_subscription');
                         <ul class="action-buttons">
 
                                 <li>
-                                    <button type="button" class="button"  id="btnRecreateSegments" name="recreate_segments">Recreate Segments</button>
+                                    <button type="button" class="post-ajax button"  id="btnRecreateSegments" data-url="<?php  echo $actionUrl . '&ClientID=' . $defaultClient . '&ListID=' . $defaultList . '&action=set_client_list'; ?>" name="recreate_segments">Recreate Segments</button>
 
                                 </li>
                                 <li>

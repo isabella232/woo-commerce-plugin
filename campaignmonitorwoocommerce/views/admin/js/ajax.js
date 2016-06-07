@@ -1,45 +1,7 @@
 jQuery.noConflict();
 
 jQuery(document).ready(function($) {
-    // $(document).on('click', '.ajax-call', function (e) {
-    //     e.preventDefault();
-    //     $('.campaign-monitor-woocommerce .progress-notice').slideDown();
-    //     var params = $(this).attr('href');
-    //     if (typeof params == 'undefined'){
-    //         params = $(this).attr('data-url');
-    //     }
-    //     var dataToSend = JSON.parse('{"' + decodeURI(params).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
-    //
-    //     // dataToSend.action = 'handle_ajax';
-    //     $.ajax({
-    //         type: "POST",
-    //         url: ajax_request.ajax_url,
-    //         data: dataToSend,
-    //         dataType: "text json",
-    //         success: function (data, textStatus, request) {
-    //             console.log(dataToSend.action);
-    //             $("#clientList").slideUp();
-    //             var container = $("#selector .content #variable");
-    //
-    //             if (data.modal != ''){
-    //                 container.append(data.content);
-    //                 container.append(data.modal);
-    //             } else {
-    //                 container.html(data.content);
-    //             }
-    //
-    //
-    //             $('.campaign-monitor-woocommerce .progress-notice').slideUp();
-    //             $("#selector .content").slideDown();
-    //
-    //         },
-    //         error: function (request, textStatus, errorThrown) {
-    //             $('.campaign-monitor-woocommerce .progress-notice').slideUp();
-    //             console.log(request);
-    //             console.log(textStatus);
-    //         }
-    //     });
-    // });
+
     $(document).on('click', '.save-settings', function (e) {
         e.preventDefault();
         $('.campaign-monitor-woocommerce .progress-notice').slideDown();
@@ -60,8 +22,6 @@ jQuery(document).ready(function($) {
             data: dataToSend,
             dataType: "text json",
             success: function (data, textStatus, request) {
-                console.log(dataToSend.action);
-                console.log(dataToSend);
                 $("#clientList").slideUp();
                 var container = $(".content #variable");
                 if (data.modal != ''){
@@ -76,14 +36,51 @@ jQuery(document).ready(function($) {
                 }
 
                 $('.campaign-monitor-woocommerce .progress-notice').slideUp();
+                $("#selector .content").slideDown();
+            },
+            error: function (request, textStatus, errorThrown) {
+                $('.campaign-monitor-woocommerce .progress-notice').slideUp();
+            }
+        });
+    });
 
+    $(document).on('click', '.post-ajax', function (e) {
+        e.preventDefault();
+        // this is was created on app.js
+        if (abortAjax) return;
+
+        $('.campaign-monitor-woocommerce .progress-notice').slideDown();
+        var params = $(this).attr('data-url');
+        if (params == ''){
+            params = $(this).attr('href');
+        }
+        var dataToSend = JSON.parse('{"' + decodeURI(params).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+
+        $.ajax({
+            type: "POST",
+            url: ajax_request.ajax_url,
+            data: dataToSend,
+            dataType: "text json",
+            success: function (data, textStatus, request) {
+                $("#clientList").slideUp();
+                var container = $(".content #variable");
+                if (data.modal != ''){
+                    container.append(data.content);
+                    container.append(data.modal);
+                } else {
+                    container.html(data.content);
+                }
+
+                if (typeof data.error == 'undefined' || data.error == 'false'){
+                    $('#poststuff').slideUp();
+                }
+
+                $('.campaign-monitor-woocommerce .progress-notice').slideUp();
                 $("#selector .content").slideDown();
 
             },
             error: function (request, textStatus, errorThrown) {
                 $('.campaign-monitor-woocommerce .progress-notice').slideUp();
-                console.log(request);
-                console.log(textStatus);
             }
         });
     });
@@ -118,11 +115,10 @@ jQuery(document).ready(function($) {
             data: dataToSend,
             dataType: "text json",
             success: function (data, textStatus, request) {
-                console.log(dataToSend.action);
+
                // $("#clientList").slideUp();
                 var container = $("#createList");
 
-                console.log(data.content);
                 if (data.modal != ''){
                     container.html(data.content);
                     container.append(data.modal);
@@ -143,8 +139,6 @@ jQuery(document).ready(function($) {
             },
             error: function (request, textStatus, errorThrown) {
                 $('.campaign-monitor-woocommerce .progress-notice').slideUp();
-                console.log(request);
-                console.log(textStatus);
             }
         });
     });
