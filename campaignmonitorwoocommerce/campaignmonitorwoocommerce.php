@@ -50,10 +50,6 @@ if( ! defined( 'CAMPAIGN_MONITOR_WOOCOMMERCE' ) ) {
 } // end if
 define('CAMPAIGN_MONITOR_WOOCOMMERCE_DIR', plugin_dir_path(__FILE__));
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 spl_autoload_register(function ($class_name) {
 
 	$location = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class_name)  . '.php';
