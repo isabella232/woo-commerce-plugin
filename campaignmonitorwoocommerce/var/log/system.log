@@ -1,0 +1,23 @@
+[2016-06-07 15:39:35.742883] Synchronizing data
+[2016-06-07 15:39:35.768469] Got orders
+[2016-06-07 15:39:35.771166] 196.23
+[2016-06-07 15:39:35.777255] Got orders
+[2016-06-07 15:39:35.777543] 100
+[2016-06-07 15:39:35.781632] Got orders
+[2016-06-07 15:39:35.781940] 403.92
+[2016-06-07 15:39:35.966313] Sending customer   data to campaign monitor
+[2016-06-07 15:39:36.283925] stdClass Object
+(
+    [TotalUniqueEmailsSubmitted] => 3
+    [TotalExistingSubscribers] => 3
+    [TotalNewSubscribers] => 0
+    [DuplicateEmailsInSubmission] => Array
+        (
+        )
+
+    [FailureDetails] => Array
+        (
+        )
+
+)
+
