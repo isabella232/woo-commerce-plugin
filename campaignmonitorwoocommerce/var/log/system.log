@@ -1,0 +1,20 @@
+[2016-06-07 22:34:22.778600] Synchronizing data
+[2016-06-07 22:34:22.785803] Got orders
+[2016-06-07 22:34:22.787240] 196.23
+[2016-06-07 22:34:22.790218] Got orders
+[2016-06-07 22:34:22.790506] 100
+[2016-06-07 22:34:22.793247] Got orders
+[2016-06-07 22:34:22.793539] 403.92
+[2016-06-07 22:34:22.964601] stdClass Object
+(
+    [Code] => 404
+    [Message] => We couldn't find the resource you're looking for. Please check the documentation and try again
+)
+
+[2016-06-07 22:34:22.964784] Sending customer   data to campaign monitor
+[2016-06-07 22:34:23.188196] stdClass Object
+(
+    [Code] => 101
+    [Message] => Invalid ListID
+)
+
