@@ -12,9 +12,11 @@ jQuery(document).ready(function($) {
 
         var subscribe = $('#autoNewsletter').is(':checked');
         var debug = $('#logToggle').is(':checked');
+        var subscribeText = $('#subscriptionText').attr('value');
 
         dataToSend.debug = debug;
         dataToSend.subscribe = subscribe;
+        dataToSend.subscribe_text = subscribeText;
         
         $.ajax({
             type: "POST",

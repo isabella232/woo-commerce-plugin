@@ -21,7 +21,7 @@ jQuery(document).ready(function($) {
         count = parseInt(count);
 
 
-        var html = '<tr>';
+        var html = '<tr id="newField_'+count+'" >';
         html += '<td>';
         html += count + 1;
         html += '</td>';
@@ -34,10 +34,19 @@ jQuery(document).ready(function($) {
         html += select.html();
         html += '</select>';
         html += '</td>';
+        html += '<td>';
+        html += '<span class="field-remove dashicons dashicons-no" data-id="newField_'+count+'"></span>';
+        html += '</td>';
         html += '</tr>';
 
         table.after(html);
 
+    });
+
+
+    $(document).on('click', '.field-remove', function (e) {
+        var fieldToRemove = $(this).attr('data-id');
+        $('#'+fieldToRemove).remove();
     });
 
     $(document).on('change', '.mapped-fields', function (e) {

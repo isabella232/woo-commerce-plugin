@@ -75,24 +75,6 @@ if (!empty($appSettings) && !empty($accessToken) && empty($defaultList)){
 
 $actionUrl = get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce';
 
-
-//$crons = get_option('cron');
-//\core\Helper::display($crons);
-
-//\core\Helper::display(\core\Map::get());
-
-//\core\Helper::display(\core\Settings::get('data_sync'));
-
-/*$data = array("importData" => "testing");
-$complex_message = array(
-    "From" => 'info@campaignmonitor.com"',
-    "To" => 'leandro@villagranstudio.com',
-    "Data" => $data
-);
-
-$result = \core\App::$CampaignMonitor->send_email($complex_message);
-\core\Helper::display($result);*/
-
 if (!empty($defaultList)) {
     $getOnlyVisibleFields = true;
     $mappedFields = \core\Map::get($getOnlyVisibleFields);
@@ -118,6 +100,8 @@ $selectedClient = \core\Helper::getOption('selectedClient');
 $selectedList = \core\Helper::getOption('selectedList');
 $canViewLog = \core\Helper::getOption('debug');
 $subscription = \core\Helper::getOption('automatic_subscription');
+$subscribeText = \core\Helper::getOption('subscribe_text');
+
 
 ?>
 
@@ -158,7 +142,7 @@ $subscription = \core\Helper::getOption('automatic_subscription');
                         Campaign Monitor Custom Fields
                     </th>
                     <th>Woocommerce Fields</th>
-<!--                    <th>Field Type</th>-->
+                 <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -204,7 +188,7 @@ $subscription = \core\Helper::getOption('automatic_subscription');
                             }
                             ?>
                         </td>
-<!--                        <td>
+                       <td>
                             <?php /*switch ($field->DataType) {
                                 case 'Number' :
                                     echo '<span class="dashicons dashicons-editor-ol"></span>';
@@ -217,7 +201,8 @@ $subscription = \core\Helper::getOption('automatic_subscription');
                                     break;
                             }
                             */?>
-                        </td>-->
+                           &nbsp;
+                        </td>
 
                     </tr>
                 <?php endforeach; ?>
@@ -384,7 +369,7 @@ $subscription = \core\Helper::getOption('automatic_subscription');
                                     </th>
                                     <td>
 
-                                        <input type="text" class="regular-text ltr" placeholder="Subscriber to our newsletter"/>
+                                        <input type="text" id="subscriptionText" name="subscription_text" class="regular-text ltr" value="<?php echo $subscribeText; ?>" placeholder="Subscribe to our newsletter"/>
 
                                         <p>This text will be shown beside a checkbox at checkout.</p>
                                     </td>

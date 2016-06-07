@@ -305,3 +305,7 @@
  .connected-icon {
      width:20%;
  }
+ .field-remove {
+     color: #ec4b3f;
+     cursor: pointer;
+ }

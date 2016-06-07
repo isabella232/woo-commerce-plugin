@@ -104,10 +104,16 @@ abstract class Ajax
 
             $subscribe = false;
             $debug = false;
+            $subscribeText = "";
 
             if (array_key_exists('subscribe', $params )){
                 $subscribe = ($params['subscribe'] == 'true') ? true : false;
                 Helper::updateOption('automatic_subscription',$subscribe);
+            }
+
+            if (array_key_exists('subscribe_text', $params )){
+                $subscribeText = $params['subscribe_text'];
+                Helper::updateOption('subscribe_text',$subscribeText);
             }
             if (array_key_exists('debug', $params )){
                 $debug = ($params['debug'] == 'true') ? true : false;
