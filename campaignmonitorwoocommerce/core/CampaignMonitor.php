@@ -23,6 +23,24 @@ class CampaignMonitor
      * @param array $auth override the class authentication credentials
      * @return mixed|null list of clients
      */
+    public function refresh_token($auth = array())
+    {
+
+        $clientsClass = Helper::getPluginDirectory('class/csrest_general.php');
+        require_once $clientsClass;
+
+
+        if (empty($auth)) {
+            $auth = $this->auth;
+        }
+
+        $instance = new \CS_REST_General($auth);
+        return $instance->refresh_token();
+    }
+    /**
+     * @param array $auth override the class authentication credentials
+     * @return mixed|null list of clients
+     */
     public function get_clients($auth = array())
     {
 
@@ -47,6 +65,34 @@ class CampaignMonitor
         }
 
         return null;
+    }
+    /**
+     * @param array $auth override the class authentication credentials
+     * @return mixed|null list of clients
+     */
+    public function instantiate_url($integrationKey, $uri, $scope)
+    {
+
+        $clientsClass = Helper::getPluginDirectory('class/csrest_general.php');
+        require_once $clientsClass;
+
+
+        return \CS_REST_General::instantiate_url($integrationKey, $uri , $scope );
+
+    }
+    /**
+     * @param array $auth override the class authentication credentials
+     * @return mixed|null list of clients
+     */
+    public function authorize_url( $client_id, $redirect_uri, $scope)
+    {
+
+        $clientsClass = Helper::getPluginDirectory('class/csrest_general.php');
+        require_once $clientsClass;
+
+
+        return \CS_REST_General::authorize_url($client_id, $redirect_uri , $scope );
+
     }
     /**
      * @param array $auth override the class authentication credentials

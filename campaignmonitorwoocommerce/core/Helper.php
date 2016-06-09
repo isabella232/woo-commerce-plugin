@@ -33,6 +33,18 @@ abstract class Helper {
        return get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce';
     }
 
+    public static function getCampaignMonitorPermissions()
+    {
+        $permissions = array("ViewReports", "ViewSubscribersInReports",
+            "ManageLists", "ImportSubscribers", "AdministerAccount");
+
+        return implode(',', $permissions);
+    }
+
+    public static function getRedirectUrl(){
+       return get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce&connected=true';
+    }
+
     public static function addOption($name, $value = '', $deprecated = '', $autoload = 'yes' ){
         $optionName = self::$pluginName . '_' . $name;
         add_option($optionName, $value, $deprecated, $autoload  );

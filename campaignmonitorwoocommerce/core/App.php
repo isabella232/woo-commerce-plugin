@@ -52,12 +52,43 @@ class App
             add_action('admin_menu', array(__CLASS__, 'custom_menu_page_removing'));
             add_action('admin_post_handle_request', array(__CLASS__, 'handle_request'));
 
-
-            self::$Cron = new Cron();
-
             $accessToken = Settings::get('access_token');
             $refreshToken = Settings::get('refresh_token');
             self::$CampaignMonitor = new CampaignMonitor($accessToken, $refreshToken);
+
+            // 1 instantiate app
+            if (!\core\App::is_connected()) {
+                // this will call campaign monitor and send a POST request
+                // that will have client id and client secret
+                $adminUri = get_admin_url() . 'admin.php';
+                $instantiateUrl = self::$CampaignMonitor->instantiate_url("campaign-monitor-for-woo-commerce", $adminUri, Helper::getCampaignMonitorPermissions());
+
+                wp_redirect($instantiateUrl);
+            }
+
+
+            // 2 instantiate app will send client id and secret
+            // on a json object on post request
+            if (!empty($_POST)) {
+
+                if (array_key_exists($_POST, 'credentials')) {
+                    // extract client id and client secret from post request
+                    $credentials = json_decode($_POST['credentials']);
+                    $clientId = $credentials->client_id;
+                    $clientSecret = $credentials->client_secret;
+
+                    // save for subsequent request
+                    \core\Settings::add('client_secret', $clientSecret );
+                    \core\Settings::add('client_id', $clientId);
+
+                    $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
+                    // redirect to get an access token
+                    wp_redirect($authorizeUrl);
+                }
+            }
+
+
+            self::$Cron = new Cron();
             self::$session = new Session();
 
             // handle ajax
@@ -71,6 +102,14 @@ class App
     public static function cron()
     {
 
+    }
+
+    /**
+     * @return bool true if connected false otherwise
+     */
+    public static function is_connected()
+    {
+        return Helper::getOption('connected');
     }
 
     protected static function create_fields()

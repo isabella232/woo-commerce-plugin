@@ -1,64 +1,87 @@
 <?php
 
 require_once CAMPAIGN_MONITOR_WOOCOMMERCE_DIR . '/class/csrest_general.php';
+// check for authorization code and is not expired
 
+
+// get all settings for this app
+$appSettings  = \core\Settings::get();
+$redirectUrl = \core\Helper::getRedirectUrl();
 $pluginUrl = plugins_url('campaignmonitorwoocommerce');
 $logoSrc = $pluginUrl . '/views/admin/images/campaign-monitor.png';
-define("CAMP_MON_API_PERMISSION_SCOPE",
-  "ViewReports".",".
-   "ViewSubscribersInReports".",".
-   "ManageLists".",".
-    "ImportSubscribers".",".
-    "AdministerAccount");
-
-
-$params = array('type' => 'web_server', 'client_id' => '104245',
-    'redirect_uri' => 'http://104.130.155.207/wordpress/wp-admin/admin.php?page=campaign_monitor_woocommerce&connected=true',
-    'scope' => CAMP_MON_API_PERMISSION_SCOPE,
-    'state' => '');
-$postUrl = \core\Connect::getTransport('oauth', $params);
 $prefix = 'campaign_monitor_woocommerce_';
 
-\core\Settings::add('client_secret', 'y6iX6c6P1664tNnG7W66iITD46X6eZ61d6766aD6q69qn6yGk69Jx6666h6n6YTJx6rO6n6IN50ihg2U' );
-\core\Settings::add('client_id', 104245 );
-$appSettings  = \core\Settings::get();
+// do I have an authorization token
+$autorizationToken = \core\Settings::get('access_token');
+if (!empty($autorizationToken)){
+    // we are authorize
+    // check if refresh token is still good
+    if (\core\Settings::get('refresh_token') - time() <  (60*60*24))
+    {
+        $auth = array(
+            'access_token' => \core\Settings::get('access_token'),
+            'refresh_token' => \core\Settings::get('refresh_token')
+        );
+        list($new_access_token, $new_expires_in, $new_refresh_token) = \core\App::$CampaignMonitor->refresh_token($auth);
 
+        \core\Settings::add('access_token',$new_access_token);
+        \core\Settings::add('refresh_token',$new_refresh_token);
+        \core\Settings::add('expiry',$new_expires_in);
+    }
 
+} else {
 
+    if (isset($_GET['error']) && !empty($_GET['error'])){
+        // there was something wrong
+        $html = '<div class="wrap">';
+        $html .= '<h1>Campaign Monitor</h1>';
+        $html .= '<div  id="error" class="error">';
+        $html .= $_GET['error_description'];
+        $html .= '</div><!-- end error-->';
+        $html .= '</div><!-- end wrap-->';
 
+        echo $html;
+        exit;
+
+    }else {
+
+        // check if user logging on campaign monitor
+        if (isset($_GET['code']) && !empty($_GET['code'])){
+            $code = $_GET['code'];
+
+            \core\Helper::updateOption('code', $code);
+
+            $params = array('grant_type' => urlencode('authorization_code'),
+                'client_id' => urlencode($appSettings['client_id']),
+                'client_secret' => urlencode($appSettings['client_secret']),
+                'code' => $code,
+                'redirect_uri' =>  $redirectUrl);
+
+            $postUrl = \core\Connect::getTransport('oauth/token', $params);
+            $endpoint = 'https://api.createsend.com/oauth/token';
+            $results =  \core\Connect::request($params,$endpoint);
+
+            // Let's authenticate the user
+            if (!empty($results)){
+                $credentials = json_decode($results);
+
+                \core\Settings::add('access_token', $credentials->access_token);
+                \core\Settings::add('refresh_token', $credentials->refresh_token);
+                \core\Settings::add('expiry', $credentials->expires_in);
+                $appSettings = \core\Settings::get();
+            }
+
+            // we are connected
+            \core\Helper::updateOption('connected', TRUE );
+        }
+    }
+}
 
 if (isset($_GET['disconnect'])){
     \core\Settings::add('default_list', null);
 }
 
 
-// check if user logging on campaign monitor
-if (isset($_GET['code']) && !empty($_GET['code'])){
-    $code = $_GET['code'];
-    $redirectUrl = 'http://104.130.155.207/wordpress/wp-admin/admin.php?page=campaign_monitor_woocommerce&connected=true';
-
-    \core\Helper::updateOption('code', $code);
-
-    $params = array('grant_type' => urlencode('authorization_code'),
-        'client_id' => urlencode($appSettings['client_id']),
-        'client_secret' => urlencode($appSettings['client_secret']),
-        'code' => $code,
-        'redirect_uri' =>  ($redirectUrl));
-
-    $postUrl = \core\Connect::getTransport('oauth/token', $params);
-    $endpoint = 'https://api.createsend.com/oauth/token';
-    $results =  \core\Connect::request($params,$endpoint);
-
-    // Let's authenticate the user
-    if (!empty($results)){
-        $credentials = json_decode($results);
-
-        \core\Settings::add('access_token', $credentials->access_token);
-        \core\Settings::add('refresh_token', $credentials->refresh_token);
-        \core\Settings::add('expiry', $credentials->expires_in);
-        $appSettings = \core\Settings::get();
-    }
-}
 
 $defaultList = \core\Settings::get('default_list');
 $defaultClient = \core\Settings::get('default_client');
@@ -233,7 +256,7 @@ $subscribeText = \core\Helper::getOption('subscribe_text');
        <p>Check out the  <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture ubscriber data.
         </p>
     </div>
-    <?php if (empty($accessToken)) : ?>
+    <?php if (!\core\App::is_connected()) : ?>
     <div class="box main-container text-center">
         <div class="logo-container">
             <img class="logo" src="<?php echo $logoSrc; ?>" alt="Campaign Monitor Logo"/>
@@ -248,7 +271,6 @@ $subscribeText = \core\Helper::getOption('subscribe_text');
     <?php else : ?>
 
     <div>
-
             <?php if (!empty($clients)) : ?>
 
                 <div id="poststuff">
@@ -457,38 +479,39 @@ $subscribeText = \core\Helper::getOption('subscribe_text');
                     <?php endif; ?>
             <?php endif; ?>
 
-            <?php if (!empty($defaultList)) : ?>
+    <?php if (!empty($defaultList)) : ?>
 
-                <div class="box main-container text-center">
-                    <img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">
-                    <h1>You're Connected</h1>
-                    <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
-                        <a href="https://www.campaignmonitor.com/" target="_blank">
-                            Campaign Monitor
+        <div class="box main-container text-center">
+            <img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">
+            <h1>You're Connected</h1>
+            <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
+                <a href="https://www.campaignmonitor.com/" target="_blank">
+                    Campaign Monitor
+                </a>
+            </p>
+            <div>
+                <ul class="action-buttons">
+
+                    <li>
+                        <button type="button" class="post-ajax button"  id="btnRecreateSegments" data-url="<?php  echo $actionUrl . '&ClientID=' . $defaultClient . '&ListID=' . $defaultList . '&action=set_client_list'; ?>" name="recreate_segments">Recreate Segments</button>
+
+                    </li>
+                    <li>
+                        <button type="button" class="button"  id="btnMapCustomFields" name="map_custom_fields">Map Custom Fields</button>
+
+                    </li>
+                    <li>
+                        <a class=" button primary button-primary button-large switch-list" href="<?php echo get_admin_url(); ?>/admin.php?page=campaign_monitor_woocommerce&disconnect=true">
+                            Switch List
                         </a>
-                    </p>
-                    <div>
-                        <ul class="action-buttons">
+                    </li>
 
-                                <li>
-                                    <button type="button" class="post-ajax button"  id="btnRecreateSegments" data-url="<?php  echo $actionUrl . '&ClientID=' . $defaultClient . '&ListID=' . $defaultList . '&action=set_client_list'; ?>" name="recreate_segments">Recreate Segments</button>
+                </ul>
+            </div>
+        </div>
 
-                                </li>
-                                <li>
-                                    <button type="button" class="button"  id="btnMapCustomFields" name="map_custom_fields">Map Custom Fields</button>
+    <?php endif; ?>
 
-                                </li>
-                                <li>
-                                    <a class=" button primary button-primary button-large switch-list" href="<?php echo get_admin_url(); ?>/admin.php?page=campaign_monitor_woocommerce&disconnect=true">
-                                        Switch List
-                                    </a>
-                                </li>
-
-                        </ul>
-                    </div>
-                </div>
-
-            <?php endif; ?>
         </div>
 
     <?php endif; ?>
