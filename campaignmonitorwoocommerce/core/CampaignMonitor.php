@@ -247,7 +247,7 @@ class CampaignMonitor
      * @param array $auth override the class authentication credentials
      * @return mixed|null list of clients
      */
-    public function send_email($message,  $auth = array())
+    public function send_email($to, $listName, $message = array(), $auth = array())
     {
 
         $clientsClass = Helper::getPluginDirectory('class/csrest_transactional_smartemail.php');
@@ -258,15 +258,20 @@ class CampaignMonitor
             $auth = $this->auth;
         }
 
-        $apiKey = '0417f2ed02c1adf2e0f0d84a326b9292b6899e46f11c6218';
-        $clientID = '0ee2824b00e76e154b25aff6d2e272ea';
-        $emailID = '3de23fa0-3a97-41a0-8c33-a1ca305e4ed5';
+        # Authenticate with your API key
+        $auth = array('api_key' => 'bec752a7679933b7023e7f7b3d3d913b42a209574e588852');
+        # The unique identifier for this smart email
+        $smart_email_id = 'f0f9f23b-bcb2-488c-8acf-13093fe25f7b';
+        # Create a new mailer and define your message
+        $instance = new \CS_REST_Transactional_SmartEmail($smart_email_id, $auth);
 
-        $instance = new \CS_REST_Transactional_SmartEmail($emailID, array('api_key' => $apiKey));
-
-
-        $add_recipients_to_subscriber_list = false;
-        $result = $instance->send($message, $add_recipients_to_subscriber_list);
+        $message['List Name'] = $listName;
+        $message = array(
+            "To" => $to,
+            "Data" => $message,
+        );
+        # Send the message and save the response
+        $result = $instance->send($message);
 
         if ($result->was_successful()) {
              return $result->response;

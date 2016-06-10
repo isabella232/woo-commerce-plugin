@@ -73,6 +73,7 @@ if (!empty($autorizationToken)){
 
             // we are connected
             \core\Helper::updateOption('connected', TRUE );
+            unset($_GET['code']);
         }
     }
 }
@@ -124,6 +125,7 @@ $selectedList = \core\Helper::getOption('selectedList');
 $canViewLog = \core\Helper::getOption('debug');
 $subscription = \core\Helper::getOption('automatic_subscription');
 $subscribeText = \core\Helper::getOption('subscribe_text');
+$subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
 
 ?>
@@ -387,6 +389,17 @@ $subscribeText = \core\Helper::getOption('subscribe_text');
                                 </tr>
                                 <tr>
                                     <th scope="row">
+                                        Subscription Box Text
+                                    </th>
+                                    <td>
+
+                                        <label for="subscriptionBox">
+                                            <input id="subscriptionBox" name="toggle_subscription_box"  <?php echo ($subscriptionBox) ? 'checked="checked"': ''; ?>  type="checkbox">  Show subscription option at checkout.</label>
+
+                                    </td>
+                                </tr>
+                                <tr id="subscriptionLegend" class="<?php echo ($subscriptionBox) ? '': 'hidden'; ?> ">
+                                    <th scope="row">
                                         Subscription Text
                                     </th>
                                     <td>
@@ -403,6 +416,7 @@ $subscribeText = \core\Helper::getOption('subscribe_text');
                                     <td>
                                         <label for="autoNewsletter">
                                         <input id="autoNewsletter" name="auto_newsletter"  <?php echo ($subscription) ? 'checked="checked"': ''; ?>  type="checkbox"> Automatically subscribe customers to your newsletter.</label>
+
                                     </td>
                                 </tr>
                                 <tr>
