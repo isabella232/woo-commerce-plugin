@@ -1,6 +1,6 @@
 Installation instructions for the Campaign Monitor Woocommerce Plug-in
 
-1 - Go to the Github repo for the source files and grab from this branch: https://github.com/campaignmonitor/woo-commerce-plugin/tree/oauth_flow
+1 - Go to the Github repo for the source files and grab from this branch: https://github.com/campaignmonitor/woo-commerce-plugin
 
 2 - Choose "Clone or download" and save the ZIP file to your system
 
