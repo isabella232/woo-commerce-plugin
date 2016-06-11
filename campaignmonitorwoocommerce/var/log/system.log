@@ -1,20 +1,201 @@
-[2016-06-07 22:34:22.778600] Synchronizing data
-[2016-06-07 22:34:22.785803] Got orders
-[2016-06-07 22:34:22.787240] 196.23
-[2016-06-07 22:34:22.790218] Got orders
-[2016-06-07 22:34:22.790506] 100
-[2016-06-07 22:34:22.793247] Got orders
-[2016-06-07 22:34:22.793539] 403.92
-[2016-06-07 22:34:22.964601] stdClass Object
+[2016-06-10 23:07:44.743269] Synchronizing data
+[2016-06-10 23:07:44.753926] Got orders
+[2016-06-10 23:07:44.755881] 196.23
+[2016-06-10 23:07:44.758709] Got orders
+[2016-06-10 23:07:44.758991] 100
+[2016-06-10 23:07:44.761598] Got orders
+[2016-06-10 23:07:44.761893] 403.92
+[2016-06-10 23:07:45.006089] Sending customer   data to campaign monitor
+[2016-06-10 23:07:45.276619] 
+[2016-06-10 23:07:45.276766] stdClass Object
 (
-    [Code] => 404
-    [Message] => We couldn't find the resource you're looking for. Please check the documentation and try again
+    [Code] => 210
+    [Message] => Subscriber Import had some failures
+    [ResultData] => stdClass Object
+        (
+            [TotalUniqueEmailsSubmitted] => 3
+            [TotalExistingSubscribers] => 2
+            [TotalNewSubscribers] => 0
+            [DuplicateEmailsInSubmission] => Array
+                (
+                )
+
+            [FailureDetails] => Array
+                (
+                    [0] => stdClass Object
+                        (
+                            [EmailAddress] => ronald@sunriseintegration.com
+                            [Code] => 204
+                            [Message] => Email Address exists in suppression list. Subscriber is not added.
+                        )
+
+                )
+
+        )
+
 )
 
-[2016-06-07 22:34:22.964784] Sending customer   data to campaign monitor
-[2016-06-07 22:34:23.188196] stdClass Object
+[2016-06-10 23:07:45.551865] Array
 (
-    [Code] => 101
-    [Message] => Invalid ListID
+    [0] => stdClass Object
+        (
+            [Status] => Accepted
+            [MessageID] => a17d5e90-2f61-11e6-a7b5-348db3ea27c4
+            [Recipient] => leandro@sunriseintegration.com
+        )
+
+)
+
+[2016-06-10 23:13:20.837292] Synchronizing data
+[2016-06-10 23:13:20.844817] Got orders
+[2016-06-10 23:13:20.846721] 196.23
+[2016-06-10 23:13:20.849353] Got orders
+[2016-06-10 23:13:20.849649] 100
+[2016-06-10 23:13:20.852288] Got orders
+[2016-06-10 23:13:20.852569] 403.92
+[2016-06-10 23:13:21.037700] Sending customer   data to campaign monitor
+[2016-06-10 23:13:21.492043] 
+[2016-06-10 23:13:21.492143] stdClass Object
+(
+    [Code] => 210
+    [Message] => Subscriber Import had some failures
+    [ResultData] => stdClass Object
+        (
+            [TotalUniqueEmailsSubmitted] => 3
+            [TotalExistingSubscribers] => 1
+            [TotalNewSubscribers] => 1
+            [DuplicateEmailsInSubmission] => Array
+                (
+                )
+
+            [FailureDetails] => Array
+                (
+                    [0] => stdClass Object
+                        (
+                            [EmailAddress] => ronald@sunriseintegration.com
+                            [Code] => 204
+                            [Message] => Email Address exists in suppression list. Subscriber is not added.
+                        )
+
+                )
+
+        )
+
+)
+
+[2016-06-10 23:13:21.799442] Array
+(
+    [0] => stdClass Object
+        (
+            [Status] => Accepted
+            [MessageID] => 69d3fbdf-2f62-11e6-a4e6-338a0853cb4a
+            [Recipient] => leandro@sunriseintegration.com
+        )
+
+)
+
+[2016-06-10 23:23:45.413075] Synchronizing data
+[2016-06-10 23:23:45.422563] Got orders
+[2016-06-10 23:23:45.424400] 196.23
+[2016-06-10 23:23:45.427394] Got orders
+[2016-06-10 23:23:45.427718] 100
+[2016-06-10 23:23:45.430524] Got orders
+[2016-06-10 23:23:45.430844] 403.92
+[2016-06-10 23:23:45.646592] Sending customer   data to campaign monitor
+[2016-06-10 23:23:46.054365] 
+[2016-06-10 23:23:46.054521] stdClass Object
+(
+    [TotalUniqueEmailsSubmitted] => 3
+    [TotalExistingSubscribers] => 2
+    [TotalNewSubscribers] => 1
+    [DuplicateEmailsInSubmission] => Array
+        (
+        )
+
+    [FailureDetails] => Array
+        (
+        )
+
+)
+
+[2016-06-10 23:23:46.355598] Array
+(
+    [0] => stdClass Object
+        (
+            [Status] => Accepted
+            [MessageID] => de1a9a73-2f63-11e6-929a-00436f882d16
+            [Recipient] => leandro@sunriseintegration.com
+        )
+
+)
+
+[2016-06-10 23:25:40.093727] Synchronizing data
+[2016-06-10 23:25:40.101836] Got orders
+[2016-06-10 23:25:40.103579] 196.23
+[2016-06-10 23:25:40.110192] Got orders
+[2016-06-10 23:25:40.110484] 100
+[2016-06-10 23:25:40.114439] Got orders
+[2016-06-10 23:25:40.114753] 403.92
+[2016-06-10 23:25:40.300844] Sending customer   data to campaign monitor
+[2016-06-10 23:25:40.602200] 
+[2016-06-10 23:25:40.602315] stdClass Object
+(
+    [TotalUniqueEmailsSubmitted] => 3
+    [TotalExistingSubscribers] => 0
+    [TotalNewSubscribers] => 3
+    [DuplicateEmailsInSubmission] => Array
+        (
+        )
+
+    [FailureDetails] => Array
+        (
+        )
+
+)
+
+[2016-06-10 23:25:40.895563] Array
+(
+    [0] => stdClass Object
+        (
+            [Status] => Accepted
+            [MessageID] => 225dd013-2f64-11e6-b7e3-82355e4efeaa
+            [Recipient] => leandro@sunriseintegration.com
+        )
+
+)
+
+[2016-06-10 23:26:55.371809] Synchronizing data
+[2016-06-10 23:26:55.381030] Got orders
+[2016-06-10 23:26:55.382853] 196.23
+[2016-06-10 23:26:55.386342] Got orders
+[2016-06-10 23:26:55.386645] 100
+[2016-06-10 23:26:55.389978] Got orders
+[2016-06-10 23:26:55.390269] 403.92
+[2016-06-10 23:26:55.626213] Sending customer   data to campaign monitor
+[2016-06-10 23:26:55.873966] 
+[2016-06-10 23:26:55.874084] stdClass Object
+(
+    [TotalUniqueEmailsSubmitted] => 3
+    [TotalExistingSubscribers] => 3
+    [TotalNewSubscribers] => 0
+    [DuplicateEmailsInSubmission] => Array
+        (
+        )
+
+    [FailureDetails] => Array
+        (
+        )
+
+)
+
+[2016-06-10 23:26:56.183864] Array
+(
+    [0] => stdClass Object
+        (
+            [Status] => Accepted
+            [MessageID] => 4f40aec7-2f64-11e6-9012-34dfb2ade894
+            [Recipient] => leandro@sunriseintegration.com
+        )
+
 )
 

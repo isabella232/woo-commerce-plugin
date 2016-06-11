@@ -16,12 +16,16 @@ abstract class Ajax
 
     public static function run()
     {
-        add_action('wp_ajax_nopriv_handle_ajax', array(__CLASS__, 'ajax_handler_nopriv'));
-        add_action('wp_ajax_handle_ajax', array(__CLASS__, 'ajax_handler'));
-        add_action('wp_ajax_view_client_list', array(__CLASS__, 'view_client_list'));
-        add_action('wp_ajax_get_custom_fields', array(__CLASS__, 'get_custom_fields'));
-        add_action('wp_ajax_set_client_list', array(__CLASS__, 'set_client_list'));
-        add_action('wp_ajax_create_list', array(__CLASS__, 'create_list'));
+        if (is_admin()){
+
+            add_action('wp_ajax_nopriv_handle_ajax', array(__CLASS__, 'ajax_handler_nopriv'));
+            add_action('wp_ajax_handle_ajax', array(__CLASS__, 'ajax_handler'));
+            add_action('wp_ajax_view_client_list', array(__CLASS__, 'view_client_list'));
+            add_action('wp_ajax_get_custom_fields', array(__CLASS__, 'get_custom_fields'));
+            add_action('wp_ajax_set_client_list', array(__CLASS__, 'set_client_list'));
+            add_action('wp_ajax_create_list', array(__CLASS__, 'create_list'));
+        }
+
 
         self::$actionUrl = get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce_settings';
 
@@ -105,6 +109,11 @@ abstract class Ajax
             $subscribe = false;
             $debug = false;
             $subscribeText = "";
+
+            if (array_key_exists('subscriptionBox', $params )){
+                $subscribe = ($params['subscriptionBox'] == 'true') ? true : false;
+                Helper::updateOption('toggle_subscription_box',$subscribe);
+            }
 
             if (array_key_exists('subscribe', $params )){
                 $subscribe = ($params['subscribe'] == 'true') ? true : false;

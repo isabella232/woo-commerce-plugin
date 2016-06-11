@@ -51,13 +51,51 @@ class App
             add_filter('admin_body_class', array(__CLASS__, 'add_admin_body_class'));
             add_action('admin_menu', array(__CLASS__, 'custom_menu_page_removing'));
             add_action('admin_post_handle_request', array(__CLASS__, 'handle_request'));
+            add_action('woocommerce_proceed_to_checkout', array(__CLASS__, 'woocommerce_subscription_box'));
+            add_action('woocommerce_checkout_process', array(__CLASS__, 'checkout_process'));
 
-
-            self::$Cron = new Cron();
 
             $accessToken = Settings::get('access_token');
             $refreshToken = Settings::get('refresh_token');
             self::$CampaignMonitor = new CampaignMonitor($accessToken, $refreshToken);
+
+/*
+ * Todo code to work with new endpoint
+           // 1 instantiate app
+            if (!\core\App::is_connected()) {
+                // this will call campaign monitor and send a POST request
+                // that will have client id and client secret
+                $adminUri = get_admin_url() . 'admin.php';
+                $instantiateUrl = self::$CampaignMonitor->instantiate_url("campaign-monitor-for-woo-commerce", $adminUri, Helper::getCampaignMonitorPermissions());
+
+                wp_redirect($instantiateUrl);
+                die();
+            }*/
+
+
+            // 2 instantiate app will send client id and secret
+            // on a json object on post request
+/*            if (!empty($_POST)) {
+
+                if (array_key_exists('clientId', $_POST)) {
+                    // extract client id and client secret from post request
+                    $credentials = (object)$_POST;
+                    $clientId = $credentials->client_id;
+                    $clientSecret = $credentials->client_secret;
+
+                    // save for subsequent request
+                    \core\Settings::add('client_secret', $clientSecret );
+                    \core\Settings::add('client_id', $clientId);
+
+                    $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
+                    // redirect to get an access token
+                    wp_redirect($authorizeUrl);
+                    die();
+                }
+            }*/
+
+
+            self::$Cron = new Cron();
             self::$session = new Session();
 
             // handle ajax
@@ -71,6 +109,59 @@ class App
     public static function cron()
     {
 
+    }
+
+    public static function checkout_process(){
+
+    }
+    public static function woocommerce_subscription_box(){
+
+        $html = '';
+        $html .= '<form>';
+        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox"> Subscribe to our newsletter</label>';
+        $html .= '</form>';
+        $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
+
+        if ($subscriptionBox){
+            echo $html;
+        }
+
+        ?>
+<script>
+    jQuery.noConflict();
+    jQuery(document).ready(function($) {
+
+        $(document).on('click', '.wc-forward', function (e) {
+
+            dataToSend.action = 'ajax_handler_nopriv';
+            e.preventDefault();
+
+            var subscribe = $('#subscriptionBox').is(':checked');
+            dataToSend.subscribe = subscribe;
+
+                $.ajax({
+                type: "POST",
+                url: ajax_request.ajax_url,
+                data: dataToSend,
+                dataType: "text json",
+                success: function (data, textStatus, request) {
+                    console.log(data);
+                },
+                error: function (request, textStatus, errorThrown) {
+                    console.log(request);
+                }
+            });
+        });
+</script>
+        <?php
+
+    }
+    /**
+     * @return bool true if connected false otherwise
+     */
+    public static function is_connected()
+    {
+        return Helper::getOption('connected');
     }
 
     protected static function create_fields()
@@ -140,8 +231,6 @@ class App
                 }
 
                 if ($type == 'map_custom_fields') {
-
-
                     if (array_key_exists('fields', $data)) {
                         $fields = $data['fields'];
                         $listId = Settings::get('default_list');
@@ -176,6 +265,31 @@ class App
                         }
                         Settings::add('data_sync', true);
                     }
+                }
+
+                if ($type == 'save_settings'){
+                    // 2 instantiate app will send client id and secret
+                    if (!self::is_connected()){
+
+                        if (!empty($_POST)) {
+                            if (array_key_exists('client_id', $_POST)) {
+                                // extract client id and client secret from post request
+
+                                $credentials = (object)$_POST;
+                                $clientId = $credentials->client_id;
+                                $clientSecret = $credentials->client_secret;
+                                // save for subsequent request
+                                \core\Settings::add('client_secret', $clientSecret );
+                                \core\Settings::add('client_id', $clientId);
+
+                                $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
+                                // redirect to get an access token
+                                wp_redirect($authorizeUrl);
+                                die();
+                            }
+                        }
+                    }
+
                 }
 
                 break;
@@ -230,9 +344,10 @@ class App
         $position = 100;
 
         add_menu_page($pageTitle, $menuTitle, $capability, $menuSlug, array(__CLASS__, $callable), $iconUrl, $position);
+        add_submenu_page($menuSlug,'Settings' , 'Settings' , $capability, 'campaign_monitor_woocommerce_settings', array(__CLASS__, 'setting_page') );
 
         //call register settings function
-        add_action('admin_init', array(__CLASS__, 'register_settings_settings'));
+       // add_action('admin_init', array(__CLASS__, 'register_settings_settings'));
 
     }
 
@@ -261,17 +376,21 @@ class App
     public static function register_settings_settings()
     {
         //register our settings
-        register_setting('settings_page_group', self::$optionPrefix . '_client_id');
-        register_setting('settings_page_group', self::$optionPrefix . '_client_secret');
-        register_setting('settings_page_group', self::$optionPrefix . '_access_token');
-        register_setting('settings_page_group', self::$optionPrefix . '_refresh_token');
-        register_setting('settings_page_group', self::$optionPrefix . '_expiry');
-        register_setting('settings_page_group', self::$optionPrefix . '_code');
+//        register_setting('settings_page_group', self::$optionPrefix . '_client_id');
+//        register_setting('settings_page_group', self::$optionPrefix . '_client_secret');
+//        register_setting('settings_page_group', self::$optionPrefix . '_access_token');
+//        register_setting('settings_page_group', self::$optionPrefix . '_refresh_token');
+//        register_setting('settings_page_group', self::$optionPrefix . '_expiry');
+//        register_setting('settings_page_group', self::$optionPrefix . '_code');
     }
 
     public static function register_settings_page()
     {
         Helper::renderer('connect');
+    }
+    public static function setting_page()
+    {
+        Helper::renderer('settings');
     }
 
     public static function auto_deactivate()

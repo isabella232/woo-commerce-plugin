@@ -33,6 +33,30 @@ class CS_REST_General extends CS_REST_Wrapper_Base {
     }
 
     /**
+     * Get the authorization URL for an integration, given
+     * the integration's Key, domain URI, Scope, and optional
+     * state data.
+     *
+     * @param $integration_key string The Key of Integration you want to instantiate
+     * @param $domain_uri string The Domain URI of your application.
+     * @param $scope string The comma-separated permission scope your application requires.
+     *        See http://www.campaignmonitor.com/api/getting-started/#authenticating_with_oauth for details.
+     * @param $state string Optional state data to be included in the URL.
+     * @return string The authorization URL to which users of your application should be redirected.
+     * @access public
+     **/
+    public static function instantiate_url(
+        $integration_key, $domain_uri, $scope, $state = NULL) {
+        $qs = "integration_key=".urlencode($integration_key);
+        $qs .= "&domain_uri=".urlencode($domain_uri);
+        $qs .= "&scope=".urlencode($scope);
+        if ($state) {
+            $qs .= "&state=".urlencode($state);
+        }
+        return CS_OAUTH_BASE_URI.'?'.$qs;
+    }
+
+    /**
      * Exchange a provided OAuth code for an OAuth access token, 'expires in'
      * value and refresh token.
      *

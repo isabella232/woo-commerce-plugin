@@ -188,7 +188,7 @@ class CS_REST_Wrapper_Base {
         $options = array('contentType' => 'application/x-www-form-urlencoded');
         $wrap = new CS_REST_Wrapper_Base(
             NULL, 'https', CS_REST_LOG_NONE, CS_HOST, NULL,
-            new CS_REST_DoNothingSerialiser(), NULL);
+            new CS_REST_DoNothingSerialiser(null), NULL);
 
         $result = $wrap->post_request(CS_OAUTH_TOKEN_URI, $body, $options);
         if ($result->was_successful()) {

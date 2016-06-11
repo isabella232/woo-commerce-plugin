@@ -163,10 +163,25 @@ class Cron
                 $listDetails = App::$CampaignMonitor->get_list_details($defaultListId);
                 Log::write("Sending customer $name data to campaign monitor");
                 $results = App::$CampaignMonitor->import_subscribers($defaultListId, $subscribers);
+
+                if (!empty($results)){
+                    $totalUniqueEmailsSubmitted  =  $results->TotalUniqueEmailSubmitted;
+                    $totalExistingSubscribers = $results->TotalExistingSubscribers;
+                    $totalNewSubscribers = $results->TotalNewSubscribers;
+                    $duplicateEmailsInSubmission = $results->DuplicateEmailsInSubmission;
+
+                    $message = array();
+                    $message['Subscriber Count'] = $total_users;
+                    $message['Total Unique Emails'] = $totalUniqueEmailsSubmitted;
+                    $message['Total Existing Subscribers'] = $totalExistingSubscribers;
+                    Log::write($totalUniqueEmailsSubmitted);
+                }
+
                 Log::write($results);
             }
-
-            wp_mail('leandro@sunriseintegration.com', 'Data Sync', 'Data to '.$listDetails->Title.' was successfully synchronized');
+            $toEmail = get_option('admin_email');
+            $response = App::$CampaignMonitor->send_email($toEmail, $listDetails->Title, $message);
+            Log::write($response);
             Settings::add('data_sync', null);
         }
 

@@ -4,6 +4,11 @@ jQuery(document).ready(function($) {
 
 
 
+    $(document).on('change', '#subscriptionBox', function (e) {
+        $('#subscriptionLegend').toggleClass('hidden');
+    });
+
+
     $(document).on('change', '.custom-field-new-mapping', function (e) {
         var index = $(this).attr('data-index');
         var selectedOption = $('option:selected',this);
@@ -11,7 +16,7 @@ jQuery(document).ready(function($) {
         $('input[name="data[fields][new_fields][items]['+count+'][name]"]').val(selectedOption.text());
         $('input[name="data[fields][new_fields][items]['+count+'][type]"]').val(type);
     });
-    
+
     $(document).on('click', '#btnCreateCustomField', function (e) {
         var table = $('#fieldMapperTable tr:last');
         var select = $('#newFieldSelect').clone();

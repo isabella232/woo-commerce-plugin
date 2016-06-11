@@ -46,15 +46,15 @@ class CS_REST_Transactional_SmartEmail extends CS_REST_Wrapper_Base {
      * @access public
      */
     function __construct (
-    $smartemail_id,
-    $auth_details,
-    $client_id = NULL,
-    $protocol = 'https',
-    $debug_level = CS_REST_LOG_NONE,
-    $host = 'api.createsend.com',
-    $log = NULL,
-    $serialiser = NULL,
-    $transport = NULL) {
+        $smartemail_id,
+        $auth_details,
+        $client_id = NULL,
+        $protocol = 'https',
+        $debug_level = CS_REST_LOG_NONE,
+        $host = 'api.createsend.com',
+        $log = NULL,
+        $serialiser = NULL,
+        $transport = NULL) {
         parent::__construct($auth_details, $protocol, $debug_level, $host, $log, $serialiser, $transport);
         $this->set_client($client_id);
         $this->set_smartemail_id($smartemail_id);
@@ -67,7 +67,7 @@ class CS_REST_Transactional_SmartEmail extends CS_REST_Wrapper_Base {
      * @access public
      */
     function set_client($client_id) {
-      $this->_client_id_param = array("clientID" => $client_id);
+        $this->_client_id_param = array("clientID" => $client_id);
     }
 
     /**
@@ -177,4 +177,3 @@ class CS_REST_Transactional_SmartEmail extends CS_REST_Wrapper_Base {
     }
 
 }
-
