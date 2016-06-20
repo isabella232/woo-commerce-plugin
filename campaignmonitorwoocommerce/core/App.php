@@ -47,7 +47,8 @@ class App
 
             add_action('admin_notices', array(__CLASS__, 'plugin_notices'));
             add_action('admin_menu', array(__CLASS__, 'create_menu'));
-            add_action('admin_enqueue_scripts', array(__CLASS__, 'load_custom_wp_admin_style'));
+            add_action('admin_enqueue_scripts', array(__CLASS__, 'load_custom_wp_admin_scripts'));
+            add_action('wp_enqueue_scripts', array(__CLASS__, 'load_custom_wp_scripts'));
             add_filter('admin_body_class', array(__CLASS__, 'add_admin_body_class'));
             add_action('admin_menu', array(__CLASS__, 'custom_menu_page_removing'));
             add_action('admin_post_handle_request', array(__CLASS__, 'handle_request'));
@@ -116,45 +117,23 @@ class App
     }
     public static function woocommerce_subscription_box(){
 
+        $legend = Helper::getOption('subscribe_text');
+
+        if (empty($legend)){
+            $legend = 'Subscribe to our newsletter';
+        }
+
+
         $html = '';
         $html .= '<form>';
-        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox"> Subscribe to our newsletter</label>';
+        $html .= '<input id="subscriptionNonce" type="hidden" name="subscription_nonce" value="'.wp_create_nonce('app_nonce').'">';
+        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox">'.$legend.'</label>';
         $html .= '</form>';
         $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
         if ($subscriptionBox){
             echo $html;
         }
-
-        ?>
-<script>
-    jQuery.noConflict();
-    jQuery(document).ready(function($) {
-
-        $(document).on('click', '.wc-forward', function (e) {
-
-            dataToSend.action = 'ajax_handler_nopriv';
-            e.preventDefault();
-
-            var subscribe = $('#subscriptionBox').is(':checked');
-            dataToSend.subscribe = subscribe;
-
-                $.ajax({
-                type: "POST",
-                url: ajax_request.ajax_url,
-                data: dataToSend,
-                dataType: "text json",
-                success: function (data, textStatus, request) {
-                    console.log(data);
-                },
-                error: function (request, textStatus, errorThrown) {
-                    console.log(request);
-                }
-            });
-        });
-</script>
-        <?php
-
     }
     /**
      * @return bool true if connected false otherwise
@@ -351,18 +330,34 @@ class App
 
     }
 
-    public static function load_custom_wp_admin_style()
+    public static function load_custom_wp_admin_scripts($hook_suffix)
+    {
+
+       if (strpos($hook_suffix, 'campaign_monitor_woocommerce') !== false){
+
+           $plugins_url = plugins_url('campaignmonitorwoocommerce');
+
+           if (is_admin()){
+               wp_register_style('custom_wp_admin_css', $plugins_url . '/views/admin/css/main.css', false, '1.0.0');
+               wp_enqueue_style('custom_wp_admin_css' );
+               wp_enqueue_script('app-script', $plugins_url . '/views/admin/js/app.js', array('jquery'));
+               wp_enqueue_script('ajax-script', $plugins_url . '/views/admin/js/ajax.js', array('jquery'));
+           }
+           // in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
+           wp_localize_script('ajax-script', 'ajax_request', array(
+               'ajax_url' => admin_url('admin-ajax.php')
+           ));
+       }
+
+    }
+    public static function load_custom_wp_scripts()
     {
 
         $plugins_url = plugins_url('campaignmonitorwoocommerce');
-        wp_register_style('custom_wp_admin_css', $plugins_url . '/views/admin/css/main.css', false, '1.0.0');
-        wp_enqueue_style('custom_wp_admin_css');
 
-
-        wp_enqueue_script('app-script', $plugins_url . '/views/admin/js/app.js', array('jquery'));
-        wp_enqueue_script('ajax-script', $plugins_url . '/views/admin/js/ajax.js', array('jquery'));
+        wp_enqueue_script('ajax-script-public', $plugins_url . '/views/public/js/app.js', array('jquery'));
         // in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
-        wp_localize_script('ajax-script', 'ajax_request', array(
+        wp_localize_script('ajax-script-public', 'ajax_request', array(
             'ajax_url' => admin_url('admin-ajax.php')
         ));
 

@@ -4,7 +4,8 @@ if (!class_exists('Services_JSON', false)) {
     require_once dirname(__FILE__).'/services_json.php';
 }
 
-function CS_REST_SERIALISATION_get_available($log) { 
+if (!function_exists('CS_REST_SERIALISATION_get_available')){
+	function CS_REST_SERIALISATION_get_available($log) { 
     $log->log_message('Getting serialiser', __FUNCTION__, CS_REST_LOG_VERBOSE);
     if(function_exists('json_decode') && function_exists('json_encode')) {
         return new CS_REST_NativeJsonSerialiser($log);
@@ -12,7 +13,9 @@ function CS_REST_SERIALISATION_get_available($log) {
         return new CS_REST_ServicesJsonSerialiser($log);
     }    
 }
-class CS_REST_BaseSerialiser {
+}
+if (!class_exists('CS_REST_BaseSerialiser')){
+	class CS_REST_BaseSerialiser {
 
     var $_log;
     
@@ -45,8 +48,11 @@ class CS_REST_BaseSerialiser {
         return $data;
     }    
 }
+}
 
-class CS_REST_DoNothingSerialiser extends CS_REST_BaseSerialiser {
+
+if (!class_exists('CS_REST_DoNothingSerialiser')) {
+	class CS_REST_DoNothingSerialiser extends CS_REST_BaseSerialiser {
     function get_type() { return 'do_nothing'; }
     function serialise($data) { return $data; }
     function deserialise($text) {
@@ -55,8 +61,10 @@ class CS_REST_DoNothingSerialiser extends CS_REST_BaseSerialiser {
     }
     function check_encoding($data) { return $data; }
 }
+}
 
-class CS_REST_NativeJsonSerialiser extends CS_REST_BaseSerialiser {
+if (!class_exists('CS_REST_NativeJsonSerialiser')) {
+	class CS_REST_NativeJsonSerialiser extends CS_REST_BaseSerialiser {
 
     function get_format() {
         return 'json';
@@ -89,36 +97,47 @@ class CS_REST_NativeJsonSerialiser extends CS_REST_BaseSerialiser {
         return $data;
     }
 }
+}
 
-class CS_REST_ServicesJsonSerialiser extends CS_REST_BaseSerialiser {
-    
-    var $_serialiser;
-    
-    function __construct($log) {
-        parent::__construct($log);
-        $this->_serialiser = new Services_JSON();
-    }
+if (!class_exists('CS_REST_ServicesJsonSerialiser')) {
+    class CS_REST_ServicesJsonSerialiser extends CS_REST_BaseSerialiser
+    {
 
-    function get_content_type() {
-        return 'application/json';
-    }
+        var $_serialiser;
 
-    function get_format() {
-        return 'json';
-    }
-    
-    function get_type() {
-        return 'services_json';
-    }
-    
-    function serialise($data) {
-    	if(is_null($data) || $data == '') return '';
-        return $this->_serialiser->encode($this->check_encoding($data));
-    }
-    
-    function deserialise($text) {
-        $data = $this->_serialiser->decode($text);
-        
-        return is_null($data) ? $text : $data;
+        function __construct($log)
+        {
+            parent::__construct($log);
+            $this->_serialiser = new Services_JSON();
+        }
+
+        function get_content_type()
+        {
+            return 'application/json';
+        }
+
+        function get_format()
+        {
+            return 'json';
+        }
+
+        function get_type()
+        {
+            return 'services_json';
+        }
+
+        function serialise($data)
+        {
+            if (is_null($data) || $data == '') return '';
+            return $this->_serialiser->encode($this->check_encoding($data));
+        }
+
+        function deserialise($text)
+        {
+            $data = $this->_serialiser->decode($text);
+
+            return is_null($data) ? $text : $data;
+        }
     }
 }
+
