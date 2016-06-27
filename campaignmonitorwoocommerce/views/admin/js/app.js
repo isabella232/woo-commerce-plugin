@@ -7,6 +7,16 @@ jQuery(document).ready(function($) {
     $(document).on('change', '#subscriptionBox', function (e) {
         $('#subscriptionLegend').toggleClass('hidden');
     });
+    $(document).on('change', '#autoNewsletter', function (e) {
+        $('#postbox-container-1').toggleClass('hidden');
+    });
+
+
+    $(document).on('click', '#btnViewLog', function (e) {
+        e.preventDefault();
+        $('.log-output').slideDown();
+    });
+
 
 
     $(document).on('change', '.custom-field-new-mapping', function (e) {
@@ -98,6 +108,7 @@ jQuery(document).ready(function($) {
         var optIn = $('#listType').val();
 
 
+
         if ( name == ''){
             $('#listName').css('border', '1px solid #FF0000');
             $('.campaign-monitor-woocommerce .progress-notice').slideUp();
@@ -143,6 +154,7 @@ jQuery(document).ready(function($) {
 
     $(document).on('click', '.modal .btn-close', function (e) {
         $(".modal").hide();
+        $(".progress-notice").slideUp();
     });
 
     $(document).on('click', '#btnCreateClientList', function (e) {

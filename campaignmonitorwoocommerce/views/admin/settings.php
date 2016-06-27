@@ -2,19 +2,57 @@
 $clientSecret = \core\Settings::get('client_secret');
 $clientId = \core\Settings::get('client_id');
 
+
+$noSSL =\core\Helper::getOption('no_ssl');
+if ($noSSL){
+
+    \core\Helper::updateOption('no_ssl', false);
+     $error = \core\Helper::getOption('post_errors');
+
+    $html = '<div id="message" class="notice-error notice is-dismissible">';
+    $html .= '<h2>';
+    $html .= $error['title'];
+    $html .= '</h2>';
+    $html .= '<p>';
+    $html .=  $error['description'];
+    $html .= '</p>';
+    $html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
+
+    $html .= '</div><!-- /.updated -->';
+    echo $html;
+
+}
 ?>
 
 <div class="wrap">
 
-    <div>
         <div class="content">
-            <div class="box main-container text-center">
+            <div class="post-body-content">
                 <h1>Campaign Monitor Settings</h1>
+
+            <div id="cmPlugin" class="updated notice cm-plugin-ad is-dismissible">
+                <p>Check out the
+                    <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture ubscriber data.
+                </p>
+            </div>
+            <h2>Campaign Monitor Client ID and Client Secret</h2>
+            <p>Please enter your client ID and client secret.</p>
+            <p>To retrieve them:</p>
+            <ol>
+                <li>In your Campaign Monior account, select <strong>Integrations</strong> tab in the top navigation.
+                if don't see it, you are using the multi-client edition of Campaign Monitor, and will need to select a client list first. </li>
+            <li>
+                In the "OAuth Registrations" section, find WooCommerce, then select <strong>View</strong> next to the WooCommerce icon.
+            </li>
+                <li>
+                    Copy paste the client ID and client secret into the fields below, then select <strong>Save Changes</strong>
+                </li>
+            </ol>
                     <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
                         <input type="hidden" name="action" value="handle_request">
                         <input type="hidden" name="data[type]" value="save_settings">
                         <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
-                        <table class="form-table">
+                        <table class="form-table cm-settings-fields">
                             <tbody><tr>
                                 <th><label for="client_id">Client ID</label></th>
                                 <td>
@@ -32,10 +70,11 @@ $clientId = \core\Settings::get('client_id');
                                 </td>
                             </tr>
                             </tbody>
+
                         </table>
 
                         <button id="btnSaveSettings" type="submit" class="button button-primary regular-text ltr">
-                            Save Settings
+                            Save Changes
                         </button>
 
                     </form>
@@ -44,7 +83,6 @@ $clientId = \core\Settings::get('client_id');
 
             </div>
         </div>
-    </div>
 </div>
 <div class="progress-notice">
     <div class="sk-circle">

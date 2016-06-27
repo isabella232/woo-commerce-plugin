@@ -3,13 +3,13 @@
 require_once CAMPAIGN_MONITOR_WOOCOMMERCE_DIR . '/class/csrest_general.php';
 // check for authorization code and is not expired
 
-
 // get all settings for this app
 $appSettings  = \core\Settings::get();
 $redirectUrl = \core\Helper::getRedirectUrl();
 $pluginUrl = plugins_url('campaignmonitorwoocommerce');
 $logoSrc = $pluginUrl . '/views/admin/images/campaign-monitor.png';
 $prefix = 'campaign_monitor_woocommerce_';
+
 
 // do I have an authorization token
 $autorizationToken = \core\Settings::get('access_token');
@@ -89,11 +89,16 @@ $defaultClient = \core\Settings::get('default_client');
 $accessToken = \core\Settings::get('access_token');
 $code = \core\Helper::getOption('code');
 $clients = array();
-if (!empty($appSettings) && !empty($accessToken) && empty($defaultList)){
+if (!empty($appSettings) && !empty($accessToken)){
     $appSettings = (object)$appSettings;
     $auth = array('access_token' => $appSettings->access_token,
                   'refresh_token' => $appSettings->refresh_token);
     $clients = \core\App::$CampaignMonitor->get_clients($auth);
+
+    if (count($clients) == 1){
+        $CID = $clients[0]->ClientID;
+        \core\Settings::add('default_client', $CID);
+    }
 
 }
 
@@ -120,13 +125,12 @@ if (!empty($defaultList)) {
 
 }
 $srcUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
-$selectedClient = \core\Helper::getOption('selectedClient');
-$selectedList = \core\Helper::getOption('selectedList');
+$selectedClient = \core\Settings::get('default_client');
+$selectedList = \core\Settings::get('default_list');
 $canViewLog = \core\Helper::getOption('debug');
 $subscription = \core\Helper::getOption('automatic_subscription');
 $subscribeText = \core\Helper::getOption('subscribe_text');
 $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
-
 
 ?>
 
@@ -134,6 +138,13 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
     <script>
         jQuery(document).ready(function($) {
             $('#clientSelection').trigger('change');
+        });
+    </script>
+<?php endif; ?>
+<?php if (!empty($selectedList) ) : ?>
+    <script>
+        jQuery(document).ready(function($) {
+            $('#lists option[data-id="<?php echo $selectedList ?>"]').attr('selected', 'selected');
         });
     </script>
 <?php endif; ?>
@@ -254,10 +265,26 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
             </div>
     </div>
         </div>
-    <div id="message" class="updated notice ">
-       <p>Check out the  <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture ubscriber data.
+
+    <?php if (!empty($defaultList)) : ?>
+        <div class="updated notice cm-plugin-ad is-dismissible">
+            <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
+                <a href="https://www.campaignmonitor.com/" target="_blank">
+                    Campaign Monitor
+                </a>
+                We've also created 6 segments for you there.
+            </p>
+        </div>
+    <?php endif; ?>
+
+    <div id="cmPlugin" class="updated notice cm-plugin-ad is-dismissible">
+       <p>Check out the
+           <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture ubscriber data.
         </p>
     </div>
+
+
+
     <?php if (!\core\App::is_connected()) : ?>
     <div class="box main-container text-center">
         <div class="logo-container">
@@ -265,7 +292,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
         </div>
         <h2>Get started with Campaign Monitor for Woocommerce </h2>
         <p>
-            <a class="static button  button-primary button-large" href="<?php echo $postUrl; ?>">Connect</a>
+            <a class="static button  button-primary button-large" target="_blank" href="<?php echo \core\App::getConnectUrl(); ?>">Connect</a>
         </p>
         <p>Connect your Campaign Monitor account so you can transfer data from Woocommerce and send personalized emails.</p>
         <p>Don't have a Campaign Monitor account? <a href="https://www.campaignmonitor.com/signup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral">Sign up for free today</a></p>
@@ -283,17 +310,18 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                     <div id="post-body" class="metabox-holder columns-2">
                         <div id="post-body-content">
                             <table class="list form-table">
-                                <tr valign="top">
+
+                                <tr valign="top" <?php echo (count($clients) > 1) ? "" : 'style="display:none;"'; ?> >
                                     <th scope="row">
                                         Client List
                                     </th>
                                     <td>
                                         <select id="clientSelection"  class="ajax-call dropdown-select">
                                             <option data-url="">
-                                                Please select list
+                                                Please select client
                                             </option>
-                                            <option data-url="<?php echo $actionUrl; ?>&action=create_client">
-                                               Create New Client
+                                            <option disabled>
+                                               ---
                                             </option>
                                             <?php
                                             // [ClientID] => c4339e20ba838cd827e4b59b28a83d69
@@ -306,6 +334,8 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                         </select>
                                     </td>
                                 </tr>
+
+
                                 <tr valign="top" class="new-client-creation">
                                     <th scope="row">
                                         Client Name
@@ -361,12 +391,18 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     </th>
                                     <td>
                                         <select id="listType" name="type" class="dropdown-select">
-                                            <option value="1" selected="">Single opt-in (no confirmation required)</option>
-                                            <option value="2">Confirmed opt-in (confirmation required)</option>
+                                            <option value="2" selected>Confirmed opt-in (confirmation required)</option>
+                                            <option value="1" >Single opt-in (no confirmation required)</option>
                                         </select>
-                                        <p><strong>Single opt-in</strong> means new subscribers are added to this list as soon as they complete the subscribe form. </p>
-                                        <p><strong>Confirmed opt-in</strong> means a confirmation email will be sent with a link they must click to validate their address. This confirmation isn't required when you
-                                            import existing subscribers, only when new subscribers join via your subscribe form.</p>
+                                        <p><em>
+                                                <strong>Single opt-in</strong> means new subscribers are added to this list as soon as
+                                                they complete the subscribe form.
+                                            </em>
+                                 </p>
+                                        <p><em>
+                                            <strong>Confirmed opt-in</strong> means a confirmation email will be sent with a link they must click to validate their address. This confirmation isn't required when you
+                                            import existing subscribers, only when new subscribers join via your subscribe form.</em></p>
+                                        <p><em><a href="http://help.campaignmonitor.com/topic.aspx?t=16">Learn more about confirmed opt-in lists.</a></em> </p>
                                     </td>
                                 </tr>
                                 <tr valign="top" class="new-list-creation">
@@ -394,7 +430,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     <td>
 
                                         <label for="subscriptionBox">
-                                            <input id="subscriptionBox" name="toggle_subscription_box"  <?php echo ($subscriptionBox) ? 'checked="checked"': ''; ?>  type="checkbox">  Show subscription option at checkout.</label>
+                                            <input id="subscriptionBox" name="toggle_subscription_box"  <?php echo ($subscriptionBox) ? 'checked="checked"': ''; ?>  type="checkbox">  Show subscription option at checkout</label>
 
                                     </td>
                                 </tr>
@@ -405,17 +441,9 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     <td>
 
                                         <input type="text" id="subscriptionText" name="subscription_text" class="regular-text ltr" value="<?php echo $subscribeText; ?>" placeholder="Subscribe to our newsletter"/>
-
-                                        <p>This text will be shown beside a checkbox at checkout.</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">
-                                        Newsletter
-                                    </th>
-                                    <td>
                                         <label for="autoNewsletter">
-                                        <input id="autoNewsletter" name="auto_newsletter"  <?php echo ($subscription) ? 'checked="checked"': ''; ?>  type="checkbox"> Automatically subscribe customers to your newsletter.</label>
+                                            <input id="autoNewsletter" name="auto_newsletter"  <?php echo ($subscription) ? 'checked="checked"': ''; ?>  type="checkbox"> Automatically subscribe customers to your newsletter</label>
+
 
                                     </td>
                                 </tr>
@@ -426,19 +454,43 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     <td>
                                         <label>
                                             <label for="logToggle">
-                                            <input id="logToggle" name="log_toggle" <?php echo ($canViewLog) ? 'checked="checked"': ''; ?> type="checkbox"> Enable Logging <?php echo ($canViewLog) ? '| View Log' : ''; ?></label>
-                                        </label>
+                                            <input id="logToggle" name="log_toggle" <?php echo ($canViewLog) ? 'checked="checked"': ''; ?> type="checkbox">
+                                                Enable Logging </label>
+                                                <?php if  ($canViewLog)   : ?>
+                                                    <div class="log-output modal">
+                                                        <div class="content">
+                                                            <span class="btn-close dashicons dashicons-no"></span>
+                                                            <div class="debug-log">
+                                                                <div class="output">
+                                                                    <?php
+                                                                    echo \core\Log::getContent();
+                                                                    ?>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <span class="separator">|</span>
+                                                    <a id="btnViewLog" href="">
+                                                        View Log
+                                                    </a>
+                                                <?php endif; ?>
+
+                                            <p><em>Only enable logging to help get better support from Campaign Monitor</em></p>
+
                                     </td>
                                 </tr>
                             </table>
-                            <a class=" button primary button-primary button-large save-settings" href="">
+                            <button type="button" class=" button primary button-primary save-settings" href="">
                                 Save Changes
-                            </a>
+                            </button>
 
                         </div><!-- /post-body-content -->
 
-                        <div id="postbox-container-1" class="postbox-container">
-                            <div id="side-sortables" class="meta-box-sortables ui-sortable" style=""><div id="submitdiv" class="postbox ">
+                        <?php if ($subscriptionBox) : ?>
+                        <div id="postbox-container-1" class="postbox-container  <?php echo (!$subscription) ? 'hidden': ''; ?>">
+                            <div id="side-sortables" class="preview-box meta-box-sortables ui-sortable" style=""><div id="submitdiv" class="postbox ">
                                     <button type="button" class="handlediv button-link" aria-expanded="true"><span class="screen-reader-text">Preview
                                 </span><span class="toggle-indicator" aria-hidden="true"></span></button><h2 class="hndle ui-sortable-handle">
                                         <span>Preview</span></h2>
@@ -451,6 +503,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
                             </div>
                         </div>
+                        <?php endif; ?>
 
                     </div><!-- /post-body -->
                     <br class="clear">
@@ -469,12 +522,15 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                 <div class="notice notice-error">
                                     <p>
                                         It seems like you have no clients in your account.
-                                        Please create a client before continuing.
+                                        Please create a client on
+                                        <a href="https://www.campaignmonitor.com/" target="_blank">
+                                            Campaign Monitor
+                                        </a> before continuing.
                                     </p>
                                 </div>
                             </td>
                         </tr>
-                        <tr>
+                        <tr style="display: none;">
                             <td>
                                 <input type="hidden" name="action" value="handle_request">
                                 <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
@@ -482,7 +538,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                 <input type="text" name="data[client_name]" placeholder="New Client Name">
                             </td>
                         </tr>
-                        <tr>
+                        <tr style="display: none;">
                             <td>
                                 <input type="submit" class="button primary button-primary button-large" value="Create Client">
                             </td>
@@ -493,7 +549,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                     <?php endif; ?>
             <?php endif; ?>
 
-    <?php if (!empty($defaultList)) : ?>
+    <?php if (true == false) : ?>
 
         <div class="box main-container text-center">
             <img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">

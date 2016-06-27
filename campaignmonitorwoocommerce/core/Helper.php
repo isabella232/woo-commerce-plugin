@@ -40,7 +40,7 @@ abstract class Helper {
 
         return implode(',', $permissions);
     }
-
+    
     public static function getRedirectUrl(){
        return get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce&connected=true';
     }

@@ -22,6 +22,7 @@ abstract class Ajax
             add_action('wp_ajax_get_custom_fields', array(__CLASS__, 'get_custom_fields'));
             add_action('wp_ajax_set_client_list', array(__CLASS__, 'set_client_list'));
             add_action('wp_ajax_create_list', array(__CLASS__, 'create_list'));
+            add_action('wp_ajax_dismiss_notice', array(__CLASS__, 'dismiss_notice'));
         }
 
 
@@ -30,6 +31,11 @@ abstract class Ajax
         self::$actionUrl = get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce_settings';
 
     }
+
+    public static function dismiss_notice(){
+       wp_send_json('testing');
+    }
+
 
     public static function ajax_handler()
     {
@@ -111,14 +117,26 @@ abstract class Ajax
             $debug = false;
             $subscribeText = "";
 
+            if (array_key_exists('new_list_name', $params ) && !empty($params['new_list_name'])){
+                $optIn = ($params['new_list_type'] == 2) ? true : false;
+                $newListName = $params['new_list_name'];
+                $newListId = App::$CampaignMonitor->create_list($params['ClientID'], $newListName, $optIn);
+                $params['ListID'] = $newListId;
+            }
+
+            $toggleSubscription = false;
             if (array_key_exists('subscriptionBox', $params )){
-                $subscribe = ($params['subscriptionBox'] == 'true') ? true : false;
-                Helper::updateOption('toggle_subscription_box',$subscribe);
+                $toggleSubscription = ($params['subscriptionBox'] == 'true') ? true : false;
+                Helper::updateOption('toggle_subscription_box',$toggleSubscription);
             }
 
             if (array_key_exists('subscribe', $params )){
                 $subscribe = ($params['subscribe'] == 'true') ? true : false;
-                Helper::updateOption('automatic_subscription',$subscribe);
+
+                if ($subscribe && $toggleSubscription)
+                     Helper::updateOption('automatic_subscription',$subscribe);
+                else
+                    Helper::updateOption('automatic_subscription',false);
             }
 
             if (array_key_exists('subscribe_text', $params )){
@@ -166,7 +184,8 @@ abstract class Ajax
             }
 
 
-            $prefix = get_bloginfo('name');
+//            $prefix = get_bloginfo('name');
+            $prefix = 'WooCommerce';
             $segmentedFields = array();
 
             foreach ($fields as $item) {
@@ -190,10 +209,12 @@ abstract class Ajax
 
             $mapped = Map::get();
             $orderCountMappedLabel = $mapped['orders_count'];
+            $newsletterSubscriberLabel = $mapped['newsletter_subscribers'];
             // Default segments to create
             $rule = new \core\Rule($orderCountMappedLabel, array('EQUALS 1'));
             $rule2 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 5'));
             $rule3 = new \core\Rule($orderCountMappedLabel, array('EQUALS 0'));
+            $newsletterRule = new \core\Rule($newsletterSubscriberLabel, array('EQUALS YES'));
             $rule4 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 5'));
             $rule5 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 500'));
 
@@ -202,7 +223,7 @@ abstract class Ajax
             $segmentsToCreate[] = new \core\Segment('First Time Customers', array($rule));
             $segmentsToCreate[] = new \core\Segment('Repeat Customers', array($rule4));
             $segmentsToCreate[] = new \core\Segment('High Spending Customers', array($rule5));
-            $segmentsToCreate[] = new \core\Segment('Newsletter Subscribers', array($rule, $rule2));
+            $segmentsToCreate[] = new \core\Segment('Newsletter Subscribers', array($newsletterRule));
             $segmentsToCreate[] = new \core\Segment('High Spending Repeat Customers', array($rule2, $rule5));
             $segmentsToCreate[] = new \core\Segment('Customers with 0 Purchases', array($rule3));
 
@@ -229,25 +250,25 @@ abstract class Ajax
             Settings::add('data_sync', true );
             $imagesUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
             $html = "";
-            $html .= '<div class="box main-container text-center">';
-            $html .= '<img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">';
-            $html .= '<h1>Success! Your list is now syncing.</h1>';
-            $html .= '<p>It might take a while to sync your data from Shopify to Campaign Monitor. We\'ll email you the moment the data sync is complete.</p>';
-            $html .= '<h2>We\'ve created these segments for you</h2>';
-            $html .= '<p>';
-            $html .= 'Segments help you focus email content on smaller, more targeted groups of subscribers for more  creative email marketing and lead nurturing.';
-            $html .= '</p>';
-            $html .= '<div class="segments">';
-            $html .= '<ul>';
-            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-10.png"><span class="segmentTitle">High spending customers</span></li>';
-            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-06.png"><span class="segmentTitle">Repeat customers</span></li>';
-            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-05.png"><span class="segmentTitle">First time customers</span></li>';
-            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-08.png"><span class="segmentTitle">Newsletter subscribers</span></li>';
-            $html .= '</ul>';
-            $html .= '</div>';
+            $html .= '<div class="box main-container text-center modal">';
+//            $html .= '<img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">';
+//            $html .= '<h1>Success! Your list is now syncing.</h1>';
+//            $html .= '<p>It might take a while to sync your data from Shopify to Campaign Monitor. We\'ll email you the moment the data sync is complete.</p>';
+//            $html .= '<h2>We\'ve created these segments for you</h2>';
+//            $html .= '<p>';
+//            $html .= 'Segments help you focus email content on smaller, more targeted groups of subscribers for more  creative email marketing and lead nurturing.';
+//            $html .= '</p>';
+//            $html .= '<div class="segments">';
+//            $html .= '<ul>';
+//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-10.png"><span class="segmentTitle">High spending customers</span></li>';
+//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-06.png"><span class="segmentTitle">Repeat customers</span></li>';
+//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-05.png"><span class="segmentTitle">First time customers</span></li>';
+//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-08.png"><span class="segmentTitle">Newsletter subscribers</span></li>';
+//            $html .= '</ul>';
+//            $html .= '</div>';
             $html .= '</div>';
             $html .= '<script>';
-            $html .= 'setTimeout(function () { window.location = "'.Helper::getActionUrl().'"; }, 5000);';
+            $html .= 'setTimeout(function () { window.location = "'.Helper::getActionUrl().'"; }, 5);';
             $html .= '</script>';
 
             $requestResults->content = $html;
@@ -341,11 +362,22 @@ abstract class Ajax
             $lists = App::$CampaignMonitor->get_client_list($clientId);
 
 
+
             $html = '';
             if ($lists) {
                 $html = '<select id="lists"  class="ajax-call list client-list dropdown-select ">';
 
-                $selectedList = Helper::getOption('selectedList');
+                $selectedList = Settings::get('default_list');
+                $html .= '<option>';
+                $html .= 'Please select list';
+                $html .= '</option>';
+                $html .= '<option class="ajax-call" data-url="' . self::$actionUrl . '&ClientID=' . $clientId . '&action=create_list">';
+                $html .= 'Create new list';
+                $html .= '</option>';
+                $html .= '<option class="ajax-call" disabled >';
+                $html .= '---';
+                $html .= '</option>';
+
                 foreach ($lists as $list) {
                     $id = $list->ListID;
 
@@ -359,17 +391,15 @@ abstract class Ajax
                     $html .= '</option>';
 
                 }
-                $html .= '<option class="ajax-call" data-url="' . self::$actionUrl . '&ClientID=' . $clientId . '&action=create_list">';
-                $html .= 'Create List';
-                $html .= '</option>';
+
                 $html .= '</select>';
                 $requestResults->content = $html;
 
             } else {
 
-                $html = '<select class="list client-list">';
-                $html .= '<option class="ajax-call" data-url="' . self::$actionUrl . '&ClientID=' . $clientId . '&action=create_list">';
-                $html .= 'No items found! Please create a list to get started';
+                $html = '<select id="lists" class="ajax-call list client-list dropdown-select">';
+                $html .= '<option selected="selected" class="ajax-call" data-url="' . self::$actionUrl . '&ClientID=' . $clientId . '&action=create_list">';
+                $html .= 'No lists found! Please create a list to get started';
                 $html .= '</option>';
                 $html .= '</select>';
 

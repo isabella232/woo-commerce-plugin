@@ -10,6 +10,7 @@ class App
     public static $optionPrefix = 'campaign_monitor_woocommerce';
     public static $session = null;
     public static $pluginPath = '';
+    public static $notices = '';
 
     public static $CampaignMonitor = null;
     public static $Cron = null;
@@ -23,6 +24,14 @@ class App
         } // end if
 
         return self::$instance;
+
+    }
+
+    public static function getConnectUrl(){
+        $adminUri = get_admin_url() . 'admin.php';
+        $instantiateUrl = self::$CampaignMonitor->instantiate_url("campaign-monitor-for-woo-commerce", $adminUri, Helper::getCampaignMonitorPermissions());
+
+        return $instantiateUrl;
 
     }
 
@@ -52,16 +61,17 @@ class App
             add_filter('admin_body_class', array(__CLASS__, 'add_admin_body_class'));
             add_action('admin_menu', array(__CLASS__, 'custom_menu_page_removing'));
             add_action('admin_post_handle_request', array(__CLASS__, 'handle_request'));
-            add_action('woocommerce_proceed_to_checkout', array(__CLASS__, 'woocommerce_subscription_box'));
-            add_action('woocommerce_checkout_process', array(__CLASS__, 'checkout_process'));
+//            add_action('woocommerce_proceed_to_checkout', array(__CLASS__, 'woocommerce_subscription_box'));
+            add_action('woocommerce_review_order_after_submit', array(__CLASS__, 'woocommerce_subscription_box'));
+            add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'checkout_process'));
+//            add_action('woocommerce_checkout_process', array(__CLASS__, 'checkout_process'));
 
 
             $accessToken = Settings::get('access_token');
             $refreshToken = Settings::get('refresh_token');
             self::$CampaignMonitor = new CampaignMonitor($accessToken, $refreshToken);
 
-/*
- * Todo code to work with new endpoint
+
            // 1 instantiate app
             if (!\core\App::is_connected()) {
                 // this will call campaign monitor and send a POST request
@@ -69,16 +79,35 @@ class App
                 $adminUri = get_admin_url() . 'admin.php';
                 $instantiateUrl = self::$CampaignMonitor->instantiate_url("campaign-monitor-for-woo-commerce", $adminUri, Helper::getCampaignMonitorPermissions());
 
-                wp_redirect($instantiateUrl);
+
+//                wp_redirect($instantiateUrl);
+//                die();
+            }
+
+            if (isset($_GET['error']) && !empty($_GET['error'])) {
+
+                Helper::updateOption('no_ssl', true);
+                $title = $_GET['error'];
+                $description = $_GET['error_description'];
+
+                $error['title'] = $title;
+                $error['description'] = $description;
+
+                Helper::updateOption('post_errors', $error);
+
+                $settingsPage = get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce_settings';
+                wp_redirect($settingsPage);
                 die();
-            }*/
+            }
+
 
 
             // 2 instantiate app will send client id and secret
             // on a json object on post request
-/*            if (!empty($_POST)) {
+            if (!empty($_POST)) {
+                if (array_key_exists('client_id', $_POST)) {
 
-                if (array_key_exists('clientId', $_POST)) {
+
                     // extract client id and client secret from post request
                     $credentials = (object)$_POST;
                     $clientId = $credentials->client_id;
@@ -89,12 +118,14 @@ class App
                     \core\Settings::add('client_id', $clientId);
 
                     $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
+
                     // redirect to get an access token
                     wp_redirect($authorizeUrl);
                     die();
                 }
-            }*/
 
+
+            }
 
             self::$Cron = new Cron();
             self::$session = new Session();
@@ -112,8 +143,43 @@ class App
 
     }
 
-    public static function checkout_process(){
 
+    public static function checkout_process($orderId){
+
+        if (!empty($orderId)){
+            $order = new \WC_Order( $orderId );
+            $user_id = $order->user_id;
+            $page = 1;
+            $limit = 1;
+            $isSubscribe = false;
+            $newCustomer = Customer::getData($page, $limit, $orderId);
+
+            if (array_key_exists('cmw_register_email', $_POST)){
+                if (array_key_exists('billing_email',$_POST ) && !empty($_POST['billing_email']))
+                {
+                    Subscribers::add($_POST['billing_email']);
+                    $isSubscribe = true;
+                }
+            }
+
+            if (!empty($newCustomer->data)){
+                $listId = Settings::get('default_list');
+                $mappedFields = Map::get();
+                $details = current($newCustomer->data);
+
+                $userToExport = Customer::format($details, $mappedFields, $isSubscribe);
+
+                $userToExport = (array)$userToExport;
+                $result = self::$CampaignMonitor->add_subscriber($listId, $userToExport);
+                Helper::display($userToExport);
+            }
+            Helper::display($result);
+
+
+        }
+
+        
+        die();
     }
     public static function woocommerce_subscription_box(){
 
@@ -123,12 +189,13 @@ class App
             $legend = 'Subscribe to our newsletter';
         }
 
-
         $html = '';
-        $html .= '<form>';
+//        $html .= '<form>';
         $html .= '<input id="subscriptionNonce" type="hidden" name="subscription_nonce" value="'.wp_create_nonce('app_nonce').'">';
-        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox">'.$legend.'</label>';
-        $html .= '</form>';
+//        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox">'.$legend.'</label>';
+        $html .= '<label for="cmw_register_email">';
+        $html .= '<input id="cmw_register_email" name="cmw_register_email" value="on" type="checkbox">'.$legend.'</label>';
+//        $html .= '</form>';
         $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
         if ($subscriptionBox){
@@ -151,6 +218,8 @@ class App
         //\core\Fields::add('verified_email', 'User Email', 'Text', 'description for this item', $isFieldDefault, false);
         \core\Fields::add('created_at', 'User Registered', 'Date', 'description for this item', $isFieldDefault);
         \core\Fields::add('total_price', 'Last Order Amount', 'Number', 'description for this item', $isFieldDefault);
+        \core\Fields::add('newsletter_subscribers', 'Newsletter Subscriber', 'Text', 'description for this item', $isFieldDefault);
+
         \core\Fields::add('company', 'Company', 'Text', 'Company name', false);
         \core\Fields::add('billing_address1', 'Billing Address1', 'Text', 'Billing Address 1', false);
         \core\Fields::add('billing_address2', 'Billing Address2', 'Text', 'Billing Address 2', false);
@@ -199,14 +268,16 @@ class App
                 }
 
                 if ($type == 'create_list') {
+                    Log::write($_POST);
                     $clientId = $data['client_id'];
                     $listName = $data['list_name'];
                     $optIn = $data['opt_in'];
                     $optIn = ($optIn == 2) ? true : false;
                     $newList = App::$CampaignMonitor->create_list($clientId, $listName, $optIn);
 
-                    Helper::updateOption('selectedClient', $clientId);
-                    Helper::updateOption('selectedList', $newList);
+
+                    Settings::add('default_list', $newList);
+                    Settings::add('default_client',$clientId );
                 }
 
                 if ($type == 'map_custom_fields') {
@@ -248,12 +319,12 @@ class App
 
                 if ($type == 'save_settings'){
                     // 2 instantiate app will send client id and secret
-                    if (!self::is_connected()){
-
                         if (!empty($_POST)) {
                             if (array_key_exists('client_id', $_POST)) {
-                                // extract client id and client secret from post request
 
+                                Helper::updateOption('connected', null);
+                                Settings::clear();
+                                // extract client id and client secret from post request
                                 $credentials = (object)$_POST;
                                 $clientId = $credentials->client_id;
                                 $clientSecret = $credentials->client_secret;
@@ -267,8 +338,6 @@ class App
                                 die();
                             }
                         }
-                    }
-
                 }
 
                 break;
@@ -315,7 +384,7 @@ class App
 
         //create new top-level menu
         $pageTitle = "Campaign Monitor for Woocommerce";
-        $menuTitle = "Campaign Monitor<br> for  Woocommerce";
+        $menuTitle = "Campaign Monitor<br> for  WooCommerce";
         $capability = 'administrator';
         $menuSlug = 'campaign_monitor_woocommerce';
         $callable = 'register_settings_page';
@@ -406,7 +475,7 @@ class App
             }
             $html = '<div id="message" class="error notice is-dismissible">';
             $html .= '<p>';
-            $html .= __(' Campaign Monitor for Woocommerce requires <a href="https://www.woothemes.com/woocommerce/">Woocommerce</a> to be installed and activated.', 'campaign-monitor-woocommerce');
+            $html .= __(' Campaign Monitor for WooCommerce requires <a href="https://www.woothemes.com/woocommerce/">Woocommerce</a> to be installed and activated.', 'campaign-monitor-woocommerce');
             $html .= '</p>';
             $html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
             $html .= '</div><!-- /.updated -->';
@@ -426,6 +495,8 @@ class App
             }
 
         }
+
+
 
         echo $html;
 

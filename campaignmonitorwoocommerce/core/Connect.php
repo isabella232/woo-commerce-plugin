@@ -28,7 +28,7 @@ class Connect
 
     }
 
-    public static function request($data, $endpoint = '', $options = array("type" => "urlencode"))
+    public static function request($data, $endpoint = '', $options = array("type" => "urlencode"), $headers = array())
     {
 
         $client = new HttpClient();
@@ -61,8 +61,11 @@ class Connect
         }
 
 
+        if (empty($headers)){
+            $headers = array('contentType' => 'application/x-www-form-urlencoded');
+        } 
 
-        $headers = array('contentType' => 'application/x-www-form-urlencoded');
+
 
         $result = $client->request($postUrl, $dataToPost, 'POST', $headers);
        return $result;

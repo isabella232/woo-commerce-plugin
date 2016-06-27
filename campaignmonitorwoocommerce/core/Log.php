@@ -31,12 +31,24 @@ abstract class Log
 
     }
 
-    public static function write($message)
+    public static function getContent($options = array())
+    {
+        $content = file_get_contents(self::getFileName());
+        $content = nl2br($content);
+        return $content;
+    }
+
+    public static function clear($options = array())
+    {
+        self::write("",null);
+    }
+
+    public static function write($message, $option = FILE_APPEND)
     {
         $file = self::getFileName();
         $date = self::getTimestamp();
         $message = '['.$date.'] ' . print_r($message, true) . PHP_EOL;
-        file_put_contents($file,  $message, FILE_APPEND);
+        file_put_contents($file,  $message, $option);
 
     }
 

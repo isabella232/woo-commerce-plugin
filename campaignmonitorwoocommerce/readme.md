@@ -1,1 +1,0 @@
-Campaign Monitor Woocommerce Plugin

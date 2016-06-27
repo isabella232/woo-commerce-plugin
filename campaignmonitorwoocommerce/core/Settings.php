@@ -14,6 +14,10 @@ class Settings {
         \core\Helper::updateOption(self::name, self::$settings);
     }
 
+    public static function clear(){
+        return Helper::updateOption(self::name, null);
+    }
+
     public static function get($setting = ''){
         if (null == $setting){
             return Helper::getOption(self::name);

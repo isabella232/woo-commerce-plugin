@@ -2,23 +2,56 @@ jQuery.noConflict();
 
 jQuery(document).ready(function($) {
 
+    $(document).on('click', '.cm-plugin-ad', function (e) {
+        var dataToSend = {};
+        dataToSend.action = 'dismiss_notice';
+        $.ajax({
+            type: "POST",
+            url: ajax_request.ajax_url,
+            data: dataToSend,
+            dataType: "text json",
+            success: function (data, textStatus, request) {
+                console.log(data);
+            },
+            error: function (request, textStatus, errorThrown) {
+
+            }
+        });
+    });
+
     $(document).on('click', '.save-settings', function (e) {
         e.preventDefault();
-        $('.campaign-monitor-woocommerce .progress-notice').slideDown();
+
         var params = $("#lists option:selected").attr('data-url');
+
         var dataToSend = JSON.parse('{"' + decodeURI(params).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
 
         dataToSend.action = 'set_client_list';
 
+        var newList = $('#listName');
+
+        if (newList.is(':visible') && newList.val() == ''){
+            e.preventDefault();
+            newList.css("border", "1px solid red");
+            return false;
+        }
+
+        $('.campaign-monitor-woocommerce .progress-notice').slideDown();
         var subscribe = $('#autoNewsletter').is(':checked');
         var debug = $('#logToggle').is(':checked');
         var subscribeText = $('#subscriptionText').attr('value');
         var subscriptionBox =  $('#subscriptionBox').is(':checked');
 
+        var listToCreate = newList.attr('value');
+        var listType = $('#listType').attr('value');
+        
         dataToSend.debug = debug;
         dataToSend.subscribe = subscribe;
         dataToSend.subscribe_text = subscribeText;
         dataToSend.subscriptionBox = subscriptionBox;
+        dataToSend.new_list_name = listToCreate;
+        dataToSend.new_list_type = listType;
+
 
         $.ajax({
             type: "POST",
@@ -37,10 +70,12 @@ jQuery(document).ready(function($) {
 
                 if (typeof data.error == 'undefined' || data.error == 'false'){
                     $('#poststuff').slideUp();
+                    $('.campaign-monitor-woocommerce .progress-notice').slideUp();
                 }
 
-                $('.campaign-monitor-woocommerce .progress-notice').slideUp();
-                $("#selector .content").slideDown();
+                //$('.campaign-monitor-woocommerce .progress-notice').slideUp();
+
+                //$("#selector .content").slideDown();
             },
             error: function (request, textStatus, errorThrown) {
                 $('.campaign-monitor-woocommerce .progress-notice').slideUp();

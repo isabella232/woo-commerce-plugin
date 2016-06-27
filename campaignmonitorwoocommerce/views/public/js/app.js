@@ -1,7 +1,7 @@
 jQuery.noConflict();
 jQuery(document).ready(function($) {
 
-    $(document).on('change', '#subscriptionBox', function (e) {
+/*    $(document).on('change', '#subscriptionBox', function (e) {
         var dataToSend = {};
         dataToSend.action = 'ajax_handler_nopriv';
         e.preventDefault();
@@ -24,5 +24,5 @@ jQuery(document).ready(function($) {
                 console.log(errorThrown);
             }
         });
-    });
+    });*/
 });

@@ -70,15 +70,19 @@ class CampaignMonitor
      * @param array $auth override the class authentication credentials
      * @return mixed|null list of clients
      */
-    public function instantiate_url($integrationKey, $uri, $scope)
+    public function instantiate_url($integrationKey, $uri, $scope, $state = false)
     {
 
-        $clientsClass = Helper::getPluginDirectory('class/csrest_general.php');
-        require_once $clientsClass;
+        $params["integration_key"] = $integrationKey;
+        $params["domain_uri"] = $uri;
+        $params["scope"] = $scope;
+        if ($state) {
+            $params["state"] = $state;
+        }
 
+        $url = http_build_query($params);
 
-        return \CS_REST_General::instantiate_url($integrationKey, $uri , $scope );
-
+        return 'https://api.createsend.com/oauth' . '?' . $url ;
     }
     /**
      * @param array $auth override the class authentication credentials
@@ -250,39 +254,18 @@ class CampaignMonitor
     public function send_email($to, $listName, $message = array(), $auth = array())
     {
 
-        $clientsClass = Helper::getPluginDirectory('class/csrest_transactional_smartemail.php');
-        require_once $clientsClass;
 
+        $postUrl = 'https://integrationstore-5d74b11ccbdb8fa8.microservice.createsend.com/campaign-monitor-for-woo-commerce/email/data-synced';
 
-        if (empty($auth)) {
-            $auth = $this->auth;
-        }
+        $data = array();
+        $data['ToEmail'] = $to;
+        $data['ListName'] = $listName;
+        $data['SubscriberCount'] = $message['subscribers_count'];
+        $options = array("type" => "json");
+        $headers = array('Authorization: Bearer ' . Settings::get('access_token'), 'Content-Type: application/json', 'Cache-Control: no-cache');
 
-        # Authenticate with your API key
-        $auth = array('api_key' => 'bec752a7679933b7023e7f7b3d3d913b42a209574e588852');
-        # The unique identifier for this smart email
-        $smart_email_id = 'f0f9f23b-bcb2-488c-8acf-13093fe25f7b';
-        # Create a new mailer and define your message
-        $instance = new \CS_REST_Transactional_SmartEmail($smart_email_id, $auth);
-
-        $message['List Name'] = $listName;
-        $message = array(
-            "To" => $to,
-            "Data" => $message,
-        );
-        # Send the message and save the response
-        $result = $instance->send($message);
-
-        if ($result->was_successful()) {
-             return $result->response;
-        } else {
-            // TODO log exception
-            return $result->response;
-           self::$errors[] = $result->response;
-           //$requestResults->status_code = $result->http_status_code;
-        }
-
-        return null;
+        Connect::request($data, $postUrl, $options, $headers );
+        return;
     }
     /**
      * @param array $auth override the class authentication credentials
@@ -305,22 +288,37 @@ class CampaignMonitor
         if ($result->was_successful()) {
              return $result->response;
         } else {
-            // TODO log exception
-            return $result->response;
-            echo 'Failed with code '.$result->http_status_code."\n<br /><pre>";
-            var_dump($result->response);
-            echo '</pre>';
 
-            if($result->response->ResultData->TotalExistingSubscribers > 0) {
-                echo 'Updated '.$result->response->ResultData->TotalExistingSubscribers.' existing subscribers in the list';
-            } else if($result->response->ResultData->TotalNewSubscribers > 0) {
-                echo 'Added '.$result->response->ResultData->TotalNewSubscribers.' to the list';
-            } else if(count($result->response->ResultData->DuplicateEmailsInSubmission) > 0) {
-                echo $result->response->ResultData->DuplicateEmailsInSubmission.' were duplicated in the provided array.';
-            }
+           Log::write($result->response);
+           self::$errors[] = $result->response;
 
-            echo 'The following emails failed to import correctly.<pre>';
-            var_dump($result->response->ResultData->FailureDetails);
+        }
+
+        return null;
+    }
+    /**
+     * @param array $auth override the class authentication credentials
+     * @return mixed
+     */
+    public function add_subscriber($listId, $data, $auth = array())
+    {
+
+        $clientsClass = Helper::getPluginDirectory('class/csrest_subscribers.php');
+        require_once $clientsClass;
+
+
+        if (empty($auth)) {
+            $auth = $this->auth;
+        }
+
+        $instance = new \CS_REST_Subscribers($listId, $auth);
+        $result = $instance->add($data);
+
+        if ($result->was_successful()) {
+             return $result->response;
+        } else {
+
+           Log::write($result->response);
            self::$errors[] = $result->response;
 
         }
@@ -357,9 +355,9 @@ class CampaignMonitor
              return $result->response;
         } else {
             // TODO log exception
+            Log::write($result->response);
+            self::$errors[] = $result->response;
             return $result->response;
-           self::$errors[] = $result->response;
-           //$requestResults->status_code = $result->http_status_code;
         }
 
         return null;
@@ -461,7 +459,7 @@ class CampaignMonitor
              return $result->response;
         } else {
             // TODO log exception
-
+            Log::write($result->response);
            self::$errors[] = $result->response;
            //$requestResults->status_code = $result->http_status_code;
         }
@@ -476,35 +474,34 @@ class CampaignMonitor
      */
     public function create_list($clientId, $listTitle, $confirmedOptIn = false, $unsubscribePage = '', $confirmationPage = '', $auth = array())
     {
+            $clientsClass = Helper::getPluginDirectory('class/csrest_lists.php');
+            require_once $clientsClass;
+            $requestResults = new \stdClass();
 
-        $clientsClass = Helper::getPluginDirectory('class/csrest_lists.php');
-        require_once $clientsClass;
-        $requestResults = new \stdClass();
+            if (empty($auth)) {
+                $auth = $this->auth;
+            }
 
-        if (empty($auth)) {
-            $auth = $this->auth;
-        }
+            $instance = new \CS_REST_Lists(NULL, $auth);
 
-        $instance = new \CS_REST_Lists(NULL, $auth);
 
-        $listOptions = array(
-            'Title' => $listTitle,
-            'UnsubscribePage' => $unsubscribePage,
-            'ConfirmedOptIn' => $confirmedOptIn,
-            'ConfirmationSuccessPage' => $confirmationPage,
-            'UnsubscribeSetting' => CS_REST_LIST_UNSUBSCRIBE_SETTING_ALL_CLIENT_LISTS
-        );
+            $listOptions = array(
+                'Title' => $listTitle,
+                'UnsubscribePage' => $unsubscribePage,
+                'ConfirmedOptIn' => $confirmedOptIn,
+                'ConfirmationSuccessPage' => $confirmationPage,
+                'UnsubscribeSetting' => CS_REST_LIST_UNSUBSCRIBE_SETTING_ALL_CLIENT_LISTS
+            );
 
-        $result = $instance->create($clientId, $listOptions );
+            $result = $instance->post_request($instance->_base_route . 'lists/' . $clientId . '.json', $listOptions);
 
-        if ($result->was_successful()) {
-             return $result->response;
-        } else {
-            // TODO log exception
-            return  $result->response;
-           self::$errors[] = $result->response;
-           //$requestResults->status_code = $result->http_status_code;
-        }
+            if ($result->was_successful()) {
+                return $result->response;
+            } else {
+                self::$errors[] = $result->response;
+                Log::write($result->response);
+                return  $result->response;
+            }
 
         return null;
     }
@@ -532,6 +529,7 @@ class CampaignMonitor
              return $result->response;
         } else {
             // TODO log exception
+            Log::write($result->response);
            self::$errors[] = $result->response;
            //$requestResults->status_code = $result->http_status_code;
         }

@@ -4,7 +4,6 @@ namespace core;
 
 class HttpClient{
 
-
     public function request($postURL, $dataToPost, $curlTYPE, $headers)
     {
         $results = '';
@@ -15,6 +14,7 @@ class HttpClient{
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, '0');
@@ -38,7 +38,9 @@ class HttpClient{
 
 
         $results = curl_exec($ch);
-        //$this->httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $info = curl_getinfo($ch);
+
+//        $this->httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         return $results;
