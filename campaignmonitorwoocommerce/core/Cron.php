@@ -37,22 +37,23 @@ class Cron
             $users_per_page = 5;
             $page = 1;
 
-              // count the number of users found in the query
+            // count the number of users found in the query
             $total_users = Customer::getTotal();
-
+            $listDetails = App::$CampaignMonitor->get_list_details($defaultListId);
 
             // calculate the total number of pages.
             $total_pages = ceil($total_users / $users_per_page);
             $subscribedUsers = Subscribers::get();
             $subscribers = array();
             $totalUserSync = 0;
+            $results = null;
             for ($currentPage = 1; $currentPage <= $total_pages; $currentPage++) {
 
                 $results =  \core\Customer::getData($currentPage, $users_per_page);
 
                 $data = $results->data;
                 $totalUserSync += count($data);
-                
+
                 $mappedFields = Map::get();
 
                 foreach ($data as $datum) {
@@ -63,11 +64,12 @@ class Cron
                     $formattedCustomer = Customer::format($datum, $mappedFields, $isSubscribe);
                     $subscribers[] = (array)$formattedCustomer;
                 }
-
+                Log::write($subscribers);
+                $results = App::$CampaignMonitor->import_subscribers($defaultListId, $subscribers);
             }
 
-            $listDetails = App::$CampaignMonitor->get_list_details($defaultListId);
-            $results = App::$CampaignMonitor->import_subscribers($defaultListId, $subscribers);
+
+
 
             if (!empty($results)){
                 $totalUniqueEmailsSubmitted  =  $results->TotalUniqueEmailSubmitted;
