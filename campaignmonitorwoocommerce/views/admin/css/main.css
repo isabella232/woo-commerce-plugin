@@ -132,6 +132,10 @@
     display: none;
 }
 
+.campaign-monitor-woocommerce input[type="checkbox"] {
+    margin: -4px 4px 0 1px;
+}
+
 .sk-circle {
     margin: 100px auto;
     width: 100px;
@@ -318,8 +322,8 @@
  }
 
  .preview-box {
-     position: absolute;
-     bottom:-2em;
+     /*position: absolute;*/
+     /*top:0;*/
  }
 
 .log-output {
@@ -335,7 +339,34 @@
     overflow: auto;
 }
 
+#btnConnect {
+    text-align: center;
+    min-width:0;
+}
+#postbox-container-1 {
+    position: relative;
+}
+.campaign-monitor-woocommerce #subscriptionLegend {
+    position:relative;
+}
+
+.campaign-monitor-woocommerce .form-table td {
+    vertical-align:top;
+}
+
+
+@media only screen and (max-width: 1130px) {
+    .preview-box {
+        bottom:3.2em;
+    }
+}
+
 @media only screen and (max-width : 820px) {
+    .campaign-monitor-woocommerce #post-body.columns-2 #postbox-container-1 {
+        max-width:300px;
+        float:left;
+    }
+
     .preview-box {
         position: static;
     }

@@ -11,6 +11,7 @@ $logoSrc = $pluginUrl . '/views/admin/images/campaign-monitor.png';
 $prefix = 'campaign_monitor_woocommerce_';
 
 
+$notices = \core\Settings::get('notices');
 // do I have an authorization token
 $autorizationToken = \core\Settings::get('access_token');
 if (!empty($autorizationToken)){
@@ -92,7 +93,7 @@ $clients = array();
 if (!empty($appSettings) && !empty($accessToken)){
     $appSettings = (object)$appSettings;
     $auth = array('access_token' => $appSettings->access_token,
-                  'refresh_token' => $appSettings->refresh_token);
+        'refresh_token' => $appSettings->refresh_token);
     $clients = \core\App::$CampaignMonitor->get_clients($auth);
 
     if (count($clients) == 1){
@@ -153,79 +154,80 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
     <div  id="fieldMappper" class="modal">
         <div class="content">
             <span class="btn-close dashicons dashicons-no"></span>
-        <div class="box main-container text-center">
-        <?php if (!empty($defaultList)) : ?>
-            <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
-                <input type="hidden" name="action" value="handle_request">
-                <input type="hidden" name="data[type]" value="map_custom_fields">
-                <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
-            <div class="text-left">
-                <p>&nbsp;&nbsp;You are currently mapping custom fields for <strong>
-                        <?php echo (isset($currentList->Title)) ? $currentList->Title : ''; ?>
-                    </strong>.
-                </p>
-            </div>
-            <table id="fieldMapperTable">
-                <thead>
-                <tr>
-                    <th colspan="4">
+            <div class="box main-container text-center">
+                <?php if (!empty($defaultList)) : ?>
+                    <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
+                        <input type="hidden" name="action" value="handle_request">
+                        <input type="hidden" name="data[type]" value="map_custom_fields">
+                        <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
+                        <div class="text-left">
+                            <p>&nbsp;&nbsp;You are currently mapping custom fields for <strong>
+                                    <?php echo (isset($currentList->Title)) ? $currentList->Title : ''; ?>
+                                </strong>.
+                            </p>
+                        </div>
+                        <table id="fieldMapperTable">
+                            <thead>
+                            <tr>
+                                <th colspan="4">
 
-                    </th>
-                </tr>
-                <tr>
-                    <th>#</th>
-                    <th>
-                        Campaign Monitor Custom Fields
-                    </th>
-                    <th>Woocommerce Fields</th>
-                 <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($campaignMonitorFields as $field):
-                    $fieldName = str_replace(array('[', ']'),'' , $field->Key );
-                    $fieldName = htmlentities($fieldName);
-                    ?>
-                    <tr>
-                        <td>
-                            <?php echo $counter++; ?>
-                        </td>
-                        <td>
-                            <input type="text" class="regular-text ltr" name="data[fields][<?php echo $fieldName; ?>][name]" value="<?php echo $field->FieldName; ?>">
-                        </td>
-                        <td>
-                            <?php
-                            $matches = array_keys($mappedFields, $field->Key);
-                            $isSelected = false;
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>
+                                    Campaign Monitor Custom Fields
+                                </th>
+                                <th>Woocommerce Fields</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($campaignMonitorFields as $field):
+                                $fieldName = str_replace(array('[', ']'),'' , $field->Key );
+                                $fieldName = htmlentities($fieldName);
+                                ?>
+                                <tr>
+                                    <td>
+                                        <?php echo $counter++; ?>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="regular-text ltr" name="data[fields][<?php echo $fieldName; ?>][name]" value="<?php echo $field->FieldName; ?>">
+                                    </td>
 
-                             if (!empty($matches)){
-                                 foreach ($matches as $match){
-                                     if  ($mappedFields[$match] == $field->Key){
-                                         $isSelected = $match;
-                                     }
-                                 }
-                             }
-                                  $attributes =  array(
-                                        'id'       => $field->Key,
-                                        'name'     => "data[fields][{$fieldName}][map_to]",
-                                        'class'    => 'dropdown-select mapped-fields',
-                                    );
-                            ?>
-                            <?php switch ($field->DataType) {
-                                case 'Number' :
-                                    echo \core\Fields::get_select(\core\FieldType::NUMBER, $isSelected, $attributes );
-                                    break;
-                                case 'Text' :
-                                    echo \core\Fields::get_select(\core\FieldType::TEXT, $isSelected, $attributes);
-                                    break;
-                                case 'Date' :
-                                    echo \core\Fields::get_select(\core\FieldType::DATE, $isSelected, $attributes);
-                                    break;
-                            }
-                            ?>
-                        </td>
-                       <td>
-                            <?php /*switch ($field->DataType) {
+                                    <td>
+                                        <?php
+                                        $matches = array_keys($mappedFields, $field->Key);
+                                        $isSelected = false;
+
+                                        if (!empty($matches)){
+                                            foreach ($matches as $match){
+                                                if  ($mappedFields[$match] == $field->Key){
+                                                    $isSelected = $match;
+                                                }
+                                            }
+                                        }
+                                        $attributes =  array(
+                                            'id'       => $field->Key,
+                                            'name'     => "data[fields][{$fieldName}][map_to]",
+                                            'class'    => 'dropdown-select mapped-fields',
+                                        );
+                                        ?>
+                                        <?php switch ($field->DataType) {
+                                            case 'Number' :
+                                                echo \core\Fields::get_select(\core\FieldType::NUMBER, $isSelected, $attributes );
+                                                break;
+                                            case 'Text' :
+                                                echo \core\Fields::get_select(\core\FieldType::TEXT, $isSelected, $attributes);
+                                                break;
+                                            case 'Date' :
+                                                echo \core\Fields::get_select(\core\FieldType::DATE, $isSelected, $attributes);
+                                                break;
+                                        }
+                                        ?>
+                                    </td>
+                                    <td>
+                                        <?php /*switch ($field->DataType) {
                                 case 'Number' :
                                     echo '<span class="dashicons dashicons-editor-ol"></span>';
                                     break;
@@ -237,83 +239,75 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     break;
                             }
                             */?>
-                           &nbsp;
-                        </td>
+                                        &nbsp;
+                                    </td>
 
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-                </table>
-                <?php
-                $attributes =  array(
-                    'id'       => 'newFieldSelect',
-                    'name'     => "",
-                    'class'    => 'dropdown-select mapped-fields',
-                );
-               echo \core\Fields::get_select(\core\FieldType::ALL, false, $attributes);
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <?php
+                        $attributes =  array(
+                            'id'       => 'newFieldSelect',
+                            'name'     => "",
+                            'class'    => 'dropdown-select mapped-fields',
+                        );
+                        echo \core\Fields::get_select(\core\FieldType::ALL, false, $attributes);
 
-                ?>
-                <button id="btnCreateCustomField" type="button" class="button regular-text ltr">
-                    Add Custom Field
-                </button>
-                <button id="btnSaveMapping" type="submit" class="button button-primary regular-text ltr">
-                    Save Mapping
-                </button>
+                        ?>
+                        <button id="btnCreateCustomField" type="button" class="button regular-text ltr">
+                            Add Custom Field
+                        </button>
+                        <button id="btnSaveMapping" type="submit" class="button button-primary regular-text ltr">
+                            Save Mapping
+                        </button>
 
-        </form>
-        <?php endif; ?>
+                    </form>
+                <?php endif; ?>
             </div>
-    </div>
         </div>
+    </div>
 
     <?php if (!empty($defaultList)) : ?>
-        <div class="updated notice cm-plugin-ad is-dismissible">
-            <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
-                <a href="https://www.campaignmonitor.com/" target="_blank">
-                    Campaign Monitor
-                </a>
-                We've also created 6 segments for you there.
+        <?php if (!in_array('connected_list_notice',$notices )) : ?>
+            <div data-method="connected_list_notice" class="updated notice cm-plugin-ad is-dismissible">
+                <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
+                    <a href="https://www.campaignmonitor.com/" target="_blank">
+                        Campaign Monitor
+                    </a>
+                    We've also created 6 segments for you there.
+                </p>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if (!in_array('show_ad',$notices )) : ?>
+        <div id="cmPlugin" data-method="show_ad" class="updated notice cm-plugin-ad is-dismissible">
+            <p>Check out the
+                <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> -- add beautiful forms to your website to capture subscriber data.
             </p>
         </div>
     <?php endif; ?>
 
-    <div id="cmPlugin" class="updated notice cm-plugin-ad is-dismissible">
-       <p>Check out the
-           <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture ubscriber data.
-        </p>
-    </div>
-
 
 
     <?php if (!\core\App::is_connected()) : ?>
-    <div class="box main-container text-center">
-        <div class="logo-container">
-            <img class="logo" src="<?php echo $logoSrc; ?>" alt="Campaign Monitor Logo"/>
-        </div>
-        <h2>Get started with Campaign Monitor for Woocommerce </h2>
-        <p>
-            <a class="static button  button-primary button-large" target="_blank" href="<?php echo \core\App::getConnectUrl(); ?>">Connect</a>
-        </p>
-        <p>Connect your Campaign Monitor account so you can transfer data from Woocommerce and send personalized emails.</p>
-        <p>Don't have a Campaign Monitor account? <a href="https://www.campaignmonitor.com/signup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral">Sign up for free today</a></p>
-    </div>
-    <?php else : ?>
+        <p>Campaign Monitor lets you manage your subscriber lists and email campaigns.<a href="https://www.campaignmonitor.com/signup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral">Send something beautiful today</a></p>
+        <a id="btnConnect" class="static button  button-primary" target="_blank" href="<?php echo \core\App::getConnectUrl(); ?>">Connect</a>
+        <?php else : ?>
 
-    <div>
+        <div>
             <?php if (!empty($clients)) : ?>
 
                 <div id="poststuff">
                     <div id="post-body" class="metabox-holder columns-2">
-                        Choose the client you want to connect to <?php echo bloginfo('name') ?>.
 
-                    </div>
-                    <div id="post-body" class="metabox-holder columns-2">
                         <div id="post-body-content">
+                            <table ></table>
                             <table class="list form-table">
-
                                 <tr valign="top" <?php echo (count($clients) > 1) ? "" : 'style="display:none;"'; ?> >
                                     <th scope="row">
-                                        Client List
+                                        Client
                                     </th>
                                     <td>
                                         <select id="clientSelection"  class="ajax-call dropdown-select">
@@ -321,7 +315,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                                 Please select client
                                             </option>
                                             <option disabled>
-                                               ---
+                                                ---
                                             </option>
                                             <?php
                                             // [ClientID] => c4339e20ba838cd827e4b59b28a83d69
@@ -351,10 +345,10 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     <td>
                                         <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
 
-                                                        <input type="hidden" name="action" value="handle_request">
-                                                        <input type="hidden" name="data[type]" value="create_client">
-                                                        <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
-                                                        <input type="hidden" id="clientNameData" name="data[client_name]" placeholder="New Client Name" value="">
+                                            <input type="hidden" name="action" value="handle_request">
+                                            <input type="hidden" name="data[type]" value="create_client">
+                                            <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
+                                            <input type="hidden" id="clientNameData" name="data[client_name]" placeholder="New Client Name" value="">
 
                                             <button id="btnCreateNewClient" type="submit" class="regular-text ltr" placeholder="List Name">
                                                 Create Client
@@ -398,18 +392,13 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                                 <strong>Single opt-in</strong> means new subscribers are added to this list as soon as
                                                 they complete the subscribe form.
                                             </em>
-                                 </p>
+                                        </p>
                                         <p><em>
-                                            <strong>Confirmed opt-in</strong> means a confirmation email will be sent with a link they must click to validate their address. This confirmation isn't required when you
-                                            import existing subscribers, only when new subscribers join via your subscribe form.</em></p>
+                                                <strong>Confirmed opt-in</strong> means a confirmation email will be sent with a link they must click to validate their address. This confirmation isn't required when you
+                                                import existing subscribers, only when new subscribers join via your subscribe form.</em></p>
                                         <p><em><a href="http://help.campaignmonitor.com/topic.aspx?t=16">Learn more about confirmed opt-in lists.</a></em> </p>
-                                    </td>
-                                </tr>
-                                <tr valign="top" class="new-list-creation">
-                                    <th scope="row">
 
-                                    </th>
-                                    <td>
+
                                         <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
                                             <input type="hidden" name="action" value="handle_request">
                                             <input type="hidden" name="data[type]" value="create_list">
@@ -417,15 +406,15 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                             <input type="hidden" id="listNameData" name="data[list_name]" value="">
                                             <input type="hidden" id="clientIdData" name="data[client_id]" value="">
                                             <input type="hidden" id="optInData" name="data[opt_in]" value="">
-                                            <button id="btnCreateList" type="submit" class="regular-text ltr" placeholder="List Name">
-                                                Create List
-                                            </button>
+                                            <!--                                            <button id="btnCreateList" type="submit" class="regular-text ltr" placeholder="List Name">-->
+                                            <!--                                                Create List-->
+                                            <!--                                            </button>-->
                                         </form>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">
-                                        Subscription Box Text
+                                        Subscription Box
                                     </th>
                                     <td>
 
@@ -436,7 +425,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                 </tr>
                                 <tr id="subscriptionLegend" class="<?php echo ($subscriptionBox) ? '': 'hidden'; ?> ">
                                     <th scope="row">
-                                        Subscription Text
+                                        Subscription Box Text
                                     </th>
                                     <td>
 
@@ -446,6 +435,24 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
 
                                     </td>
+                                    <td>
+                                        <div id="postbox-container-1" class="postbox-container ">
+                                            <div id="side-sortables" class="preview-box meta-box-sortables ui-sortable" style=""><div id="submitdiv" class="postbox ">
+                                                    <button type="button" class="handlediv button-link" aria-expanded="true"><span class="screen-reader-text">Preview
+                                </span>
+                                                        <!--                                        <span class="toggle-indicator" aria-hidden="true"></span>-->
+                                                    </button><h2 class="hndle ui-sortable-handle">
+                                                        <span>Preview</span></h2>
+                                                    <div class="inside">
+
+                                                        <img src="<?php echo $srcUrl; ?>preview.png"/>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">
@@ -454,28 +461,28 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     <td>
                                         <label>
                                             <label for="logToggle">
-                                            <input id="logToggle" name="log_toggle" <?php echo ($canViewLog) ? 'checked="checked"': ''; ?> type="checkbox">
+                                                <input id="logToggle" name="log_toggle" <?php echo ($canViewLog) ? 'checked="checked"': ''; ?> type="checkbox">
                                                 Enable Logging </label>
-                                                <?php if  ($canViewLog)   : ?>
-                                                    <div class="log-output modal">
-                                                        <div class="content">
-                                                            <span class="btn-close dashicons dashicons-no"></span>
-                                                            <div class="debug-log">
-                                                                <div class="output">
-                                                                    <?php
-                                                                    echo \core\Log::getContent();
-                                                                    ?>
-                                                                </div>
+                                            <?php if  ($canViewLog)   : ?>
+                                                <div class="log-output modal">
+                                                    <div class="content">
+                                                        <span class="btn-close dashicons dashicons-no"></span>
+                                                        <div class="debug-log">
+                                                            <div class="output">
+                                                                <?php
+                                                                echo \core\Log::getContent();
+                                                                ?>
                                                             </div>
                                                         </div>
-
                                                     </div>
 
-                                                    <span class="separator">|</span>
-                                                    <a id="btnViewLog" href="">
-                                                        View Log
-                                                    </a>
-                                                <?php endif; ?>
+                                                </div>
+
+                                                <span class="separator">|</span>
+                                                <a id="btnViewLog" href="">
+                                                    View Log
+                                                </a>
+                                            <?php endif; ?>
 
                                             <p><em>Only enable logging to help get better support from Campaign Monitor</em></p>
 
@@ -488,22 +495,6 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
                         </div><!-- /post-body-content -->
 
-                        <?php if ($subscriptionBox) : ?>
-                        <div id="postbox-container-1" class="postbox-container  <?php echo (!$subscription) ? 'hidden': ''; ?>">
-                            <div id="side-sortables" class="preview-box meta-box-sortables ui-sortable" style=""><div id="submitdiv" class="postbox ">
-                                    <button type="button" class="handlediv button-link" aria-expanded="true"><span class="screen-reader-text">Preview
-                                </span><span class="toggle-indicator" aria-hidden="true"></span></button><h2 class="hndle ui-sortable-handle">
-                                        <span>Preview</span></h2>
-                                    <div class="inside">
-
-                                        <img src="<?php echo $srcUrl; ?>preview.png"/>
-                                    </div>
-                                </div>
-
-
-                            </div>
-                        </div>
-                        <?php endif; ?>
 
                     </div><!-- /post-body -->
                     <br class="clear">
@@ -515,72 +506,72 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
             <?php else : ?>
                 <?php if (empty($defaultList)) : ?>
-            <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
-                    <table>
-                        <tr>
-                            <td>
-                                <div class="notice notice-error">
-                                    <p>
-                                        It seems like you have no clients in your account.
-                                        Please create a client on
-                                        <a href="https://www.campaignmonitor.com/" target="_blank">
-                                            Campaign Monitor
-                                        </a> before continuing.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr style="display: none;">
-                            <td>
-                                <input type="hidden" name="action" value="handle_request">
-                                <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
-                                <input type="hidden" name="data[type]" value="create_client">
-                                <input type="text" name="data[client_name]" placeholder="New Client Name">
-                            </td>
-                        </tr>
-                        <tr style="display: none;">
-                            <td>
-                                <input type="submit" class="button primary button-primary button-large" value="Create Client">
-                            </td>
-                        </tr>
-                    </table>
-            </form>
+                    <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="notice notice-error">
+                                        <p>
+                                            It seems like you have no clients in your account.
+                                            Please create a client on
+                                            <a href="https://www.campaignmonitor.com/" target="_blank">
+                                                Campaign Monitor
+                                            </a> before continuing.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="display: none;">
+                                <td>
+                                    <input type="hidden" name="action" value="handle_request">
+                                    <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
+                                    <input type="hidden" name="data[type]" value="create_client">
+                                    <input type="text" name="data[client_name]" placeholder="New Client Name">
+                                </td>
+                            </tr>
+                            <tr style="display: none;">
+                                <td>
+                                    <input type="submit" class="button primary button-primary button-large" value="Create Client">
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
 
-                    <?php endif; ?>
+                <?php endif; ?>
             <?php endif; ?>
 
-    <?php if (true == false) : ?>
+            <?php if (true == false) : ?>
 
-        <div class="box main-container text-center">
-            <img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">
-            <h1>You're Connected</h1>
-            <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
-                <a href="https://www.campaignmonitor.com/" target="_blank">
-                    Campaign Monitor
-                </a>
-            </p>
-            <div>
-                <ul class="action-buttons">
-
-                    <li>
-                        <button type="button" class="post-ajax button"  id="btnRecreateSegments" data-url="<?php  echo $actionUrl . '&ClientID=' . $defaultClient . '&ListID=' . $defaultList . '&action=set_client_list'; ?>" name="recreate_segments">Recreate Segments</button>
-
-                    </li>
-                    <li>
-                        <button type="button" class="button"  id="btnMapCustomFields" name="map_custom_fields">Map Custom Fields</button>
-
-                    </li>
-                    <li>
-                        <a class=" button primary button-primary button-large switch-list" href="<?php echo get_admin_url(); ?>/admin.php?page=campaign_monitor_woocommerce&disconnect=true">
-                            Switch List
+                <div class="box main-container text-center">
+                    <img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">
+                    <h1>You're Connected</h1>
+                    <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
+                        <a href="https://www.campaignmonitor.com/" target="_blank">
+                            Campaign Monitor
                         </a>
-                    </li>
+                    </p>
+                    <div>
+                        <ul class="action-buttons">
 
-                </ul>
-            </div>
-        </div>
+                            <li>
+                                <button type="button" class="post-ajax button"  id="btnRecreateSegments" data-url="<?php  echo $actionUrl . '&ClientID=' . $defaultClient . '&ListID=' . $defaultList . '&action=set_client_list'; ?>" name="recreate_segments">Recreate Segments</button>
 
-    <?php endif; ?>
+                            </li>
+                            <li>
+                                <button type="button" class="button"  id="btnMapCustomFields" name="map_custom_fields">Map Custom Fields</button>
+
+                            </li>
+                            <li>
+                                <a class=" button primary button-primary button-large switch-list" href="<?php echo get_admin_url(); ?>/admin.php?page=campaign_monitor_woocommerce&disconnect=true">
+                                    Switch List
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+
+            <?php endif; ?>
 
         </div>
 

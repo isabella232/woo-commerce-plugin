@@ -22,6 +22,8 @@ if ($noSSL){
     echo $html;
 
 }
+$notices = \core\Settings::get('notices');
+
 ?>
 
 <div class="wrap">
@@ -30,22 +32,24 @@ if ($noSSL){
             <div class="post-body-content">
                 <h1>Campaign Monitor Settings</h1>
 
-            <div id="cmPlugin" class="updated notice cm-plugin-ad is-dismissible">
-                <p>Check out the
-                    <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture ubscriber data.
-                </p>
-            </div>
+                <?php if (!in_array('show_ad',$notices )) : ?>
+                    <div id="cmPlugin" data-method="show_ad" class="updated notice cm-plugin-ad is-dismissible">
+                        <p>Check out the
+                            <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture subscriber data.
+                        </p>
+                    </div>
+                <?php endif; ?>
             <h2>Campaign Monitor Client ID and Client Secret</h2>
             <p>Please enter your client ID and client secret.</p>
             <p>To retrieve them:</p>
             <ol>
                 <li>In your Campaign Monior account, select <strong>Integrations</strong> tab in the top navigation.
-                if don't see it, you are using the multi-client edition of Campaign Monitor, and will need to select a client list first. </li>
+                if don't see it, you are using the multi-client edition of Campaign Monitor, and will need to select a client first. </li>
             <li>
                 In the "OAuth Registrations" section, find WooCommerce, then select <strong>View</strong> next to the WooCommerce icon.
             </li>
                 <li>
-                    Copy paste the client ID and client secret into the fields below, then select <strong>Save Changes</strong>
+                    Copy paste the client ID and client secret into the fields below, then select <strong>Save Changes.</strong>
                 </li>
             </ol>
                     <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
@@ -62,7 +66,7 @@ if ($noSSL){
                                 </td>
                             </tr>
                             <tr>
-                                <th><label for="client_secrect">Client Secrect</label></th>
+                                <th><label for="client_secrect">Client Secret</label></th>
                                 <td>
                                     <input type="text" class="regular-text" value="<?php echo $clientSecret; ?>" id="client_secret" name="client_secret">
                                     <br>

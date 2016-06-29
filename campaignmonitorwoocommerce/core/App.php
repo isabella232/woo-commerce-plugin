@@ -61,6 +61,8 @@ class App
             add_filter('admin_body_class', array(__CLASS__, 'add_admin_body_class'));
             add_action('admin_menu', array(__CLASS__, 'custom_menu_page_removing'));
             add_action('admin_post_handle_request', array(__CLASS__, 'handle_request'));
+            add_action('admin_post_nopriv', array(__CLASS__, 'handle_request'));
+
 //            add_action('woocommerce_proceed_to_checkout', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_review_order_after_submit', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'checkout_process'));
@@ -72,24 +74,11 @@ class App
             self::$CampaignMonitor = new CampaignMonitor($accessToken, $refreshToken);
 
 
-           // 1 instantiate app
-            if (!\core\App::is_connected()) {
-                // this will call campaign monitor and send a POST request
-                // that will have client id and client secret
-                $adminUri = get_admin_url() . 'admin.php';
-                $instantiateUrl = self::$CampaignMonitor->instantiate_url("campaign-monitor-for-woo-commerce", $adminUri, Helper::getCampaignMonitorPermissions());
-
-
-//                wp_redirect($instantiateUrl);
-//                die();
-            }
-
             if (isset($_GET['error']) && !empty($_GET['error'])) {
 
                 Helper::updateOption('no_ssl', true);
                 $title = $_GET['error'];
                 $description = $_GET['error_description'];
-
                 $error['title'] = $title;
                 $error['description'] = $description;
 
@@ -100,31 +89,30 @@ class App
                 die();
             }
 
+            $fileContent = file_get_contents("php://input");
+            if (!empty($fileContent)){
+                $credentials = json_decode($fileContent);
 
+                if (!empty($credentials)){
+                    if (!empty($credentials)) {
+                        if (isset($credentials->ClientId) && isset($credentials->ClientSecret)) {
 
-            // 2 instantiate app will send client id and secret
-            // on a json object on post request
-            if (!empty($_POST)) {
-                if (array_key_exists('client_id', $_POST)) {
+                            // extract client id and client secret from post request
+                            $clientId = $credentials->ClientId;
+                            $clientSecret = $credentials->ClientSecret;
 
+                            // save for subsequent request
+                            \core\Settings::add('client_secret', $clientSecret );
+                            \core\Settings::add('client_id', $clientId);
 
-                    // extract client id and client secret from post request
-                    $credentials = (object)$_POST;
-                    $clientId = $credentials->client_id;
-                    $clientSecret = $credentials->client_secret;
+                            $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
 
-                    // save for subsequent request
-                    \core\Settings::add('client_secret', $clientSecret );
-                    \core\Settings::add('client_id', $clientId);
-
-                    $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
-
-                    // redirect to get an access token
-                    wp_redirect($authorizeUrl);
-                    die();
+                            // redirect to get an access token
+                            wp_redirect($authorizeUrl);
+                            die();
+                        }
+                    }
                 }
-
-
             }
 
             self::$Cron = new Cron();
@@ -167,19 +155,18 @@ class App
                 $mappedFields = Map::get();
                 $details = current($newCustomer->data);
 
+                $autoSubscribe = Helper::getOption(automatic_subscription);
+                if (!empty($autoSubscribe) && $autoSubscribe ){
+                    Subscribers::add($_POST['billing_email']);
+                }
+
                 $userToExport = Customer::format($details, $mappedFields, $isSubscribe);
 
                 $userToExport = (array)$userToExport;
                 $result = self::$CampaignMonitor->add_subscriber($listId, $userToExport);
-                Helper::display($userToExport);
+
             }
-            Helper::display($result);
-
-
-        }
-
-        
-        die();
+          }
     }
     public static function woocommerce_subscription_box(){
 
@@ -194,7 +181,7 @@ class App
         $html .= '<input id="subscriptionNonce" type="hidden" name="subscription_nonce" value="'.wp_create_nonce('app_nonce').'">';
 //        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox">'.$legend.'</label>';
         $html .= '<label for="cmw_register_email">';
-        $html .= '<input id="cmw_register_email" name="cmw_register_email" value="on" type="checkbox">'.$legend.'</label>';
+        $html .= '<input id="cmw_register_email" name="cmw_register_email" value="on" checked="checked" type="checkbox">'.$legend.'</label>';
 //        $html .= '</form>';
         $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
@@ -250,6 +237,9 @@ class App
         $data = $_REQUEST['data'];
         $nonce = $data['app_nonce'];
         $type = $data['type'];
+
+
+
 
         $nonce = wp_verify_nonce($nonce, 'app_nonce');
         switch ($nonce) {
@@ -371,6 +361,7 @@ class App
      */
     public static function plugin_activation()
     {
+        // show a notice advertising the form plugin
 
     }
 
@@ -383,7 +374,7 @@ class App
     {
 
         //create new top-level menu
-        $pageTitle = "Campaign Monitor for Woocommerce";
+        $pageTitle = "Campaign Monitor for WooCommerce";
         $menuTitle = "Campaign Monitor<br> for  WooCommerce";
         $capability = 'administrator';
         $menuSlug = 'campaign_monitor_woocommerce';
@@ -459,9 +450,10 @@ class App
 
     public static function auto_deactivate()
     {
-        if (get_option('campaign_monitor_woocommerce')) {
-            delete_option('campaign_monitor_woocommerce');
+        if (Helper::getOPtion('campaign_monitor_woocommerce')) {
+            Helper::deleteOption('campaign_monitor_woocommerce');
         }
+        Settings::add('notices', array());
         deactivate_plugins(self::$pluginPath);
     }
 
@@ -482,8 +474,9 @@ class App
 
         } else {
 
-            if ("1.0" != get_option('campaign_monitor_woocommerce')) {
-                add_option('campaign_monitor_woocommerce', "1.0");
+            if ("1.0" != Helper::getOption('campaign_monitor_woocommerce')) {
+                Helper::updateOption('campaign_monitor_woocommerce', "1.0");
+                Settings::add('notices', array());
 
                 $html = '<div id="message" class="updated notice is-dismissible">';
                 $html .= '<p>';
@@ -514,7 +507,7 @@ class App
         }
 
         // Display an error message if the option isn't properly deleted.
-        if (false == delete_option('campaign_monitor_woocommerce')) {
+        if (false == Helper::deleteOption('campaign_monitor_woocommerce')) {
 
             $html = '<div class="error">';
             $html .= '<p>';

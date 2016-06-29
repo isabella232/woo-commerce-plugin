@@ -12,13 +12,14 @@ abstract class Log
 
         try{
             if (file_exists($filePath)) {
-                chmod($filePath, 0777);
+
                 self::$filename = $filePath;
             } else {
                 $handle = fopen($filePath, 'w');
                 fclose($handle);
                 self::$filename = $filePath;
-                chmod(self::$filename, 0777);
+
+
             }
         } catch(Exception $e){
             echo $e->getMessage();

@@ -3,8 +3,11 @@ jQuery.noConflict();
 jQuery(document).ready(function($) {
 
     $(document).on('click', '.cm-plugin-ad', function (e) {
+        var method = $(this).attr('data-method');
         var dataToSend = {};
         dataToSend.action = 'dismiss_notice';
+        dataToSend.method = method;
+
         $.ajax({
             type: "POST",
             url: ajax_request.ajax_url,
@@ -14,7 +17,7 @@ jQuery(document).ready(function($) {
                 console.log(data);
             },
             error: function (request, textStatus, errorThrown) {
-
+                console.log(request);
             }
         });
     });

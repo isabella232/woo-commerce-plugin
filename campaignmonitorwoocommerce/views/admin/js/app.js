@@ -7,9 +7,6 @@ jQuery(document).ready(function($) {
     $(document).on('change', '#subscriptionBox', function (e) {
         $('#subscriptionLegend').toggleClass('hidden');
     });
-    $(document).on('change', '#autoNewsletter', function (e) {
-        $('#postbox-container-1').toggleClass('hidden');
-    });
 
 
     $(document).on('click', '#btnViewLog', function (e) {

@@ -33,7 +33,23 @@ abstract class Ajax
     }
 
     public static function dismiss_notice(){
-       wp_send_json('testing');
+        
+        if (array_key_exists('method', $_POST)){
+            $method = $_POST['method'];
+            $notices = Settings::get('notices');
+
+            if (empty($notices)){
+                $notices = array($method);
+            } else {
+                if (is_array($notices)){
+                    if (!in_array($method,$notices)){
+                        array_push($notices, $method);
+                    }
+                }
+            }
+            Settings::add('notices', $notices);
+        }
+
     }
 
 
@@ -467,9 +483,7 @@ abstract class Ajax
     // non authenticated users
     public static function ajax_handler_nopriv()
     {
-        $params = $_POST;
 
-        wp_send_json(print_r($params, true));
     }
     
     

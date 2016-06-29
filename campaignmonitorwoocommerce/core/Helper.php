@@ -19,6 +19,8 @@ abstract class Helper {
 
     }
 
+
+
     public static function getMaximumFieldsCount(){
         return 50;
     }
@@ -28,6 +30,12 @@ abstract class Helper {
         $option = get_option($optionName,$mixed);
         return $option;
     }
+
+    public static function deleteOption($name){
+        $optionName = self::$pluginName . '_' . $name;
+        delete_option($optionName);
+    }
+
 
     public static function getActionUrl(){
        return get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce';

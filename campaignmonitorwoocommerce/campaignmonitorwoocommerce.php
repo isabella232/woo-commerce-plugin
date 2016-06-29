@@ -3,11 +3,11 @@
  * @package Akismet
  */
 /*
-Plugin Name: Campaign Monitor for Woocommerce
+Plugin Name: Campaign Monitor for WooCommerce
 Plugin URI: https://www.campaignmonitor.com/integrations/
-Description: Email marketing with all the features you want. With <strong>Campaign Monitor</strong>, you have everything you need to run beautifully-designed, professional email marketing campaigns to grow your business..
+Description: Email marketing with all the features you want. With <strong>Campaign Monitor</strong>, you have everything you need to run beautifully designed, professional email marketing campaigns to grow your business.
 Version: 1.0.0
-Author: Campaing Monitor
+Author: Campaign Monitor
 Author URI: https://www.campaignmonitor.com/integrations/
 Text Domain: campaignmonitorwoocommerce
 Tags: email, marketing
