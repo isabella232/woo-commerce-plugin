@@ -143,6 +143,32 @@ abstract class Ajax
         if (!empty($listID)){
             $params['ListID'] = $listID;
         }
+
+        $toggleSubscription = false;
+        if (array_key_exists('subscriptionBox', $params )){
+            $toggleSubscription = ($params['subscriptionBox'] == 'true') ? true : false;
+            Helper::updateOption('toggle_subscription_box',$toggleSubscription);
+        }
+
+        if (array_key_exists('subscribe', $params )){
+            $subscribe = ($params['subscribe'] == 'true') ? true : false;
+
+            if ($subscribe && $toggleSubscription)
+                Helper::updateOption('automatic_subscription',$subscribe);
+            else
+                Helper::updateOption('automatic_subscription',false);
+        }
+
+        if (array_key_exists('subscribe_text', $params )){
+            $subscribeText = $params['subscribe_text'];
+            Helper::updateOption('subscribe_text',$subscribeText);
+        }
+        if (array_key_exists('debug', $params )){
+            $debug = ($params['debug'] == 'true') ? true : false;
+            Helper::updateOption('debug', $debug );
+        }
+
+
         $requestResults = new \stdClass();
         if (array_key_exists('ClientID', $params)) {
 
@@ -159,29 +185,13 @@ abstract class Ajax
                 $params['ListID'] = $newListId;
             }
 
-            $toggleSubscription = false;
-            if (array_key_exists('subscriptionBox', $params )){
-                $toggleSubscription = ($params['subscriptionBox'] == 'true') ? true : false;
-                Helper::updateOption('toggle_subscription_box',$toggleSubscription);
-            }
+                Helper::updateOption('toggle_subscription_box',false);
+                Helper::updateOption('automatic_subscription',false);
+                Helper::updateOption('subscribe_text','');
+                Helper::updateOption('debug', false );
 
-            if (array_key_exists('subscribe', $params )){
-                $subscribe = ($params['subscribe'] == 'true') ? true : false;
 
-                if ($subscribe && $toggleSubscription)
-                     Helper::updateOption('automatic_subscription',$subscribe);
-                else
-                    Helper::updateOption('automatic_subscription',false);
-            }
 
-            if (array_key_exists('subscribe_text', $params )){
-                $subscribeText = $params['subscribe_text'];
-                Helper::updateOption('subscribe_text',$subscribeText);
-            }
-            if (array_key_exists('debug', $params )){
-                $debug = ($params['debug'] == 'true') ? true : false;
-                Helper::updateOption('debug', $debug );
-            }
 
             $user = wp_get_current_user();
             $clientId = $params['ClientID'];
