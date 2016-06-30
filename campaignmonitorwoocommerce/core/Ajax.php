@@ -165,9 +165,12 @@ abstract class Ajax
             }
 
             $user = wp_get_current_user();
-
             $clientId = $params['ClientID'];
             $listId = $params['ListID'];
+
+            if (Settings::get('default_list') == $listId) return;
+
+
 
             $fields = Fields::get_required();
             $segmentsInAccount = App::$CampaignMonitor->get_segments($listId);

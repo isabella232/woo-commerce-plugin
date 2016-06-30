@@ -66,6 +66,7 @@ class App
 //            add_action('woocommerce_proceed_to_checkout', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_review_order_after_submit', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'checkout_process'));
+            add_action('woocommerce_resume_order', array(__CLASS__, 'checkout_process'));
 //            add_action('woocommerce_checkout_process', array(__CLASS__, 'checkout_process'));
 
 

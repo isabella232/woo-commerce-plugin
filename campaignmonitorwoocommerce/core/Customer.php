@@ -171,7 +171,7 @@ abstract class Customer {
 
 
         if ($isSubscribe){
-            $isSubscribe = 'TRUE';
+            $isSubscribe = 'YES';
         }else {
             $isSubscribe = 'FALSE';
         }
