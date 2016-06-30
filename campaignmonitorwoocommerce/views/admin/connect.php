@@ -271,7 +271,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
 
 
-            <?php if (!in_array('connected_list_notice',$notices, TRUE )) : ?>
+            <?php if (!in_array('connected_list_notice',$notices, TRUE ) && !empty($currentList)) : ?>
             <div data-method="connected_list_notice" class="updated notice cm-plugin-ad is-dismissible">
                 <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
                     <a href="https://www.campaignmonitor.com/" target="_blank">
