@@ -150,9 +150,7 @@ abstract class Ajax
             $debug = false;
             $subscribeText = "";
 
-            
             self::remove_notice('connected_list_notice');
-
 
             if (array_key_exists('new_list_name', $params ) && !empty($params['new_list_name'])){
                 $optIn = ($params['new_list_type'] == 2) ? true : false;

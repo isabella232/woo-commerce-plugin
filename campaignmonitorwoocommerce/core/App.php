@@ -154,13 +154,12 @@ class App
                 $mappedFields = Map::get();
                 $details = current($newCustomer->data);
 
-                $autoSubscribe = Helper::getOption(automatic_subscription);
+                $autoSubscribe = Helper::getOption('automatic_subscription');
                 if (!empty($autoSubscribe) && $autoSubscribe ){
                     Subscribers::add($_POST['billing_email']);
                 }
 
                 $userToExport = Customer::format($details, $mappedFields, $isSubscribe);
-
                 $userToExport = (array)$userToExport;
                 $result = self::$CampaignMonitor->add_subscriber($listId, $userToExport);
 
@@ -181,12 +180,9 @@ class App
         }
 
         $html = '';
-//        $html .= '<form>';
         $html .= '<input id="subscriptionNonce" type="hidden" name="subscription_nonce" value="'.wp_create_nonce('app_nonce').'">';
-//        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox">'.$legend.'</label>';
         $html .= '<label for="cmw_register_email">';
         $html .= '<input id="cmw_register_email" name="cmw_register_email" value="on" '.$isChecked.' type="checkbox">'.$legend.'</label>';
-//        $html .= '</form>';
         $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
         if ($subscriptionBox){
@@ -342,7 +338,6 @@ class App
             case 2:
 //                echo 'Nonce is between 12 and 24 hours old';
                 break;
-
             default:
                 die('You killed the app!');
 
