@@ -434,7 +434,6 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                         <label for="autoNewsletter">
                                             <input id="autoNewsletter" name="auto_newsletter"  <?php echo ($subscription) ? 'checked="checked"': ''; ?>  type="checkbox"> Automatically subscribe customers to your newsletter</label>
 
-
                                     </td>
                                     <td>
                                         <div id="postbox-container-1" class="postbox-container ">
