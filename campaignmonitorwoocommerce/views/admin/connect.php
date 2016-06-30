@@ -273,8 +273,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
             <div data-method="connected_list_notice" class="updated notice cm-plugin-ad is-dismissible">
                 <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
                     <a href="https://www.campaignmonitor.com/" target="_blank">
-                        Campaign Monitor.
-                    </a>
+                        Campaign Monitor</a>.&nbsp;
                      We've also created 6 segments for you there.
                 </p>
             </div>

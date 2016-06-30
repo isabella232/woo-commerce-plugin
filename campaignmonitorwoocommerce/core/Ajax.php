@@ -193,7 +193,7 @@ abstract class Ajax
             $html .= '</script>';
 
             $requestResults->content = $html;
-
+            wp_send_json($requestResults);
             if (Settings::get('default_list') == $listId) return;
 
 
