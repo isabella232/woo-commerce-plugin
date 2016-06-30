@@ -154,7 +154,7 @@ class App
                 $mappedFields = Map::get();
                 $details = current($newCustomer->data);
 
-                $autoSubscribe = Helper::getOption('automatic_subscription');
+                $autoSubscribe = Helper::getOption(automatic_subscription);
                 if (!empty($autoSubscribe) && $autoSubscribe ){
                     Subscribers::add($_POST['billing_email']);
                 }

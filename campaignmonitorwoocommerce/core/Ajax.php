@@ -168,6 +168,32 @@ abstract class Ajax
             $clientId = $params['ClientID'];
             $listId = $params['ListID'];
 
+
+            $imagesUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
+            $html = "";
+            $html .= '<div class="box main-container text-center modal">';
+//            $html .= '<img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">';
+//            $html .= '<h1>Success! Your list is now syncing.</h1>';
+//            $html .= '<p>It might take a while to sync your data from Shopify to Campaign Monitor. We\'ll email you the moment the data sync is complete.</p>';
+//            $html .= '<h2>We\'ve created these segments for you</h2>';
+//            $html .= '<p>';
+//            $html .= 'Segments help you focus email content on smaller, more targeted groups of subscribers for more  creative email marketing and lead nurturing.';
+//            $html .= '</p>';
+//            $html .= '<div class="segments">';
+//            $html .= '<ul>';
+//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-10.png"><span class="segmentTitle">High spending customers</span></li>';
+//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-06.png"><span class="segmentTitle">Repeat customers</span></li>';
+//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-05.png"><span class="segmentTitle">First time customers</span></li>';
+//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-08.png"><span class="segmentTitle">Newsletter subscribers</span></li>';
+//            $html .= '</ul>';
+//            $html .= '</div>';
+            $html .= '</div>';
+            $html .= '<script>';
+            $html .= 'setTimeout(function () { window.location = "'.Helper::getActionUrl().'"; }, 5);';
+            $html .= '</script>';
+
+            $requestResults->content = $html;
+
             if (Settings::get('default_list') == $listId) return;
 
 
