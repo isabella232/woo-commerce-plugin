@@ -34,17 +34,15 @@ $notices = \core\Settings::get('notices');
 
                 <?php if (!in_array('show_ad',$notices )) : ?>
                     <div id="cmPlugin" data-method="show_ad" class="updated notice cm-plugin-ad is-dismissible">
-                        <p>Check out the
-                            <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> so you can add beautiful forms to your website to capture subscriber data.
-                        </p>
+                        <p>Campaign Monitor lets you manage your subscriber lists and email campaigns. <a href="https://www.campaignmonitor.com/signup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral">Send something beautiful today!</a></p>
                     </div>
                 <?php endif; ?>
             <h2>Campaign Monitor Client ID and Client Secret</h2>
             <p>Please enter your client ID and client secret.</p>
             <p>To retrieve them:</p>
             <ol>
-                <li>In your Campaign Monior account, select <strong>Integrations</strong> tab in the top navigation.
-                if don't see it, you are using the multi-client edition of Campaign Monitor, and will need to select a client first. </li>
+                <li>In your Campaign Monitor account, select <strong>Integrations</strong> tab in the top navigation.
+                If you don't see it, you are using the multi-client edition of Campaign Monitor, and will need to select a client first. </li>
             <li>
                 In the "OAuth Registrations" section, find WooCommerce, then select <strong>View</strong> next to the WooCommerce icon.
             </li>
