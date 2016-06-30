@@ -195,19 +195,25 @@ abstract class Customer {
                 'meta_value' => $id,
                 'post_type' => wc_get_order_types(),
                 'post_status' => array_keys(wc_get_order_statuses()),
+                'orderby'          => 'date',
+                'order'            => 'DESC',
             ));
 
             $total = 0;
             $orderCount = 0;
+            $lastOrderSpent = 0;
             foreach ( $customer_orders as $customer_order ) {
                 $order = wc_get_order( $customer_order->ID );
                 $total += $order->get_total();
+                if ($orderCount == 0){
+                    $lastOrderSpent = $order->get_total();
+                }
                 $orderCount++;
             }
 
             $fields['orders_count'] = $orderCount;
             $fields['total_price'] = $total;
-            $fields['total_spent'] = $total;
+            $fields['total_spent'] = $lastOrderSpent;
             $fields['created_at'] = $customer->user_registered;
 
         }

@@ -228,6 +228,7 @@ abstract class Ajax
 
             $mapped = Map::get();
             $orderCountMappedLabel = $mapped['orders_count'];
+            $orderAmountLabel = $mapped['total_spent'];
             $newsletterSubscriberLabel = $mapped['newsletter_subscribers'];
             // Default segments to create
             $rule = new \core\Rule($orderCountMappedLabel, array('EQUALS 1'));
@@ -235,7 +236,7 @@ abstract class Ajax
             $rule3 = new \core\Rule($orderCountMappedLabel, array('EQUALS 0'));
             $newsletterRule = new \core\Rule($newsletterSubscriberLabel, array('EQUALS YES'));
             $rule4 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 5'));
-            $rule5 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 500'));
+            $rule5 = new \core\Rule($orderAmountLabel, array('GREATER_THAN_OR_EQUAL 500'));
 
 
             $segmentsToCreate = array();
