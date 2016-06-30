@@ -12,6 +12,7 @@ $prefix = 'campaign_monitor_woocommerce_';
 
 
 $notices = \core\Settings::get('notices');
+
 // do I have an authorization token
 $autorizationToken = \core\Settings::get('access_token');
 if (!empty($autorizationToken)){
@@ -268,8 +269,10 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
         </div>
     </div>
 
-    <?php if (!empty($defaultList)) : ?>
-        <?php if (!in_array('connected_list_notice',$notices )) : ?>
+
+
+            <?php if (!in_array('connected_list_notice',$notices, TRUE )) : ?>
+
             <div data-method="connected_list_notice" class="updated notice cm-plugin-ad is-dismissible">
                 <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
                     <a href="https://www.campaignmonitor.com/" target="_blank">
@@ -278,9 +281,9 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                 </p>
             </div>
         <?php endif; ?>
-    <?php endif; ?>
 
-    <?php if (!in_array('show_ad',$notices )) : ?>
+
+    <?php if (!in_array('show_ad',$notices, TRUE )) : ?>
         <div id="cmPlugin" data-method="show_ad" class="updated notice cm-plugin-ad is-dismissible">
             <p>Check out the
                 <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> -- add beautiful forms to your website to capture subscriber data.

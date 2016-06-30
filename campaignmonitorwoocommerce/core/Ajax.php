@@ -33,7 +33,7 @@ abstract class Ajax
     }
 
     public static function dismiss_notice(){
-        
+
         if (array_key_exists('method', $_POST)){
             $method = $_POST['method'];
             $notices = Settings::get('notices');
@@ -42,13 +42,30 @@ abstract class Ajax
                 $notices = array($method);
             } else {
                 if (is_array($notices)){
-                    if (!in_array($method,$notices)){
+                    if (!in_array($method,$notices, TRUE)){
                         array_push($notices, $method);
                     }
                 }
             }
             Settings::add('notices', $notices);
         }
+
+    }
+
+    public static function remove_notice($notice){
+        $notices = Settings::get('notices');
+        if (empty($notices)){
+            $notices = array();
+        }
+
+        if (in_array($notice,$notices, TRUE )){
+            $flip = array_flip($notices);
+            unset($flip[$notice]);
+            $notices = array_flip($flip);
+        }
+
+
+        Settings::add('notices', $notices);
 
     }
 
@@ -133,6 +150,10 @@ abstract class Ajax
             $debug = false;
             $subscribeText = "";
 
+            
+            self::remove_notice('connected_list_notice');
+
+
             if (array_key_exists('new_list_name', $params ) && !empty($params['new_list_name'])){
                 $optIn = ($params['new_list_type'] == 2) ? true : false;
                 $newListName = $params['new_list_name'];
@@ -169,131 +190,107 @@ abstract class Ajax
             $listId = $params['ListID'];
 
 
-            $imagesUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
-            $html = "";
-            $html .= '<div class="box main-container text-center modal">';
-//            $html .= '<img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">';
-//            $html .= '<h1>Success! Your list is now syncing.</h1>';
-//            $html .= '<p>It might take a while to sync your data from Shopify to Campaign Monitor. We\'ll email you the moment the data sync is complete.</p>';
-//            $html .= '<h2>We\'ve created these segments for you</h2>';
-//            $html .= '<p>';
-//            $html .= 'Segments help you focus email content on smaller, more targeted groups of subscribers for more  creative email marketing and lead nurturing.';
-//            $html .= '</p>';
-//            $html .= '<div class="segments">';
-//            $html .= '<ul>';
-//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-10.png"><span class="segmentTitle">High spending customers</span></li>';
-//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-06.png"><span class="segmentTitle">Repeat customers</span></li>';
-//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-05.png"><span class="segmentTitle">First time customers</span></li>';
-//            $html .= '<li><img class="responsive-img" src="'.$imagesUrl.'/Illustrations-08.png"><span class="segmentTitle">Newsletter subscribers</span></li>';
-//            $html .= '</ul>';
-//            $html .= '</div>';
-            $html .= '</div>';
-            $html .= '<script>';
-            $html .= 'setTimeout(function () { window.location = "'.Helper::getActionUrl().'"; }, 5);';
-            $html .= '</script>';
 
-            $requestResults->content = $html;
-            wp_send_json($requestResults);
-            if (Settings::get('default_list') == $listId) return;
+            if (Settings::get('default_list') != $listId) {
+                $fields = Fields::get_required();
+                $segmentsInAccount = App::$CampaignMonitor->get_segments($listId);
+                $customFields = App::$CampaignMonitor->get_custom_fields($listId);
 
+                $maximumFieldsCount = Helper::getMaximumFieldsCount();
+                $campaignMonitorFieldCount = count($customFields);
+                $usableFieldCount = $maximumFieldsCount - $campaignMonitorFieldCount;
+                $requiredFieldsCount = count($fields);
 
+                $maximumReached = ($campaignMonitorFieldCount == $maximumFieldsCount);
 
-            $fields = Fields::get_required();
-            $segmentsInAccount = App::$CampaignMonitor->get_segments($listId);
-            $customFields = App::$CampaignMonitor->get_custom_fields($listId);
+                if ($maximumReached || ($usableFieldCount < $requiredFieldsCount)  ) {
+                    $message = ' <div class="notice notice-error is-dismissible">';
+                    $message .= '<p>There are not enough custom fields in this list to transfer.</p>';
+                    if ($maximumReached){
+                        $message .= '<p>You already have '. $maximumFieldsCount .' custom fields defined for this list.</p>';
+                    } else {
+                        $message .= '<p>You need at least '. $requiredFieldsCount .' custom fields available.</p>';
+                    }
+                    $message .= '<p>Please delete some of the custom fields on Campaign Monitor or Create a New List.</p>';
+                    $message .= '</div>';
+                    $message .= self::generate_custom_fields_list($customFields);
 
-            $maximumFieldsCount = Helper::getMaximumFieldsCount();
-            $campaignMonitorFieldCount = count($customFields);
-            $usableFieldCount = $maximumFieldsCount - $campaignMonitorFieldCount;
-            $requiredFieldsCount = count($fields);
-
-            $maximumReached = ($campaignMonitorFieldCount == $maximumFieldsCount);
-
-            if ($maximumReached || ($usableFieldCount < $requiredFieldsCount)  ) {
-                $message = ' <div class="notice notice-error is-dismissible">';
-                $message .= '<p>There are not enough custom fields in this list to transfer.</p>';
-                if ($maximumReached){
-                    $message .= '<p>You already have '. $maximumFieldsCount .' custom fields defined for this list.</p>';
-                } else {
-                    $message .= '<p>You need at least '. $requiredFieldsCount .' custom fields available.</p>';
+                    $requestResults->content = '';
+                    $requestResults->error = true;
+                    $requestResults->modal = self::generate_modal($message);
+                    wp_send_json($requestResults);
+                    return;
                 }
-                $message .= '<p>Please delete some of the custom fields on Campaign Monitor or Create a New List.</p>';
-                $message .= '</div>';
-                $message .= self::generate_custom_fields_list($customFields);
-
-                $requestResults->content = '';
-                $requestResults->error = true;
-                $requestResults->modal = self::generate_modal($message);
-                wp_send_json($requestResults);
-                return;
-            }
 
 
 //            $prefix = get_bloginfo('name');
-            $prefix = 'WooCommerce';
-            $segmentedFields = array();
+                $prefix = 'WooCommerce';
+                $segmentedFields = array();
 
-            foreach ($fields as $item) {
-                $fieldName = $prefix . " " . $item['field']['name'];
-                $suffix = 1;
+                foreach ($fields as $item) {
+                    $fieldName = $prefix . " " . $item['field']['name'];
+                    $suffix = 1;
 
-                $segmentedFields[] = $item['field'];
-                if (!empty($customFields)) {
-                    foreach ($customFields as $field) {
-                        if ($field->FieldName == $fieldName) {
-                            $fieldName = $prefix . " " . $item['field']['name'] . " " . $suffix++;
+                    $segmentedFields[] = $item['field'];
+                    if (!empty($customFields)) {
+                        foreach ($customFields as $field) {
+                            if ($field->FieldName == $fieldName) {
+                                $fieldName = $prefix . " " . $item['field']['name'] . " " . $suffix++;
+                            }
                         }
+                    }
+
+                    $createdField = App::$CampaignMonitor->create_custom_field($listId, $fieldName, $item['field']['type']);
+                    if (!empty($createdField)){
+                        Map::add($item['field']['code'], $createdField);
                     }
                 }
 
-                $createdField = App::$CampaignMonitor->create_custom_field($listId, $fieldName, $item['field']['type']);
-                if (!empty($createdField)){
-                    Map::add($item['field']['code'], $createdField);
-                }
-            }
-
-            $mapped = Map::get();
-            $orderCountMappedLabel = $mapped['orders_count'];
-            $orderAmountLabel = $mapped['total_spent'];
-            $newsletterSubscriberLabel = $mapped['newsletter_subscribers'];
-            // Default segments to create
-            $rule = new \core\Rule($orderCountMappedLabel, array('EQUALS 1'));
-            $rule2 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 5'));
-            $rule3 = new \core\Rule($orderCountMappedLabel, array('EQUALS 0'));
-            $newsletterRule = new \core\Rule($newsletterSubscriberLabel, array('EQUALS YES'));
-            $rule4 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 5'));
-            $rule5 = new \core\Rule($orderAmountLabel, array('GREATER_THAN_OR_EQUAL 500'));
+                $mapped = Map::get();
+                $orderCountMappedLabel = $mapped['orders_count'];
+                $orderAmountLabel = $mapped['total_spent'];
+                $newsletterSubscriberLabel = $mapped['newsletter_subscribers'];
+                // Default segments to create
+                $rule = new \core\Rule($orderCountMappedLabel, array('EQUALS 1'));
+                $rule2 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 5'));
+                $rule3 = new \core\Rule($orderCountMappedLabel, array('EQUALS 0'));
+                $newsletterRule = new \core\Rule($newsletterSubscriberLabel, array('EQUALS YES'));
+                $rule4 = new \core\Rule($orderCountMappedLabel, array('GREATER_THAN_OR_EQUAL 5'));
+                $rule5 = new \core\Rule($orderAmountLabel, array('GREATER_THAN_OR_EQUAL 500'));
 
 
-            $segmentsToCreate = array();
-            $segmentsToCreate[] = new \core\Segment('First Time Customers', array($rule));
-            $segmentsToCreate[] = new \core\Segment('Repeat Customers', array($rule4));
-            $segmentsToCreate[] = new \core\Segment('High Spending Customers', array($rule5));
-            $segmentsToCreate[] = new \core\Segment('Newsletter Subscribers', array($newsletterRule));
-            $segmentsToCreate[] = new \core\Segment('High Spending Repeat Customers', array($rule2, $rule5));
-            $segmentsToCreate[] = new \core\Segment('Customers with 0 Purchases', array($rule3));
+                $segmentsToCreate = array();
+                $segmentsToCreate[] = new \core\Segment('First Time Customers', array($rule));
+                $segmentsToCreate[] = new \core\Segment('Repeat Customers', array($rule4));
+                $segmentsToCreate[] = new \core\Segment('High Spending Customers', array($rule5));
+                $segmentsToCreate[] = new \core\Segment('Newsletter Subscribers', array($newsletterRule));
+                $segmentsToCreate[] = new \core\Segment('High Spending Repeat Customers', array($rule2, $rule5));
+                $segmentsToCreate[] = new \core\Segment('Customers with 0 Purchases', array($rule3));
 
-            $createdSegments = array();
-            foreach ($segmentsToCreate as $segmentInstance) {
+                $createdSegments = array();
+                foreach ($segmentsToCreate as $segmentInstance) {
 
-                $segmentTitle = $prefix . " " . $segmentInstance->getTitle();
-                $suffix = 1;
+                    $segmentTitle = $prefix . " " . $segmentInstance->getTitle();
+                    $suffix = 1;
 
-                if (!empty($segmentsInAccount)) {
-                    foreach ($segmentsInAccount as $field) {
-                        if ($field->Title == $segmentTitle) {
-                            $segmentTitle = $prefix . " " . $segmentInstance->getTitle() . " " . $suffix++;
+                    if (!empty($segmentsInAccount)) {
+                        foreach ($segmentsInAccount as $field) {
+                            if ($field->Title == $segmentTitle) {
+                                $segmentTitle = $prefix . " " . $segmentInstance->getTitle() . " " . $suffix++;
+                            }
                         }
                     }
-                }
 
-                $segmentInstance->setTitle($segmentTitle);
-                $createdSegments[] = App::$CampaignMonitor->create_segment($listId, $segmentInstance->toArray());
+                    $segmentInstance->setTitle($segmentTitle);
+                    $createdSegments[] = App::$CampaignMonitor->create_segment($listId, $segmentInstance->toArray());
+                }
+                Settings::add('data_sync', true );
             }
+
 
             Settings::add('default_list', $listId);
             Settings::add('default_client',$clientId );
-            Settings::add('data_sync', true );
+
             $imagesUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
             $html = "";
             $html .= '<div class="box main-container text-center modal">';
