@@ -63,11 +63,9 @@ class App
             add_action('admin_post_handle_request', array(__CLASS__, 'handle_request'));
             add_action('admin_post_nopriv', array(__CLASS__, 'handle_request'));
 
-//            add_action('woocommerce_proceed_to_checkout', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_review_order_after_submit', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'checkout_process'));
             add_action('woocommerce_resume_order', array(__CLASS__, 'checkout_process'));
-//            add_action('woocommerce_checkout_process', array(__CLASS__, 'checkout_process'));
 
 
             $accessToken = Settings::get('access_token');
@@ -156,7 +154,7 @@ class App
                 $mappedFields = Map::get();
                 $details = current($newCustomer->data);
 
-                $autoSubscribe = Helper::getOption(automatic_subscription);
+                $autoSubscribe = Helper::getOption('automatic_subscription');
                 if (!empty($autoSubscribe) && $autoSubscribe ){
                     Subscribers::add($_POST['billing_email']);
                 }
@@ -172,7 +170,12 @@ class App
     public static function woocommerce_subscription_box(){
 
         $legend = Helper::getOption('subscribe_text');
+        $autoSubscribe = Helper::getOption('automatic_subscription');
 
+        $isChecked = '';
+        if (!empty($autoSubscribe) && $autoSubscribe ){
+            $isChecked = 'checked="checked"';
+        }
         if (empty($legend)){
             $legend = 'Subscribe to our newsletter';
         }
@@ -182,7 +185,7 @@ class App
         $html .= '<input id="subscriptionNonce" type="hidden" name="subscription_nonce" value="'.wp_create_nonce('app_nonce').'">';
 //        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox">'.$legend.'</label>';
         $html .= '<label for="cmw_register_email">';
-        $html .= '<input id="cmw_register_email" name="cmw_register_email" value="on" checked="checked" type="checkbox">'.$legend.'</label>';
+        $html .= '<input id="cmw_register_email" name="cmw_register_email" value="on" '.$isChecked.' type="checkbox">'.$legend.'</label>';
 //        $html .= '</form>';
         $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
