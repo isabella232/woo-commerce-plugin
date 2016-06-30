@@ -185,10 +185,7 @@ abstract class Ajax
                 $params['ListID'] = $newListId;
             }
 
-                Helper::updateOption('toggle_subscription_box',false);
-                Helper::updateOption('automatic_subscription',false);
-                Helper::updateOption('subscribe_text','');
-                Helper::updateOption('debug', false );
+
 
 
 
@@ -200,6 +197,10 @@ abstract class Ajax
 
 
             if (Settings::get('default_list') != $listId) {
+                Helper::updateOption('toggle_subscription_box',false);
+                Helper::updateOption('automatic_subscription',false);
+                Helper::updateOption('subscribe_text','');
+                Helper::updateOption('debug', false );
                 $fields = Fields::get_required();
                 $segmentsInAccount = App::$CampaignMonitor->get_segments($listId);
                 $customFields = App::$CampaignMonitor->get_custom_fields($listId);
