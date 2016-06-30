@@ -176,7 +176,7 @@ class App
             $legend = 'Subscribe to our newsletter';
         }
 
-        $html = '';
+        $html = ' ';
 //        $html .= '<form>';
         $html .= '<input id="subscriptionNonce" type="hidden" name="subscription_nonce" value="'.wp_create_nonce('app_nonce').'">';
 //        $html .= '<label for=""><input id="subscriptionBox" name="toggle_subscription_box" type="checkbox">'.$legend.'</label>';
