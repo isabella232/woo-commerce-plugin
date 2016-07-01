@@ -283,7 +283,10 @@ class CampaignMonitor
         }
 
         $instance = new \CS_REST_Subscribers($listId, $auth);
-        $result = $instance->import($data, false);
+        $resubscribe = false;
+        $queueSubscriptionBasedAutoResponders = true;
+        $restartSubscriptionBasedAutoResponders = false;
+        $result = $instance->import($data, $resubscribe, $queueSubscriptionBasedAutoResponders, $restartSubscriptionBasedAutoResponders);
 
         if ($result->was_successful()) {
              return $result->response;

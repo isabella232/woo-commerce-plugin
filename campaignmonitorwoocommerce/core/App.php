@@ -117,6 +117,8 @@ class App
             self::$Cron = new Cron();
             self::$session = new Session();
 
+            Log::$switch = Helper::getOption('debug');
+
             // handle ajax
             Ajax::run();
             self::create_fields();
@@ -382,7 +384,7 @@ class App
         $position = 100;
 
         add_menu_page($pageTitle, $menuTitle, $capability, $menuSlug, array(__CLASS__, $callable), $iconUrl, $position);
-        add_submenu_page($menuSlug,'Settings' , 'Settings' , $capability, 'campaign_monitor_woocommerce_settings', array(__CLASS__, 'setting_page') );
+        add_submenu_page(null,'Settings' , 'Settings' , $capability, 'campaign_monitor_woocommerce_settings', array(__CLASS__, 'setting_page') );
 
         //call register settings function
        // add_action('admin_init', array(__CLASS__, 'register_settings_settings'));
