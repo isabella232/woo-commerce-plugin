@@ -62,21 +62,37 @@ if (!empty($autorizationToken)){
             $postUrl = \core\Connect::getTransport('oauth/token', $params);
             $endpoint = 'https://api.createsend.com/oauth/token';
             $results =  \core\Connect::request($params,$endpoint);
-            \core\Log::write($results);
+
 
             // Let's authenticate the user
             if (!empty($results)){
                 $credentials = json_decode($results);
 
-                \core\Settings::add('access_token', $credentials->access_token);
-                \core\Settings::add('refresh_token', $credentials->refresh_token);
-                \core\Settings::add('expiry', $credentials->expires_in);
-                $appSettings = \core\Settings::get();
+
+                if (isset($credentials->error)){
+                        $html = '<div id="message" class="error notice is-dismissible">';
+                        $html .= '<p>';
+                        $html .= __($credentials->error_description);
+                        $html .= '</p>';
+                        $html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
+                        $html .= '</div><!-- /.updated -->';
+                        echo $html;
+
+                    \core\Settings::add('client_secret', '');
+                     \core\Settings::add('client_id', '');
+
+                } else {
+                    \core\Settings::add('access_token', $credentials->access_token);
+                    \core\Settings::add('refresh_token', $credentials->refresh_token);
+                    \core\Settings::add('expiry', $credentials->expires_in);
+                    $appSettings = \core\Settings::get();
+                    // we are connected
+                    \core\Helper::updateOption('connected', TRUE );
+                    unset($_GET['code']);
+                }
+                
             }
 
-            // we are connected
-            \core\Helper::updateOption('connected', TRUE );
-            unset($_GET['code']);
         }
     }
 }

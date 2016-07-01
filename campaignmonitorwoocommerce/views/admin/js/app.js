@@ -14,6 +14,21 @@ jQuery(document).ready(function($) {
         $('.log-output').slideDown();
     });
 
+    $(document).on('click', '#btnSaveSettings', function (e) {
+
+         var clientSecret = $('#client_secret').attr('value');
+         var clientId = $('#client_id').attr('value');
+
+            if (clientSecret == ''){
+                $('#client_secret').css('border', '1px solid red');
+                e.preventDefault();
+            }
+            if (clientId == ''){
+                $('#client_id').css('border', '1px solid red');
+                e.preventDefault();
+            }
+    });
+
 
 
     $(document).on('change', '.custom-field-new-mapping', function (e) {
