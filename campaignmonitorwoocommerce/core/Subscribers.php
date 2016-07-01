@@ -2,6 +2,10 @@
 
 namespace core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
+
 class Subscribers {
 
     protected static $subscribers = array();

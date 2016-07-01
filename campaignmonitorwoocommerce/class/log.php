@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
+
 defined('CS_REST_LOG_VERBOSE') or define('CS_REST_LOG_VERBOSE', 1000);
 defined('CS_REST_LOG_WARNING') or  define('CS_REST_LOG_WARNING', 500);
 defined('CS_REST_LOG_ERROR') or define('CS_REST_LOG_ERROR', 250);

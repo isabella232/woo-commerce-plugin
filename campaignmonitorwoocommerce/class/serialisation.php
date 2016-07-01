@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
 if (!class_exists('Services_JSON', false)) {
     require_once dirname(__FILE__).'/services_json.php';

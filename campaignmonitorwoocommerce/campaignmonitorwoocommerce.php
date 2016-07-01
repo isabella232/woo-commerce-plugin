@@ -1,7 +1,4 @@
 <?php
-/**
- * @package Akismet
- */
 /*
 Plugin Name: Campaign Monitor for WooCommerce
 Plugin URI: https://www.campaignmonitor.com/integrations/

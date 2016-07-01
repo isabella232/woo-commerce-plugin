@@ -150,10 +150,10 @@ jQuery(document).ready(function($) {
 
          if (dataToSend.action == 'create_list'){
              $('.new-list-creation').slideDown('slow');
-             $('#subscriptionLegend').addClass('hidden');
+             $('#subscriptionLegend').removeClass('hidden');
              $('#autoNewsletter').removeAttr('checked');
              $('#logToggle').removeAttr('checked');
-             $("#subscriptionBox").removeAttr('checked');
+             $("#subscriptionBox").attr('checked', 'checked');
              $('#subscriptionText').attr('value', '');
              return;
          }
@@ -199,10 +199,11 @@ jQuery(document).ready(function($) {
                         }
                     } else {
 
-                        $('#subscriptionLegend').addClass('hidden');
+
+                        $('#subscriptionLegend').removeClass('hidden');
                         $('#autoNewsletter').removeAttr('checked');
                         $('#logToggle').removeAttr('checked');
-                        $("#subscriptionBox").removeAttr('checked');
+                        $("#subscriptionBox").attr('checked', 'checked');
                         $('#subscriptionText').attr('value', '');
                     }
 
@@ -244,10 +245,10 @@ jQuery(document).ready(function($) {
                                 }
                             } else {
 
-                                $('#subscriptionLegend').addClass('hidden');
+                                $('#subscriptionLegend').removeClass('hidden');
                                 $('#autoNewsletter').removeAttr('checked');
                                 $('#logToggle').removeAttr('checked');
-                                $("#subscriptionBox").removeAttr('checked');
+                                $("#subscriptionBox").attr('checked', 'checked');
                                 $('#subscriptionText').attr('value', '');
                             }
                         }
@@ -255,10 +256,10 @@ jQuery(document).ready(function($) {
 
                 } else {
                     if (dataToSend.action == 'view_client_list') {
-                        $('#subscriptionLegend').addClass('hidden');
+                        $('#subscriptionLegend').removeClass('hidden');
                         $('#autoNewsletter').removeAttr('checked');
                         $('#logToggle').removeAttr('checked');
-                        $("#subscriptionBox").removeAttr('checked');
+                        $("#subscriptionBox").attr('checked', 'checked');
                         $('#subscriptionText').attr('value', '');
                     }
                 }

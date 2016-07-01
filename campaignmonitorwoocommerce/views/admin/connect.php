@@ -259,7 +259,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
 
 
-            <?php if (!in_array('connected_list_notice',$notices, TRUE ) && !empty($currentList)) : ?>
+            <?php if ((is_array($notices) && !in_array('connected_list_notice',$notices, TRUE ) ) && !empty($currentList)) : ?>
             <div data-method="connected_list_notice" class="updated notice cm-plugin-ad is-dismissible">
                 <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
                     <a href="https://www.campaignmonitor.com/" target="_blank">
@@ -270,7 +270,8 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
         <?php endif; ?>
 
 
-    <?php if (!in_array('show_ad',$notices, TRUE )) : ?>
+
+    <?php if (is_array($notices) &&!in_array('show_ad',$notices, TRUE )) : ?>
         <div id="cmPlugin" data-method="show_ad" class="updated notice cm-plugin-ad is-dismissible">
             <p>Check out the
                 <a href="https://wordpress.org/plugins/ajax-campaign-monitor-forms/">Campaign Monitor for Wordpress plugin</a> -- add beautiful forms to your website to capture subscriber data.
@@ -406,11 +407,11 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     <td>
 
                                         <label for="subscriptionBox">
-                                            <input id="subscriptionBox" name="toggle_subscription_box"  <?php echo (isset($clientListSettings['toggle_subscription_box']) && $clientListSettings['toggle_subscription_box']) ? 'checked="checked"': ''; ?>  type="checkbox">  Show subscription option at checkout</label>
+                                            <input id="subscriptionBox" name="toggle_subscription_box"  checked="checked" <?php echo (isset($clientListSettings['toggle_subscription_box']) && $clientListSettings['toggle_subscription_box']) ? 'checked="checked"': ''; ?>  type="checkbox">  Show subscription option at checkout</label>
 
                                     </td>
                                 </tr>
-                                <tr id="subscriptionLegend" class="<?php echo (isset($clientListSettings['toggle_subscription_box']) && $clientListSettings['toggle_subscription_box']) ? '': 'hidden'; ?> ">
+                                <tr id="subscriptionLegend" class=" ">
                                     <th scope="row">
                                         Subscription Box Text
                                     </th>

@@ -2,6 +2,10 @@
 
 namespace core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
+
 abstract class Helper {
 
     protected static $pluginName = 'campaign_monitor_woocommerce';

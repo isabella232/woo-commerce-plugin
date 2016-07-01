@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
 defined('CS_REST_GET') or define('CS_REST_GET', 'GET');
 defined('CS_REST_POST') or define('CS_REST_POST', 'POST');
