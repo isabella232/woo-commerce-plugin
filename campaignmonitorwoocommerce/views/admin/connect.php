@@ -104,6 +104,9 @@ if (!empty($appSettings) && !empty($accessToken)){
 
 }
 
+
+$clientListSettings = \core\ClientList::get($defaultList);
+
 $actionUrl = get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce';
 
 if (!empty($defaultList)) {
@@ -146,9 +149,10 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 <?php if (!empty($selectedList) ) : ?>
     <script>
         jQuery(document).ready(function($) {
-            $('#lists option[data-id="<?php echo $selectedList ?>"]').attr('selected', 'selected');
+//            $('#lists option[data-id="<?php //echo $selectedList ?>//"]').attr('selected', 'selected');
         });
     </script>
+    <input type="hidden" name="selected_list" value="<?php echo $selectedList; ?>"/>
 <?php endif; ?>
 <div class="wrap">
     <h1>Campaign Monitor</h1>
@@ -227,22 +231,6 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                         }
                                         ?>
                                     </td>
-                                    <td>
-                                        <?php /*switch ($field->DataType) {
-                                case 'Number' :
-                                    echo '<span class="dashicons dashicons-editor-ol"></span>';
-                                    break;
-                                case 'Text' :
-                                    echo '<span class="dashicons dashicons-editor-textcolor"></span>';
-                                    break;
-                                case 'Date' :
-                                    echo '<span class="dashicons dashicons-calendar-alt"></span>';
-                                    break;
-                            }
-                            */?>
-                                        &nbsp;
-                                    </td>
-
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
@@ -329,8 +317,6 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                         </select>
                                     </td>
                                 </tr>
-
-
                                 <tr valign="top" class="new-client-creation">
                                     <th scope="row">
                                         Client Name
@@ -420,19 +406,19 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     <td>
 
                                         <label for="subscriptionBox">
-                                            <input id="subscriptionBox" name="toggle_subscription_box"  <?php echo ($subscriptionBox) ? 'checked="checked"': ''; ?>  type="checkbox">  Show subscription option at checkout</label>
+                                            <input id="subscriptionBox" name="toggle_subscription_box"  <?php echo (isset($clientListSettings['toggle_subscription_box']) && $clientListSettings['toggle_subscription_box']) ? 'checked="checked"': ''; ?>  type="checkbox">  Show subscription option at checkout</label>
 
                                     </td>
                                 </tr>
-                                <tr id="subscriptionLegend" class="<?php echo ($subscriptionBox) ? '': 'hidden'; ?> ">
+                                <tr id="subscriptionLegend" class="<?php echo (isset($clientListSettings['toggle_subscription_box']) && $clientListSettings['toggle_subscription_box']) ? '': 'hidden'; ?> ">
                                     <th scope="row">
                                         Subscription Box Text
                                     </th>
                                     <td>
 
-                                        <input type="text" id="subscriptionText" name="subscription_text" class="regular-text ltr" value="<?php echo $subscribeText; ?>" placeholder="Subscribe to our newsletter"/>
+                                        <input type="text" id="subscriptionText" name="subscription_text" class="regular-text ltr" value="<?php echo (isset($clientListSettings['subscribe_text'])) ? $clientListSettings['subscribe_text'] : ''; ?>" placeholder="Subscribe to our newsletter"/>
                                         <label for="autoNewsletter">
-                                            <input id="autoNewsletter" name="auto_newsletter"  <?php echo ($subscription) ? 'checked="checked"': ''; ?>  type="checkbox"> Automatically subscribe customers to your newsletter</label>
+                                            <input id="autoNewsletter" name="auto_newsletter"  <?php echo (isset($clientListSettings['automatic_subscription']) && $clientListSettings['automatic_subscription']) ? 'checked="checked"': ''; ?>  type="checkbox"> Automatically subscribe customers to your newsletter</label>
 
                                     </td>
                                     <td>
@@ -461,7 +447,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                     <td>
                                         <label>
                                             <label for="logToggle">
-                                                <input id="logToggle" name="log_toggle" <?php echo ($canViewLog) ? 'checked="checked"': ''; ?> type="checkbox">
+                                                <input id="logToggle" name="log_toggle" <?php echo  (isset($clientListSettings['debug']) && $clientListSettings['debug']) ? 'checked="checked"': ''; ?> type="checkbox">
                                                 Enable Logging </label>
                                             <?php if  ($canViewLog)   : ?>
                                                 <div class="log-output modal">

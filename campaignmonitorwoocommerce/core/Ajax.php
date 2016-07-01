@@ -23,6 +23,7 @@ abstract class Ajax
             add_action('wp_ajax_set_client_list', array(__CLASS__, 'set_client_list'));
             add_action('wp_ajax_create_list', array(__CLASS__, 'create_list'));
             add_action('wp_ajax_dismiss_notice', array(__CLASS__, 'dismiss_notice'));
+            add_action('wp_ajax_get_list_settings', array(__CLASS__, 'get_list_settings'));
         }
 
 
@@ -136,6 +137,9 @@ abstract class Ajax
     {
         $params = $_POST;
 
+        // settings for individual list
+        $listSettings = array();
+
         if (!empty($clientId)){
             $params['ClientID'] = $clientId;
         }
@@ -148,26 +152,42 @@ abstract class Ajax
         if (array_key_exists('subscriptionBox', $params )){
             $toggleSubscription = ($params['subscriptionBox'] == 'true') ? true : false;
             Helper::updateOption('toggle_subscription_box',$toggleSubscription);
+            $listSettings['toggle_subscription_box'] = $toggleSubscription;
         }
+
 
         if (array_key_exists('subscribe', $params )){
             $subscribe = ($params['subscribe'] == 'true') ? true : false;
 
-            if ($subscribe && $toggleSubscription)
+            if ($subscribe && $toggleSubscription){
                 Helper::updateOption('automatic_subscription',$subscribe);
-            else
+                $listSettings['automatic_subscription'] = $subscribe;
+            }
+            else{
                 Helper::updateOption('automatic_subscription',false);
+                $listSettings['automatic_subscription'] = false;
+            }
+
+
+
         }
 
         if (array_key_exists('subscribe_text', $params )){
             $subscribeText = $params['subscribe_text'];
             Helper::updateOption('subscribe_text',$subscribeText);
+            $listSettings['subscribe_text'] = $subscribeText;
         }
         if (array_key_exists('debug', $params )){
             $debug = ($params['debug'] == 'true') ? true : false;
             Helper::updateOption('debug', $debug );
+            $listSettings['debug'] = $debug;
         }
+        if (array_key_exists('subscriptionBox', $params )){
+            $toggleSubscription = ($params['subscriptionBox'] == 'true') ? true : false;
+            Helper::updateOption('toggle_subscription_box',$toggleSubscription);
+            $listSettings['toggle_subscription_box'] = $toggleSubscription;
 
+        }
 
         $requestResults = new \stdClass();
         if (array_key_exists('ClientID', $params)) {
@@ -186,21 +206,15 @@ abstract class Ajax
             }
 
 
-
-
-
-
             $user = wp_get_current_user();
             $clientId = $params['ClientID'];
             $listId = $params['ListID'];
 
-
+            ClientList::add($listId, $listSettings);
 
             if (Settings::get('default_list') != $listId) {
-                Helper::updateOption('toggle_subscription_box',false);
-                Helper::updateOption('automatic_subscription',false);
-                Helper::updateOption('subscribe_text','');
-                Helper::updateOption('debug', false );
+
+
                 $fields = Fields::get_required();
                 $segmentsInAccount = App::$CampaignMonitor->get_segments($listId);
                 $customFields = App::$CampaignMonitor->get_custom_fields($listId);
@@ -398,6 +412,15 @@ abstract class Ajax
             wp_send_json($requestResults);
         }
     }
+
+    public static function get_list_settings($listId = ''){
+
+        if (empty($listId)){
+            $listId  = $_POST['ListID'];
+        }
+        $settings = ClientList::get($listId);
+        wp_send_json($settings);
+    }
     
     public static function view_client_list($clientId = '')
     {
@@ -420,7 +443,7 @@ abstract class Ajax
                 $html = '<select id="lists"  class="ajax-call list client-list dropdown-select ">';
 
                 $selectedList = Settings::get('default_list');
-                $html .= '<option>';
+                $html .= '<option class="ajax-call">';
                 $html .= 'Please select list';
                 $html .= '</option>';
                 $html .= '<option class="ajax-call" data-url="' . self::$actionUrl . '&ClientID=' . $clientId . '&action=create_list">';
@@ -429,22 +452,30 @@ abstract class Ajax
                 $html .= '<option class="ajax-call" disabled >';
                 $html .= '---';
                 $html .= '</option>';
-
+                $isSelected = false;
                 foreach ($lists as $list) {
                     $id = $list->ListID;
 
                     $viewClientListUrl = http_build_query((array)$list);
                     $fields = App::$CampaignMonitor->get_stats($id);
+                    $selected = '';
 
-                    $selected = ($id == $selectedList) ? 'selected="selected"' : '';
+                    if ($id == $selectedList){
+                        $selected = 'selected="selected"';
+                        $isSelected = true;
+                    }
 
-                    $html .= '<option '.$selected .' value="'.$clientId.'" data-id="'.$id.'"  data-url="' . self::$actionUrl . '&' . $viewClientListUrl . '&ClientID=' . $clientId . '&action=">';
+
+                    $html .= '<option '.$selected .' value="'.$clientId.'" data-id="'.$id.'"  data-url="' . self::$actionUrl . '&' . $viewClientListUrl . '&ClientID=' . $clientId . '&action=get_list_settings">';
                     $html .= $list->Name;
                     $html .= '</option>';
 
                 }
 
                 $html .= '</select>';
+
+                $requestResults->selected_list = $isSelected;
+                $requestResults->selected_list_id = $selectedList;
                 $requestResults->content = $html;
 
             } else {
