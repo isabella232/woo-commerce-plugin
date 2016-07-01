@@ -41,28 +41,46 @@ if ( !function_exists( 'add_action' ) ) {
 	exit;
 }
 
-// Set the version of this plugin
-if( ! defined( 'CAMPAIGN_MONITOR_WOOCOMMERCE' ) ) {
-	define( 'CAMPAIGN_MONITOR_WOOCOMMERCE','1.0' );
-} // end if
-define('CAMPAIGN_MONITOR_WOOCOMMERCE_DIR', plugin_dir_path(__FILE__));
-
-spl_autoload_register(function ($class_name) {
-
-	$location = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class_name)  . '.php';
-	if (file_exists($location)) {
-		try{
-			require_once $location;
-			return;
-		} catch(Exception $e){
-			throw new Exception($e->getMessage());
+$version = floatval(phpversion());
+if($version < 5.3) {
+		if (isset($_GET['activate'])) {
+			unset($_GET['activate']);
 		}
-	}
-});
+		add_action('admin_notices', function() {
+			$html = '<div id="message" class="error notice is-dismissible">';
+			$html .= '<p>';
+			$html .= __(' Campaign Monitor for WooCommerce requires at least PHP Version 5.3.0, version: '.phpversion().' detected', 'campaign-monitor-woocommerce');
+			$html .= '</p>';
+			$html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
+			$html .= '</div><!-- /.updated -->';
+			echo $html;
+			deactivate_plugins( __FILE__, true);
+		});
+} else {
+	// Set the version of this plugin
+	if( ! defined( 'CAMPAIGN_MONITOR_WOOCOMMERCE' ) ) {
+		define( 'CAMPAIGN_MONITOR_WOOCOMMERCE','1.0' );
+	} // end if
+	define('CAMPAIGN_MONITOR_WOOCOMMERCE_DIR', plugin_dir_path(__FILE__));
 
-add_action('plugins_loaded', function(){
+	spl_autoload_register(function ($class_name) {
 
-	core\App::$pluginPath = __FILE__;
-	core\App::run();
+		$location = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class_name)  . '.php';
+		if (file_exists($location)) {
+			try{
+				require_once $location;
+				return;
+			} catch(Exception $e){
+				throw new Exception($e->getMessage());
+			}
+		}
+	});
 
-});
+	add_action('plugins_loaded', function(){
+
+		core\App::$pluginPath = __FILE__;
+		core\App::run();
+
+	});
+}
+
