@@ -2,7 +2,7 @@
 namespace core;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+    exit;
 }
 abstract class Log
 {

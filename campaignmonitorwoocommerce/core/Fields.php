@@ -2,6 +2,10 @@
 
 namespace core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Fields
 {
 

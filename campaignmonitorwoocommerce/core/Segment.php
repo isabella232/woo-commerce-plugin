@@ -7,11 +7,9 @@
  */
 
 namespace core;
-
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+    exit;
 }
-
 class Segment implements \ArrayAccess
 {
     protected $_title = '';

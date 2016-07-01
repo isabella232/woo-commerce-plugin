@@ -3,7 +3,7 @@
 namespace core;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+    exit; 
 }
 
 class HttpClient{
@@ -11,6 +11,9 @@ class HttpClient{
     public function request($postURL, $dataToPost, $curlTYPE, $headers)
     {
         $results = '';
+
+
+
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $postURL);

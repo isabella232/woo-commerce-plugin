@@ -1,9 +1,7 @@
 <?php
-
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+    exit;
 }
-
 require_once dirname(__FILE__).'/base_classes.php';
 
 defined('CS_REST_CUSTOM_FIELD_TYPE_TEXT') or define('CS_REST_CUSTOM_FIELD_TYPE_TEXT', 'Text');
