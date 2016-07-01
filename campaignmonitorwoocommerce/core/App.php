@@ -65,7 +65,7 @@ class App
 
             add_action('woocommerce_review_order_after_submit', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'checkout_process'));
-            add_action('woocommerce_resume_order', array(__CLASS__, 'checkout_process'));
+            add_action('woocommerce_order_status_completed', array(__CLASS__, 'checkout_process'));
 
 
             $accessToken = Settings::get('access_token');
