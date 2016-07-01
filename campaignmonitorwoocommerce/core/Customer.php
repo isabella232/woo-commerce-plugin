@@ -202,13 +202,16 @@ abstract class Customer {
             $total = 0;
             $orderCount = 0;
             $lastOrderSpent = 0;
-            foreach ( $customer_orders as $customer_order ) {
-                $order = wc_get_order( $customer_order->ID );
-                $total += $order->get_total();
-                if ($orderCount == 0){
-                    $lastOrderSpent = $order->get_total();
+
+            if (!empty($customer_orders)){
+                foreach ( $customer_orders as $customer_order ) {
+                    $order = wc_get_order( $customer_order->ID );
+                    $total += $order->get_total();
+                    if ($orderCount == 0){
+                        $lastOrderSpent = $order->get_total();
+                    }
+                    $orderCount++;
                 }
-                $orderCount++;
             }
 
             $fields['orders_count'] = $orderCount;
@@ -220,7 +223,7 @@ abstract class Customer {
 
         $userToExport->Name = $name;
         $userToExport->EmailAddress = $userDetails->email;
-
+        $userToExport->QueueSubscriptionBasedAutoResponders = true;
 
         $fields['newsletter_subscribers'] = $isSubscribe;
         $fields['billing_address1'] = $userDetails->billing_address;

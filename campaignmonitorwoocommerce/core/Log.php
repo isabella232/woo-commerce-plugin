@@ -8,6 +8,7 @@ abstract class Log
 {
 
     private static $filename = '';
+    public  static $switch = false;
 
     public static function getFileName()
     {
@@ -52,8 +53,9 @@ abstract class Log
         $file = self::getFileName();
         $date = self::getTimestamp();
         $message = '['.$date.'] ' . print_r($message, true) . PHP_EOL;
-        file_put_contents($file,  $message, $option);
-
+        if (self::$switch){
+            file_put_contents($file,  $message, $option);
+        }
     }
 
     private static function getTimestamp()

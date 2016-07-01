@@ -62,6 +62,7 @@ if (!empty($autorizationToken)){
             $postUrl = \core\Connect::getTransport('oauth/token', $params);
             $endpoint = 'https://api.createsend.com/oauth/token';
             $results =  \core\Connect::request($params,$endpoint);
+            \core\Log::write($results);
 
             // Let's authenticate the user
             if (!empty($results)){

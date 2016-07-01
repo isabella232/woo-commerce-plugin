@@ -50,7 +50,6 @@ class Cron
             for ($currentPage = 1; $currentPage <= $total_pages; $currentPage++) {
 
                 $results =  \core\Customer::getData($currentPage, $users_per_page);
-
                 $data = $results->data;
                 $totalUserSync += count($data);
 
@@ -67,9 +66,6 @@ class Cron
                 Log::write($subscribers);
                 $results = App::$CampaignMonitor->import_subscribers($defaultListId, $subscribers);
             }
-
-
-
 
             if (!empty($results)){
                 $totalUniqueEmailsSubmitted  =  $results->TotalUniqueEmailSubmitted;

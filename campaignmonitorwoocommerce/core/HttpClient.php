@@ -3,7 +3,7 @@
 namespace core;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; 
+    exit; // Exit if accessed directly.
 }
 
 class HttpClient{
@@ -12,44 +12,34 @@ class HttpClient{
     {
         $results = '';
 
+        $defaults = array(
+            'method' => $curlTYPE,
+            'timeout' => 25,
+            'redirection' => 5,
+            'httpversion' => '1.1',
+            'user-agent' => 'WordPress/version;URL',
+            'reject_unsafe_urls' => false,
+            'blocking' => true,
+            'headers' => $headers,
+            'cookies' => array(),
+            'body' => $dataToPost,
+            'compress' => false,
+            'decompress' => true,
+            'sslverify' => true,
+            'stream' => false,
+            'filename' => null,
+            'limit_response_size' => null,
+        );
 
+        $response = wp_remote_request($postURL, $defaults);
 
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $postURL);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, '0');
-        if ($curlTYPE == 'PUT') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        }
-        if ($curlTYPE == 'DELETE') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        }
-        if ($curlTYPE == 'POST') {
-            curl_setopt($ch, CURLOPT_POST, 1);
-        }
-        if ($curlTYPE == 'GET') {
-            curl_setopt($ch, CURLOPT_POST, 0);
-        }
-        if (is_array($dataToPost)) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dataToPost));
-        } else {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $dataToPost);
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+             Log::write("Something went wrong: $error_message");
+            return;
         }
 
+        return $response['body'];
 
-        $results = curl_exec($ch);
-        $info = curl_getinfo($ch);
-
-//        $this->httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        return $results;
     }
 }
