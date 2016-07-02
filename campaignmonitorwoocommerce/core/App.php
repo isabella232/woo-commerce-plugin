@@ -66,6 +66,8 @@ class App
             add_action('woocommerce_review_order_after_submit', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'checkout_process'));
             add_action('woocommerce_order_status_completed', array(__CLASS__, 'checkout_process'));
+//            add_action('edit_user_profile_update', array(__CLASS__, 'profile_update'),11, 2);
+            add_action('profile_update', array(__CLASS__, 'profile_update'), 12);
 
 
             $accessToken = Settings::get('access_token');
@@ -130,6 +132,60 @@ class App
     public static function cron()
     {
 
+    }
+
+    public static function profile_update($user_id )
+    {
+
+        $details = new \stdClass();
+        $email = get_user_meta($user_id, 'billing_email', true);
+
+        $firstName = get_user_meta($user_id, 'billing_first_name', true);
+        $lastName = get_user_meta($user_id, 'billing_last_name', true);
+
+        $details->id = $user_id;
+        $details->name = $firstName . ' ' . $lastName;
+
+        $details->email = $email;
+        $details->order_total = get_user_meta($user_id, 'order_total', true);
+        $details->order_count = get_user_meta($user_id, 'order_count', true);
+
+        $details->billing_first_name = get_user_meta($user_id, 'billing_first_name', true);
+        $details->billing_last_name = get_user_meta($user_id, 'billing_last_name', true);
+        $details->billing_company = get_user_meta($user_id, 'billing_company', true);
+        $details->billing_address = get_user_meta($user_id, 'billing_address_1', true);
+        $details->billing_address2 = get_user_meta($user_id, 'billing_address_2', true);
+        $details->billing_city = get_user_meta($user_id, 'billing_city', true);
+        $details->billing_postcode = get_user_meta($user_id, 'billing_postcode', true);
+        $details->billing_country = get_user_meta($user_id, 'billing_country', true);
+        $details->billing_state = get_user_meta($user_id, 'billing_state', true);
+        $details->billing_email = get_user_meta($user_id, 'billing_email', true);
+        $details->billing_phone = get_user_meta($user_id, 'billing_phone', true);
+        $details->billing_paymethod = get_user_meta($user_id, 'payment_method', true);
+
+        $details->shipping_first_name = get_user_meta($user_id, 'shipping_first_name', true);
+        $details->shipping_last_name = get_user_meta($user_id, 'shipping_last_name', true);
+        $details->shipping_company = get_user_meta($user_id, 'shipping_company', true);
+        $details->shipping_address = get_user_meta($user_id, 'shipping_address_1', true);
+        $details->shipping_address2 = get_user_meta($user_id, 'shipping_address_2', true);
+        $details->shipping_city = get_user_meta($user_id, 'shipping_city', true);
+        $details->shipping_postcode = get_user_meta($user_id, 'shipping_postcode', true);
+        $details->shipping_country = get_user_meta($user_id, 'shipping_country', true);
+        $details->shipping_state = get_user_meta($user_id, 'shipping_state', true);
+        $details->shipping_email = get_user_meta($user_id, 'shipping_email', true);
+        $details->shipping_phone = get_user_meta($user_id, 'shipping_phone', true);
+        $details->shipping_paymethod = get_user_meta($user_id, 'payment_method', true);
+
+        $listId = Settings::get('default_list');
+        $mappedFields = Map::get();
+        $isSubscribe = false;
+
+        $userToExport = Customer::format($details, $mappedFields, $isSubscribe);
+
+        $userToExport= (array)$userToExport;
+
+        $result = self::$CampaignMonitor->import_subscribers($listId, array($userToExport));
+        Log::write($result);
     }
 
 
