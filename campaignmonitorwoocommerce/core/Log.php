@@ -45,7 +45,12 @@ abstract class Log
 
     public static function clear($options = array())
     {
-        self::write("",null);
+        $filename = self::getFileName();
+        $f = @fopen($filename, "r+");
+        if ($f !== false) {
+            ftruncate($f, 0);
+            fclose($f);
+        }
     }
 
     public static function write($message, $option = FILE_APPEND)

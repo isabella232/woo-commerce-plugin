@@ -125,6 +125,23 @@ class App
             Ajax::run();
             self::create_fields();
 
+            $date = new \DateTime();
+            $today = $date->format('Y-m-d H:i:s');
+            $cleanDate = Settings::get('log_clean_date');
+            $now     = strtotime($today);
+            $tomorrow  = strtotime('now + 1 day');
+
+            if (empty($cleanDate)){
+                Settings::add('log_clean_date',$tomorrow);
+            }
+
+            $future = Settings::get('log_clean_date');
+
+            if ($now > $future){
+                Log::clear();
+                Settings::add('log_clean_date',$tomorrow);
+            }
+
         }
 
     } // end constructor
@@ -138,18 +155,19 @@ class App
     {
 
         $details = new \stdClass();
-        $email = get_user_meta($user_id, 'billing_email', true);
 
-        $firstName = get_user_meta($user_id, 'billing_first_name', true);
-        $lastName = get_user_meta($user_id, 'billing_last_name', true);
+        $userData = new \WP_User($user_id);
+        $email = isset($userData->user_email) ? $userData->user_email : '';
+
+        $firstName = get_user_meta($user_id, 'first_name', true);
+        $lastName = get_user_meta($user_id, 'last_name', true);
 
         $details->id = $user_id;
         $details->name = $firstName . ' ' . $lastName;
-
         $details->email = $email;
+
         $details->order_total = get_user_meta($user_id, 'order_total', true);
         $details->order_count = get_user_meta($user_id, 'order_count', true);
-
         $details->billing_first_name = get_user_meta($user_id, 'billing_first_name', true);
         $details->billing_last_name = get_user_meta($user_id, 'billing_last_name', true);
         $details->billing_company = get_user_meta($user_id, 'billing_company', true);
@@ -179,7 +197,6 @@ class App
         $listId = Settings::get('default_list');
         $mappedFields = Map::get();
         $isSubscribe = false;
-
         $userToExport = Customer::format($details, $mappedFields, $isSubscribe);
 
         $userToExport= (array)$userToExport;

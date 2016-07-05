@@ -482,7 +482,7 @@ abstract class Ajax
 
                 $html = '<select id="lists" class="ajax-call list client-list dropdown-select">';
                 $html .= '<option selected="selected" class="ajax-call" data-url="' . self::$actionUrl . '&ClientID=' . $clientId . '&action=create_list">';
-                $html .= 'No lists found! Please create a list to get started';
+                $html .= 'Please create a list to get started';
                 $html .= '</option>';
                 $html .= '</select>';
 

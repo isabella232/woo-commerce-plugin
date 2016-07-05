@@ -177,8 +177,8 @@ abstract class Customer {
         }
         $fields = array();
         $fields['orders_count']  = 1;
-        $fields['total_spent'] = $userDetails->order_total;
-        $fields['total_price'] =$userDetails->order_total;
+        $fields['total_spent'] = isset($userDetails->order_total) ? $userDetails->order_total : 0 ;
+        $fields['total_price'] = isset($userDetails->order_total) ? $userDetails->order_total : 0  ;
         $fields['created_at']  = current_time( 'mysql' );
 
         if ($id > 0) {
@@ -226,6 +226,7 @@ abstract class Customer {
         $userToExport->QueueSubscriptionBasedAutoResponders = true;
 
         $fields['newsletter_subscribers'] = $isSubscribe;
+
         $fields['billing_address1'] = $userDetails->billing_address;
         $fields['billing_address2'] = $userDetails->billing_address2;
         $fields['billing_city'] = $userDetails->billing_city;
