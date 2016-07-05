@@ -215,9 +215,42 @@ abstract class Customer {
             }
 
             $fields['orders_count'] = $orderCount;
-            $fields['total_price'] = $total;
-            $fields['total_spent'] = $lastOrderSpent;
+            $fields['total_price'] = $lastOrderSpent;
+            $fields['total_spent'] = $total;
             $fields['created_at'] = $customer->user_registered;
+
+        } else if ($id == 0) {
+
+            // TODO patch can optimize
+            $customer_orders = get_posts(array(
+                'numberposts' => -1,
+                'meta_key' => '_billing_email',
+                'meta_value' => $email,
+                'post_type' => wc_get_order_types(),
+                'post_status' => array_keys(wc_get_order_statuses()),
+                'orderby'          => 'date',
+                'order'            => 'DESC',
+            ));
+
+            if (!empty($customer_orders) && count($customer_orders) > 0){
+
+                $total = 0;
+                $orderCount = 0;
+                $lastOrderSpent = 0;
+
+                foreach ( $customer_orders as $customer_order ) {
+                    $order = wc_get_order( $customer_order->ID );
+                    $total += $order->get_total();
+                    if ($orderCount == 0){
+                        $lastOrderSpent = $order->get_total();
+                    }
+                    $orderCount++;
+                }
+
+                $fields['orders_count'] = $orderCount;
+                $fields['total_price'] = $lastOrderSpent;
+                $fields['total_spent'] = $total;
+            }
 
         }
 

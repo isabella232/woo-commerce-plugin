@@ -10,7 +10,6 @@ $pluginUrl = plugins_url('campaignmonitorwoocommerce');
 $logoSrc = $pluginUrl . '/views/admin/images/campaign-monitor.png';
 $prefix = 'campaign_monitor_woocommerce_';
 
-
 $notices = \core\Settings::get('notices');
 
 // do I have an authorization token
@@ -70,16 +69,16 @@ if (!empty($autorizationToken)){
 
 
                 if (isset($credentials->error)){
-                        $html = '<div id="message" class="error notice is-dismissible">';
-                        $html .= '<p>';
-                        $html .= __($credentials->error_description);
-                        $html .= '</p>';
-                        $html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
-                        $html .= '</div><!-- /.updated -->';
-                        echo $html;
+                    $html = '<div id="message" class="error notice is-dismissible">';
+                    $html .= '<p>';
+                    $html .= __($credentials->error_description);
+                    $html .= '</p>';
+                    $html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
+                    $html .= '</div><!-- /.updated -->';
+                    echo $html;
 
                     \core\Settings::add('client_secret', '');
-                     \core\Settings::add('client_id', '');
+                    \core\Settings::add('client_id', '');
 
                 } else {
                     \core\Settings::add('access_token', $credentials->access_token);
@@ -276,15 +275,15 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
 
 
-            <?php if ((is_array($notices) && !in_array('connected_list_notice',$notices, TRUE ) ) && !empty($currentList)) : ?>
-            <div data-method="connected_list_notice" class="updated notice cm-plugin-ad is-dismissible">
-                <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
-                    <a href="https://www.campaignmonitor.com/" target="_blank">
-                        Campaign Monitor</a>.&nbsp;
-                     We've also created 6 segments for you there.
-                </p>
-            </div>
-        <?php endif; ?>
+    <?php if ((is_array($notices) && !in_array('connected_list_notice',$notices, TRUE ) ) && !empty($currentList)) : ?>
+        <div data-method="connected_list_notice" class="updated notice cm-plugin-ad is-dismissible">
+            <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
+                <a href="https://www.campaignmonitor.com/" target="_blank">
+                    Campaign Monitor</a>.&nbsp;
+                We've also created 6 segments for you there.
+            </p>
+        </div>
+    <?php endif; ?>
 
 
 
@@ -300,8 +299,8 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
     <?php if (!\core\App::is_connected()) : ?>
         <p>Campaign Monitor lets you manage your subscriber lists and email campaigns.<a href="https://www.campaignmonitor.com/signup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral"> Send something beautiful today</a></p>
-       <p> <strong>Campaign Monitor for WooCommerce is almost ready.</strong> To get started, <a id="btnConnect" class="static button  button-primary" target="_blank" href="<?php echo \core\App::getConnectUrl(); ?>">Connect</a></p>
-        <?php else : ?>
+        <p> <strong>Campaign Monitor for WooCommerce is almost ready.</strong> To get started, <a id="btnConnect" class="static button  button-primary" target="_blank" href="<?php echo \core\App::getConnectUrl(); ?>">Connect</a></p>
+    <?php else : ?>
 
         <div>
             <?php if (!empty($clients)) : ?>

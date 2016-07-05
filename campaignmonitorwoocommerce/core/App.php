@@ -234,12 +234,22 @@ class App
                     Subscribers::add($_POST['billing_email']);
                 }
 
+                if (isset($_POST['billing_email'])){
+                    $alreadyEnroll = Subscribers::get($_POST['billing_email']);
+
+                    if (!empty($alreadyEnroll)){
+                        $isSubscribe = true;
+                    }
+                }
+
+
+
                 $userToExport = Customer::format($details, $mappedFields, $isSubscribe);
                 $userToExport = (array)$userToExport;
                 $result = self::$CampaignMonitor->add_subscriber($listId, $userToExport);
 
             }
-          }
+        }
     }
     public static function woocommerce_subscription_box(){
 
@@ -384,25 +394,25 @@ class App
 
                 if ($type == 'save_settings'){
                     // 2 instantiate app will send client id and secret
-                        if (!empty($_POST)) {
-                            if (array_key_exists('client_id', $_POST)) {
+                    if (!empty($_POST)) {
+                        if (array_key_exists('client_id', $_POST)) {
 
-                                Helper::updateOption('connected', null);
-                                Settings::clear();
-                                // extract client id and client secret from post request
-                                $credentials = (object)$_POST;
-                                $clientId = $credentials->client_id;
-                                $clientSecret = $credentials->client_secret;
-                                // save for subsequent request
-                                \core\Settings::add('client_secret', $clientSecret );
-                                \core\Settings::add('client_id', $clientId);
+                            Helper::updateOption('connected', null);
+                            Settings::clear();
+                            // extract client id and client secret from post request
+                            $credentials = (object)$_POST;
+                            $clientId = $credentials->client_id;
+                            $clientSecret = $credentials->client_secret;
+                            // save for subsequent request
+                            \core\Settings::add('client_secret', $clientSecret );
+                            \core\Settings::add('client_id', $clientId);
 
-                                $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
-                                // redirect to get an access token
-                                wp_redirect($authorizeUrl);
-                                die();
-                            }
+                            $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
+                            // redirect to get an access token
+                            wp_redirect($authorizeUrl);
+                            die();
                         }
+                    }
                 }
 
                 break;
@@ -460,28 +470,28 @@ class App
         add_submenu_page(null,'Settings' , 'Settings' , $capability, 'campaign_monitor_woocommerce_settings', array(__CLASS__, 'setting_page') );
 
         //call register settings function
-       // add_action('admin_init', array(__CLASS__, 'register_settings_settings'));
+        // add_action('admin_init', array(__CLASS__, 'register_settings_settings'));
 
     }
 
     public static function load_custom_wp_admin_scripts($hook_suffix)
     {
 
-       if (strpos($hook_suffix, 'campaign_monitor_woocommerce') !== false){
+        if (strpos($hook_suffix, 'campaign_monitor_woocommerce') !== false){
 
-           $plugins_url = plugins_url('campaignmonitorwoocommerce');
+            $plugins_url = plugins_url('campaignmonitorwoocommerce');
 
-           if (is_admin()){
-               wp_register_style('custom_wp_admin_css', $plugins_url . '/views/admin/css/main.css', false, '1.0.0');
-               wp_enqueue_style('custom_wp_admin_css' );
-               wp_enqueue_script('app-script', $plugins_url . '/views/admin/js/app.js', array('jquery'));
-               wp_enqueue_script('ajax-script', $plugins_url . '/views/admin/js/ajax.js', array('jquery'));
-           }
-           // in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
-           wp_localize_script('ajax-script', 'ajax_request', array(
-               'ajax_url' => admin_url('admin-ajax.php')
-           ));
-       }
+            if (is_admin()){
+                wp_register_style('custom_wp_admin_css', $plugins_url . '/views/admin/css/main.css', false, '1.0.0');
+                wp_enqueue_style('custom_wp_admin_css' );
+                wp_enqueue_script('app-script', $plugins_url . '/views/admin/js/app.js', array('jquery'));
+                wp_enqueue_script('ajax-script', $plugins_url . '/views/admin/js/ajax.js', array('jquery'));
+            }
+            // in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
+            wp_localize_script('ajax-script', 'ajax_request', array(
+                'ajax_url' => admin_url('admin-ajax.php')
+            ));
+        }
 
     }
     public static function load_custom_wp_scripts()

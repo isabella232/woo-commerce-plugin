@@ -3,7 +3,7 @@
 namespace core;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; 
+    exit;
 }
 
 class Subscribers {
@@ -33,7 +33,9 @@ class Subscribers {
             $subscribers = Helper::getOption(self::name);
             if (!empty($subscribers)){
                 if (in_array($subscriber, $subscribers)){
-                    return $subscribers[$subscriber];
+                    $old = array_flip($subscribers);
+                    $index = $old[$subscriber];
+                    return $subscribers[$index];
                 }
             }
         }
