@@ -210,7 +210,8 @@ class App
 
         if (!empty($orderId)){
             $order = new \WC_Order( $orderId );
-            $user_id = $order->user_id;
+            $address = $order->get_address();
+            Log::write($address);
             $page = 1;
             $limit = 1;
             $isSubscribe = false;
@@ -234,8 +235,10 @@ class App
                     Subscribers::add($_POST['billing_email']);
                 }
 
-                if (isset($_POST['billing_email'])){
-                    $alreadyEnroll = Subscribers::get($_POST['billing_email']);
+                if (isset($_POST['billing_email']) || isset($address['email'])){
+
+                    $emailToEnroll = (isset($address['email']) && !empty($address['email']))  ? $address['email'] : isset($_POST['billing_email']) ? $_POST['billing_email'] : '';
+                    $alreadyEnroll = Subscribers::get($emailToEnroll);
 
                     if (!empty($alreadyEnroll)){
                         $isSubscribe = true;
@@ -247,6 +250,7 @@ class App
                 $userToExport = Customer::format($details, $mappedFields, $isSubscribe);
                 $userToExport = (array)$userToExport;
                 $result = self::$CampaignMonitor->add_subscriber($listId, $userToExport);
+                Log::write($result);
 
             }
         }

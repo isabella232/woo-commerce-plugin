@@ -9,12 +9,11 @@ $redirectUrl = \core\Helper::getRedirectUrl();
 $pluginUrl = plugins_url('campaignmonitorwoocommerce');
 $logoSrc = $pluginUrl . '/views/admin/images/campaign-monitor.png';
 $prefix = 'campaign_monitor_woocommerce_';
-
 $notices = \core\Settings::get('notices');
 
 // do I have an authorization token
-$autorizationToken = \core\Settings::get('access_token');
-if (!empty($autorizationToken)){
+$authorizationToken = \core\Settings::get('access_token');
+if (!empty($authorizationToken)){
     // we are authorize
     // check if refresh token is still good
     if (\core\Settings::get('refresh_token') - time() <  (60*60*24))
