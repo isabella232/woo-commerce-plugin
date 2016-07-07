@@ -45,7 +45,7 @@ if (!empty($authorizationToken)){
 
     }else {
 
-        // check if user logging on campaign monitor
+
         if (isset($_GET['code']) && !empty($_GET['code'])){
             $code = $_GET['code'];
 
@@ -100,7 +100,6 @@ if (isset($_GET['disconnect'])){
 }
 
 
-
 $defaultList = \core\Settings::get('default_list');
 $defaultClient = \core\Settings::get('default_client');
 $accessToken = \core\Settings::get('access_token');
@@ -118,7 +117,6 @@ if (!empty($appSettings) && !empty($accessToken)){
     }
 
 }
-
 
 $clientListSettings = \core\ClientList::get($defaultList);
 
@@ -160,14 +158,6 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
             $('#clientSelection').trigger('change');
         });
     </script>
-<?php endif; ?>
-<?php if (!empty($selectedList) ) : ?>
-    <script>
-        jQuery(document).ready(function($) {
-//            $('#lists option[data-id="<?php //echo $selectedList ?>//"]').attr('selected', 'selected');
-        });
-    </script>
-    <input type="hidden" name="selected_list" value="<?php echo $selectedList; ?>"/>
 <?php endif; ?>
 <div class="wrap">
     <h1>Campaign Monitor</h1>

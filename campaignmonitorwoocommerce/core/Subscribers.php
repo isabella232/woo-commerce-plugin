@@ -6,11 +6,20 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * People who have checked the subscribed option
+ *
+ * Class Subscribers
+ * @package core
+ */
 class Subscribers {
 
     protected static $subscribers = array();
     const name = 'campaign_monitor_woocommerce_account_subscribers';
 
+    /**
+     * @param $subscriber
+     */
     public static function add($subscriber)
     {
         $s = Helper::getOption(self::name);
@@ -22,10 +31,17 @@ class Subscribers {
         \core\Helper::updateOption(self::name, self::$subscribers);
     }
 
+    /**
+     * @return bool
+     */
     public static function clear(){
         return Helper::updateOption(self::name, null);
     }
 
+    /**
+     * @param string $subscriber
+     * @return mixed|null|void
+     */
     public static function get($subscriber = ''){
         if (null == $subscriber){
             return Helper::getOption(self::name);

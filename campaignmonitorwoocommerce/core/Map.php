@@ -4,8 +4,18 @@ namespace core;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+/**
+ * Helper class to map fields to segments on campaign monitor
+ * Class Map
+ * @package core
+ */
 class Map
 {
+    /**
+     * @param $field
+     * @param $mappedField
+     */
     public static function add($field, $mappedField){
 
         $map = array();
@@ -15,6 +25,10 @@ class Map
 
     }
 
+    /**
+     * @param $field
+     * @param bool $removeByValue
+     */
     public static function remove($field, $removeByValue = false){
 
         $map = array();
@@ -40,6 +54,10 @@ class Map
 
     }
 
+    /**
+     * @param bool $visibleOnly
+     * @return mixed|void
+     */
     public static function get($visibleOnly = false){
         $mappedFields = Helper::getOption('field_mapping');
         if (!$visibleOnly){

@@ -6,6 +6,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Class Session
+ * @package core
+ * 
+ */
 class Session
 {
 

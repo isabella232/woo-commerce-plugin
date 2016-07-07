@@ -10,6 +10,13 @@ namespace core;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+/**
+ * Create campaign monitor segments settings
+ *
+ * Class Segment
+ * @package core
+ */
 class Segment implements \ArrayAccess
 {
     protected $_title = '';
@@ -58,7 +65,6 @@ class Segment implements \ArrayAccess
     }
 
     // ArrayAccess methods
-
     public function &toArray() {
 
         $ruleGroups = array();

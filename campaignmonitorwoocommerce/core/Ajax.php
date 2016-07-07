@@ -4,7 +4,12 @@
 
 namespace core;
 
-
+/**
+ * Handles ajax calls
+ *
+ * Class Ajax
+ * @package core
+ */
 abstract class Ajax
 {
 
@@ -26,9 +31,7 @@ abstract class Ajax
             add_action('wp_ajax_get_list_settings', array(__CLASS__, 'get_list_settings'));
         }
 
-
         add_action('wp_ajax_nopriv_ajax_handler_nopriv', array(__CLASS__, 'ajax_handler_nopriv'));
-
         self::$actionUrl = get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce_settings';
 
     }
@@ -167,9 +170,6 @@ abstract class Ajax
                 Helper::updateOption('automatic_subscription',false);
                 $listSettings['automatic_subscription'] = false;
             }
-
-
-
         }
 
         if (array_key_exists('subscribe_text', $params )){
@@ -246,7 +246,6 @@ abstract class Ajax
                 }
 
 
-//            $prefix = get_bloginfo('name');
                 $prefix = 'WooCommerce';
                 $segmentedFields = array();
 

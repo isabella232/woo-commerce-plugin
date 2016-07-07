@@ -5,6 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Class Helper
+ * @package core
+ */
 abstract class Helper {
 
     protected static $pluginName = 'campaign_monitor_woocommerce';
@@ -23,27 +27,44 @@ abstract class Helper {
     }
 
 
-
+    /**
+     * @return int
+     */
     public static function getMaximumFieldsCount(){
         return 50;
     }
 
+    /**
+     * wrapper for the wordpress options
+     *
+     * @param $name
+     * @param bool $mixed
+     * @return mixed|void
+     */
     public static function getOption($name, $mixed = false){
         $optionName = self::$pluginName . '_' . $name;
         $option = get_option($optionName,$mixed);
         return $option;
     }
 
+    /**
+     * @param $name
+     */
     public static function deleteOption($name){
         $optionName = self::$pluginName . '_' . $name;
         delete_option($optionName);
     }
 
-
+    /**
+     * @return string
+     */
     public static function getActionUrl(){
        return get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce';
     }
 
+    /**
+     * @return string
+     */
     public static function getCampaignMonitorPermissions()
     {
         $permissions = array("ViewReports", "ViewSubscribersInReports",
@@ -51,21 +72,43 @@ abstract class Helper {
 
         return implode(',', $permissions);
     }
-    
+
+    /**
+     * @return string
+     */
     public static function getRedirectUrl(){
        return get_admin_url() . 'admin.php?page=campaign_monitor_woocommerce&connected=true';
     }
 
+    /**
+     * wordpress option wrapper
+     *
+     * @param $name
+     * @param string $value
+     * @param string $deprecated
+     * @param string $autoload
+     */
     public static function addOption($name, $value = '', $deprecated = '', $autoload = 'yes' ){
         $optionName = self::$pluginName . '_' . $name;
         add_option($optionName, $value, $deprecated, $autoload  );
     }
 
+    /**
+     * wordpress option wrapper
+     *
+     * @param $name
+     * @param $value
+     * @param null $autoload
+     * @return bool
+     */
     public static function updateOption($name, $value, $autoload = null ){
         $optionName = self::$pluginName . '_' . $name;
         return update_option($optionName, $value, $autoload);
     }
 
+    /**
+     * @param $file
+     */
     public static function renderer($file){
 
         $filePath = dirname(__DIR__) . '/views/admin/' . $file . '.php';
@@ -75,6 +118,11 @@ abstract class Helper {
         }
     }
 
+    /**
+     * @param string $file
+     * @param bool $url
+     * @return string
+     */
     public static function getPluginDirectory($file = '', $url = false){
         if (empty($file)){
             return CAMPAIGN_MONITOR_WOOCOMMERCE_DIR;
@@ -83,6 +131,10 @@ abstract class Helper {
         }
     }
 
+    /***
+     * @param $data
+     * @param bool $dump
+     */
     public static function display($data, $dump = false){
         echo "<pre>";
         if ($dump){

@@ -2,7 +2,7 @@
 Contributors: vibhorchhabra
 Donate link: N/A
 Tags: Campaign Monitor, Email Marketing
-Requires at least: 3.9
+Requires at least: 4.0.1
 Tested up to: 4.5.3
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -33,7 +33,7 @@ Email marketing with all the features you want. With Campaign Monitor, you have 
 
 == Changelog ==
 
-= 1.0 =
+= 1.0.0 =
 * Launched Campaign Monitor for WooCommerce plugin.
 
 

@@ -11,6 +11,13 @@ namespace core;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+/**
+ * Helper class
+ *
+ * Class FieldType
+ * @package core
+ */
 abstract class FieldType
 {
     const NUMBER = 'Number';

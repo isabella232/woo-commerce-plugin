@@ -30,7 +30,6 @@ jQuery(document).ready(function($) {
         var dataToSend = JSON.parse('{"' + decodeURI(params).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
 
         dataToSend.action = 'set_client_list';
-
         var newList = $('#listName');
 
         if (newList.is(':visible') && newList.val() == ''){
@@ -76,9 +75,6 @@ jQuery(document).ready(function($) {
                     $('.campaign-monitor-woocommerce .progress-notice').slideUp();
                 }
 
-                //$('.campaign-monitor-woocommerce .progress-notice').slideUp();
-
-                //$("#selector .content").slideDown();
             },
             error: function (request, textStatus, errorThrown) {
                 $('.campaign-monitor-woocommerce .progress-notice').slideUp();
@@ -170,7 +166,6 @@ jQuery(document).ready(function($) {
             dataType: "text json",
             success: function (data, textStatus, request) {
 
-               // $("#clientList").slideUp();
                 var container = $("#createList");
 
                 if ( elementId == 'lists'){

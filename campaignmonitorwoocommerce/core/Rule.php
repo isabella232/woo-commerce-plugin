@@ -6,6 +6,12 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Rules for campaign monitor segments
+ *
+ * Class Rule
+ * @package core
+ */
 class Rule
 {
     protected $_fieldCode = '';

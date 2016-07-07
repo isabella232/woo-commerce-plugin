@@ -2,6 +2,12 @@
 
 namespace core;
 
+/**
+ * The controller for the app
+ *
+ * Class App
+ * @package core
+ */
 class App
 {
 
@@ -66,7 +72,6 @@ class App
             add_action('woocommerce_review_order_after_submit', array(__CLASS__, 'woocommerce_subscription_box'));
             add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'checkout_process'));
             add_action('woocommerce_order_status_completed', array(__CLASS__, 'checkout_process'));
-//            add_action('edit_user_profile_update', array(__CLASS__, 'profile_update'),11, 2);
             add_action('profile_update', array(__CLASS__, 'profile_update'), 12);
 
 
@@ -473,9 +478,6 @@ class App
         add_menu_page($pageTitle, $menuTitle, $capability, $menuSlug, array(__CLASS__, $callable), $iconUrl, $position);
         add_submenu_page(null,'Settings' , 'Settings' , $capability, 'campaign_monitor_woocommerce_settings', array(__CLASS__, 'setting_page') );
 
-        //call register settings function
-        // add_action('admin_init', array(__CLASS__, 'register_settings_settings'));
-
     }
 
     public static function load_custom_wp_admin_scripts($hook_suffix)
@@ -518,13 +520,7 @@ class App
 
     public static function register_settings_settings()
     {
-        //register our settings
-//        register_setting('settings_page_group', self::$optionPrefix . '_client_id');
-//        register_setting('settings_page_group', self::$optionPrefix . '_client_secret');
-//        register_setting('settings_page_group', self::$optionPrefix . '_access_token');
-//        register_setting('settings_page_group', self::$optionPrefix . '_refresh_token');
-//        register_setting('settings_page_group', self::$optionPrefix . '_expiry');
-//        register_setting('settings_page_group', self::$optionPrefix . '_code');
+
     }
 
     public static function register_settings_page()
