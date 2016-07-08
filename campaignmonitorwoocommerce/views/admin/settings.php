@@ -50,7 +50,7 @@ $notices = \core\Settings::get('notices');
                     Copy paste the client ID and client secret into the fields below, then select <strong>Save Changes.</strong>
                 </li>
             </ol>
-                    <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
+                    <form action="<?php echo get_admin_url(); ?>admin-post.php" method="post">
                         <input type="hidden" name="action" value="handle_request">
                         <input type="hidden" name="data[type]" value="save_settings">
                         <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">

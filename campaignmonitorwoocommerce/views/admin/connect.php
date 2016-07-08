@@ -11,6 +11,8 @@ $logoSrc = $pluginUrl . '/views/admin/images/campaign-monitor.png';
 $prefix = 'campaign_monitor_woocommerce_';
 $notices = \core\Settings::get('notices');
 
+
+
 // do I have an authorization token
 $authorizationToken = \core\Settings::get('access_token');
 if (!empty($authorizationToken)){
@@ -32,6 +34,7 @@ if (!empty($authorizationToken)){
 } else {
 
     if (isset($_GET['error']) && !empty($_GET['error'])){
+        $_GET   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
         // there was something wrong
         $html = '<div class="wrap">';
         $html .= '<h1>Campaign Monitor</h1>';
@@ -47,6 +50,7 @@ if (!empty($authorizationToken)){
 
 
         if (isset($_GET['code']) && !empty($_GET['code'])){
+            $_GET   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
             $code = $_GET['code'];
 
             \core\Helper::updateOption('code', $code);
@@ -142,7 +146,9 @@ if (!empty($defaultList)) {
     }
 
 }
-$srcUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
+
+$srcUrl = \core\App::getDirectoryUrl(). 'views/admin/images/';
+
 $selectedClient = \core\Settings::get('default_client');
 $selectedList = \core\Settings::get('default_list');
 $canViewLog = \core\Helper::getOption('debug');
@@ -166,7 +172,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
             <span class="btn-close dashicons dashicons-no"></span>
             <div class="box main-container text-center">
                 <?php if (!empty($defaultList)) : ?>
-                    <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
+                    <form action="<?php echo get_admin_url(); ?>admin-post.php" method="post">
                         <input type="hidden" name="action" value="handle_request">
                         <input type="hidden" name="data[type]" value="map_custom_fields">
                         <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
@@ -336,7 +342,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
                                     </th>
                                     <td>
-                                        <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
+                                        <form action="<?php echo get_admin_url(); ?>admin-post.php" method="post">
 
                                             <input type="hidden" name="action" value="handle_request">
                                             <input type="hidden" name="data[type]" value="create_client">
@@ -392,7 +398,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                         <p><em><a href="http://help.campaignmonitor.com/topic.aspx?t=16">Learn more about confirmed opt-in lists.</a></em> </p>
 
 
-                                        <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
+                                        <form action="<?php echo get_admin_url(); ?>admin-post.php" method="post">
                                             <input type="hidden" name="action" value="handle_request">
                                             <input type="hidden" name="data[type]" value="create_list">
                                             <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
@@ -498,7 +504,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
             <?php else : ?>
                 <?php if (empty($defaultList)) : ?>
-                    <form action="<?php echo get_site_url(); ?>/wp-admin/admin-post.php" method="post">
+                    <form action="<?php echo get_admin(); ?>/wp-admin/admin-post.php" method="post">
                         <table>
                             <tr>
                                 <td>

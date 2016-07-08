@@ -79,6 +79,7 @@ if($version < 5.3) {
 	add_action('plugins_loaded', function(){
 
 		core\App::$pluginPath = __FILE__;
+		core\App::$pluginDirectory = CAMPAIGN_MONITOR_WOOCOMMERCE_DIR;
 		core\App::run();
 
 	});

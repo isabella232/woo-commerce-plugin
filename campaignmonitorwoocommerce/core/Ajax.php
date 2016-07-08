@@ -39,6 +39,7 @@ abstract class Ajax
     public static function dismiss_notice(){
 
         if (array_key_exists('method', $_POST)){
+            $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $method = $_POST['method'];
             $notices = Settings::get('notices');
 
@@ -138,6 +139,7 @@ abstract class Ajax
 
     public static function set_client_list($clientId = '', $listID = '')
     {
+        $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
         $params = $_POST;
 
         // settings for individual list
@@ -313,7 +315,7 @@ abstract class Ajax
             Settings::add('default_list', $listId);
             Settings::add('default_client',$clientId );
 
-            $imagesUrl = get_site_url(). '/wp-content/plugins/campaignmonitorwoocommerce/views/admin/images/';
+            $imagesUrl = App::getDirectoryUrl(). 'views/admin/images/';
             $html = "";
             $html .= '<div class="box main-container text-center modal">';
 //            $html .= '<img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">';
@@ -345,6 +347,7 @@ abstract class Ajax
     public static function create_list($clientId = '', $listName = '')
     {
         $requestResults = new \stdClass();
+        $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
         $params = $_POST;
         $clientId = '';
         $requestResults = new \stdClass();
@@ -415,6 +418,7 @@ abstract class Ajax
     public static function get_list_settings($listId = ''){
 
         if (empty($listId)){
+            $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $listId  = $_POST['ListID'];
         }
         $settings = ClientList::get($listId);
@@ -423,7 +427,7 @@ abstract class Ajax
     
     public static function view_client_list($clientId = '')
     {
-
+        $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
         $params = $_POST;
         if (!empty($clientId)) {
             $params['ClientID'] = $clientId;
@@ -495,6 +499,7 @@ abstract class Ajax
 
     public static function get_custom_fields($listId = '')
     {
+        $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
         $params = $_POST;
         $requestResults = new \stdClass();
 

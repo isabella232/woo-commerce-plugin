@@ -17,9 +17,19 @@ class App
     public static $session = null;
     public static $pluginPath = '';
     public static $notices = '';
+    public static $pluginDirectory = '';
+
 
     public static $CampaignMonitor = null;
     public static $Cron = null;
+
+    public static function getPath(){
+        return plugin_dir_path(dirname(__FILE__));
+
+    }
+    public static function getDirectoryUrl(){
+        return plugins_url('',dirname(__FILE__)) . '/';
+    }
 
     public static function run()
     {
@@ -83,6 +93,7 @@ class App
             if (isset($_GET['error']) && !empty($_GET['error'])) {
 
                 Helper::updateOption('no_ssl', true);
+                $_GET   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
                 $title = $_GET['error'];
                 $description = $_GET['error_description'];
                 $error['title'] = $title;
@@ -216,16 +227,28 @@ class App
         if (!empty($orderId)){
             $order = new \WC_Order( $orderId );
             $address = $order->get_address();
-            Log::write($address);
             $page = 1;
             $limit = 1;
             $isSubscribe = false;
             $newCustomer = Customer::getData($page, $limit, $orderId);
+            $email = '';
+            if (array_key_exists('billing_email',$_POST ) && !empty($_POST['billing_email']))
+            {
+                $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+                $email = $_POST['billing_email'];
+
+                if (is_email($email)) {
+                    $email = sanitize_email($email);
+                }else {
+                    $email = '';
+                    Log::write('The email provided doesn\'t seem to be valid!');
+                }
+
+            }
 
             if (array_key_exists('cmw_register_email', $_POST)){
-                if (array_key_exists('billing_email',$_POST ) && !empty($_POST['billing_email']))
-                {
-                    Subscribers::add($_POST['billing_email']);
+                if (!empty($email)){
+                    Subscribers::add($email);
                     $isSubscribe = true;
                 }
             }
@@ -237,14 +260,19 @@ class App
 
                 $autoSubscribe = Helper::getOption('automatic_subscription');
                 if (!empty($autoSubscribe) && $autoSubscribe ){
-                    Subscribers::add($_POST['billing_email']);
+                    if (!empty($email)){
+                        Subscribers::add($email);
+                    }
                 }
 
-                if (isset($_POST['billing_email']) || isset($address['email'])){
+                if (!empty($email) || isset($address['email'])){
+                    if (isset($address['email']) && !empty($address['email'])){
+                        $emailToEnroll = $address['email'];
+                    } else if (!empty($email)){
+                        $emailToEnroll = $email;
+                    }
 
-                    $emailToEnroll = (isset($address['email']) && !empty($address['email']))  ? $address['email'] : isset($_POST['billing_email']) ? $_POST['billing_email'] : '';
                     $alreadyEnroll = Subscribers::get($emailToEnroll);
-
                     if (!empty($alreadyEnroll)){
                         $isSubscribe = true;
                     }
@@ -328,11 +356,10 @@ class App
     public static function handle_request()
     {
         status_header(200);
+
         $data = $_REQUEST['data'];
         $nonce = $data['app_nonce'];
         $type = $data['type'];
-
-
 
 
         $nonce = wp_verify_nonce($nonce, 'app_nonce');
@@ -352,7 +379,6 @@ class App
                 }
 
                 if ($type == 'create_list') {
-                    Log::write($_POST);
                     $clientId = $data['client_id'];
                     $listName = $data['list_name'];
                     $optIn = $data['opt_in'];
@@ -373,9 +399,7 @@ class App
                             $newFields = $fields['new_fields'];
                             $items = $newFields['items'];
 
-
                             foreach ($items as $item) {
-
                                 $createdField = App::$CampaignMonitor->create_custom_field($listId, $item['name'], ucfirst($item['type']));
 
                                 if (!empty($createdField)) {
@@ -404,22 +428,29 @@ class App
                 if ($type == 'save_settings'){
                     // 2 instantiate app will send client id and secret
                     if (!empty($_POST)) {
+                        $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
                         if (array_key_exists('client_id', $_POST)) {
 
                             Helper::updateOption('connected', null);
                             Settings::clear();
                             // extract client id and client secret from post request
-                            $credentials = (object)$_POST;
-                            $clientId = $credentials->client_id;
-                            $clientSecret = $credentials->client_secret;
-                            // save for subsequent request
-                            \core\Settings::add('client_secret', $clientSecret );
-                            \core\Settings::add('client_id', $clientId);
 
-                            $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
-                            // redirect to get an access token
-                            wp_redirect($authorizeUrl);
-                            die();
+                            $credentials = (object)$_POST;
+                            if (!empty($credentials)){
+                                $clientId = $credentials->client_id;
+                                $clientSecret = $credentials->client_secret;
+                                // save for subsequent request
+                                \core\Settings::add('client_secret', $clientSecret );
+                                \core\Settings::add('client_id', $clientId);
+
+                                $authorizeUrl = self::$CampaignMonitor->authorize_url($clientId,Helper::getRedirectUrl() , Helper::getCampaignMonitorPermissions() );
+                                // redirect to get an access token
+                                wp_redirect($authorizeUrl);
+                                die();
+                            } else {
+                                Log::write("There was a problem with your credentials");
+                            }
+
                         }
                     }
                 }
