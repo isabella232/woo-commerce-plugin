@@ -3,7 +3,7 @@
 Plugin Name: Campaign Monitor for WooCommerce
 Plugin URI: https://www.campaignmonitor.com/integrations/
 Description: Email marketing with all the features you want. With <strong>Campaign Monitor</strong>, you have everything you need to run beautifully designed, professional email marketing campaigns to grow your business.
-Version: 1.0.0
+Version: 1.2.0
 Author: Campaign Monitor
 Author URI: https://www.campaignmonitor.com/integrations/
 Text Domain: campaignmonitorwoocommerce
@@ -43,19 +43,19 @@ if ( !function_exists( 'add_action' ) ) {
 
 $version = floatval(phpversion());
 if($version < 5.3) {
-		if (isset($_GET['activate'])) {
-			unset($_GET['activate']);
-		}
-		add_action('admin_notices', function() {
-			$html = '<div id="message" class="error notice is-dismissible">';
-			$html .= '<p>';
-			$html .= __(' Campaign Monitor for WooCommerce requires at least PHP Version 5.3.0, version: '.phpversion().' detected', 'campaign-monitor-woocommerce');
-			$html .= '</p>';
-			$html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
-			$html .= '</div><!-- /.updated -->';
-			echo $html;
-			deactivate_plugins( __FILE__, true);
-		});
+	if (isset($_GET['activate'])) {
+		unset($_GET['activate']);
+	}
+	add_action('admin_notices', function() {
+		$html = '<div id="message" class="error notice is-dismissible">';
+		$html .= '<p>';
+		$html .= __(' Campaign Monitor for WooCommerce requires at least PHP Version 5.3.0, version: '.phpversion().' detected', 'campaign-monitor-woocommerce');
+		$html .= '</p>';
+		$html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
+		$html .= '</div><!-- /.updated -->';
+		echo $html;
+		deactivate_plugins( __FILE__, true);
+	});
 } else {
 	// Set the version of this plugin
 	if( ! defined( 'CAMPAIGN_MONITOR_WOOCOMMERCE' ) ) {
