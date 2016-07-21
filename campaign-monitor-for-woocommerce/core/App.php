@@ -503,7 +503,7 @@ class App
         $capability = 'administrator';
         $menuSlug = 'campaign_monitor_woocommerce';
         $callable = 'register_settings_page';
-        $iconUrl = plugins_url('/campaignmonitorwoocommerce/views/admin/images/icon.svg');
+        $iconUrl = plugins_url('/campaign-monitor-for-woocommerce/views/admin/images/icon.svg');
         $position = 100;
 
         add_menu_page($pageTitle, $menuTitle, $capability, $menuSlug, array(__CLASS__, $callable), $iconUrl, $position);
@@ -516,7 +516,7 @@ class App
 
         if (strpos($hook_suffix, 'campaign_monitor_woocommerce') !== false){
 
-            $plugins_url = plugins_url('campaignmonitorwoocommerce');
+            $plugins_url = plugins_url('campaign-monitor-for-woocommerce');
 
             if (is_admin()){
                 wp_register_style('custom_wp_admin_css', $plugins_url . '/views/admin/css/main.css', false, '1.0.0');
@@ -534,7 +534,7 @@ class App
     public static function load_custom_wp_scripts()
     {
 
-        $plugins_url = plugins_url('campaignmonitorwoocommerce');
+        $plugins_url = plugins_url('campaign-monitor-for-woocommerce');
 
         wp_enqueue_script('ajax-script-public', $plugins_url . '/views/public/js/app.js', array('jquery'));
         // in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
