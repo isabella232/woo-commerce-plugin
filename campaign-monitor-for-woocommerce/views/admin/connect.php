@@ -6,7 +6,7 @@ require_once CAMPAIGN_MONITOR_WOOCOMMERCE_DIR . '/class/csrest_general.php';
 // get all settings for this app
 $appSettings  = \core\Settings::get();
 $redirectUrl = \core\Helper::getRedirectUrl();
-$pluginUrl = plugins_url('campaignmonitorwoocommerce');
+$pluginUrl = plugins_url('campaign-monitor-for-woocommerce');
 $logoSrc = $pluginUrl . '/views/admin/images/campaign-monitor.png';
 $prefix = 'campaign_monitor_woocommerce_';
 $notices = \core\Settings::get('notices');
