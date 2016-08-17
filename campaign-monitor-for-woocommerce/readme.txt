@@ -73,6 +73,11 @@ To connect WordPress to Campaign Monitor:
 
 * Maintenance update.
 
+= 1.2.9 =
+
+* Maintenance update.
+* Lock system for cron jobs updated
+
 == Arbitrary section ==
 
 What is Campaign Monitor?
