@@ -5,6 +5,8 @@ namespace core;
 
 class Cron
 {
+    public static $counter = 0;
+
     protected function getPrefix()
     {
         return 'campaign_monitor_woocommerce';
@@ -22,68 +24,86 @@ class Cron
             wp_schedule_event(time(), '1min', $cronHook);
         }
 
-
         add_action($cronHook, array($this, 'run'));
-
     }
 
 
     public function run()
     {
         if (Settings::get('data_sync')) {
-            Log::write("Synchronizing data");
-            $defaultListId = Settings::get('default_list');
+            if (( $pid = CronHelper::lock() ) !== FALSE) {
 
-            $users_per_page = 5;
-            $page = 1;
+                $defaultListId = Settings::get( 'default_list' );
+                Log::write( "Processing list: " . $defaultListId );
 
-            // count the number of users found in the query
-            $total_users = Customer::getTotal();
-            $listDetails = App::$CampaignMonitor->get_list_details($defaultListId);
+                $users_per_page = 10;
+                $page = 1;
 
-            // calculate the total number of pages.
-            $total_pages = ceil($total_users / $users_per_page);
-            $subscribedUsers = Subscribers::get();
-            $subscribers = array();
-            $totalUserSync = 0;
-            $results = null;
-            for ($currentPage = 1; $currentPage <= $total_pages; $currentPage++) {
+                // count the number of users found in the query
+                $total_users = Customer::getTotal();
+                Log::write( "Total orders: " . $total_users );
+                $listDetails = App::$CampaignMonitor->get_list_details( $defaultListId );
 
-                $results =  \core\Customer::getData($currentPage, $users_per_page);
-                $data = $results->data;
-                $totalUserSync += count($data);
+                // calculate the total number of pages.
+                $total_pages = ceil( $total_users / $users_per_page );
+                $subscribedUsers = Subscribers::get();
 
-                $mappedFields = Map::get();
+                $totalUserSync = 0;
+                $results = null;
+                Log::write( "number of pages " . $total_pages );
+                $totalUniqueEmailsSubmitted = 0;
+                $totalExistingSubscribers = 0;
+                $totalNewSubscribers = 0;
+                $duplicateEmailsInSubmission = 0;
+                for ($currentPage = 1; $currentPage <= $total_pages; $currentPage++) {
+                    Log::write( "page number: " . $currentPage );
+                    $subscribers = array();
 
-                foreach ($data as $datum) {
+                    $results = \core\Customer::getData( $currentPage, $users_per_page );
+                    $data = $results->data;
+                    $totalUserSync += count( $data );
 
-                    if (in_array($datum->email, $subscribedUsers)){
-                        $isSubscribe = true;
+                    $mappedFields = Map::get();
+
+                    foreach ($data as $datum) {
+                        $isSubscribe = false;
+                        if (!empty( $subscribedUsers )) {
+                            if (in_array( $datum->email, $subscribedUsers )) {
+                                $isSubscribe = true;
+                            }
+
+                        }
+
+                        $formattedCustomer = Customer::format( $datum, $mappedFields, $isSubscribe );
+                        $subscribers[] = (array)$formattedCustomer;
                     }
-                    $formattedCustomer = Customer::format($datum, $mappedFields, $isSubscribe);
-                    $subscribers[] = (array)$formattedCustomer;
-                }
-                Log::write($subscribers);
-                $results = App::$CampaignMonitor->import_subscribers($defaultListId, $subscribers);
-            }
 
-            if (!empty($results)){
-                $totalUniqueEmailsSubmitted  =  $results->TotalUniqueEmailSubmitted;
-                $totalExistingSubscribers = $results->TotalExistingSubscribers;
-                $totalNewSubscribers = $results->TotalNewSubscribers;
-                $duplicateEmailsInSubmission = $results->DuplicateEmailsInSubmission;
+                    $results = App::$CampaignMonitor->import_subscribers( $defaultListId, $subscribers );
+
+                    if (!empty( $results )) {
+                        $totalUniqueEmailsSubmitted += (int)$results->TotalUniqueEmailsSubmitted;
+                        $totalExistingSubscribers += (int)$results->TotalExistingSubscribers;
+                        $totalNewSubscribers += (int)$results->TotalNewSubscribers;
+                        $duplicateEmailsInSubmission += (int)$results->DuplicateEmailsInSubmission;
+                    }
+                }
 
                 $message = array();
                 $message['Total Unique Emails'] = $totalUniqueEmailsSubmitted;
                 $message['Total Existing Subscribers'] = $totalExistingSubscribers;
+                $message['subscribers_count'] = $totalUserSync;
+                $toEmail = get_option( 'admin_email' );
+                Log::write( $totalUniqueEmailsSubmitted );
+
+                $response = App::$CampaignMonitor->send_email( $toEmail, $listDetails->Title, $message );
+                Log::write($response);
+                Settings::add( 'data_sync', null );
+
+                CronHelper::unlock();
             }
 
-            $message['subscribers_count'] = $totalUserSync;
-            $toEmail = get_option('admin_email');
-            $response = App::$CampaignMonitor->send_email($toEmail, $listDetails->Title, $message);
-            Log::write($response);
-            Settings::add('data_sync', null);
         }
+
 
     }
 

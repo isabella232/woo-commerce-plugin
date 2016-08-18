@@ -14,7 +14,7 @@ class HttpClient{
 
         $defaults = array(
             'method' => $curlTYPE,
-            'timeout' => 25,
+            'timeout' => 50,
             'redirection' => 5,
             'httpversion' => '1.1',
             'user-agent' => 'WordPress/version;URL',
