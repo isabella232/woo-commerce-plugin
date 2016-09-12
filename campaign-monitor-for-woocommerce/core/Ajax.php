@@ -78,7 +78,7 @@ abstract class Ajax
     public static function ajax_handler()
     {
         // we could further optimize the plugin with one entry point for all ajax requests
-        
+
     }
 
     protected static function print_data($data)
@@ -424,7 +424,7 @@ abstract class Ajax
         $settings = ClientList::get($listId);
         wp_send_json($settings);
     }
-    
+
     public static function view_client_list($clientId = '')
     {
         $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -556,7 +556,7 @@ abstract class Ajax
     {
 
     }
-    
-    
+
+
 
 }

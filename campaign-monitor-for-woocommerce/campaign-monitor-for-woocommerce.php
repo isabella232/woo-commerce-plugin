@@ -3,7 +3,7 @@
 Plugin Name: Campaign Monitor for WooCommerce
 Plugin URI: https://www.campaignmonitor.com/integrations/
 Description: Email marketing with all the features you want. With <strong>Campaign Monitor</strong>, you have everything you need to run beautifully designed, professional email marketing campaigns to grow your business.
-Version: 1.2.9
+Version: 1.3.0
 Author: Campaign Monitor
 Author URI: https://www.campaignmonitor.com/integrations/
 Text Domain: campaign-monitor-for-woocommerce
@@ -37,50 +37,50 @@ Copyright 2005-2015 Automattic, Inc.
 
 // Make sure we don't expose any info if called directly
 if ( !function_exists( 'add_action' ) ) {
-	echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
-	exit;
+    echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
+    exit;
 }
 $version = floatval(phpversion());
 if($version < 5.3) {
-	if (isset($_GET['activate'])) {
-		unset($_GET['activate']);
-	}
-	add_action('admin_notices', function() {
-		$html = '<div id="message" class="error notice is-dismissible">';
-		$html .= '<p>';
-		$html .= __(' Campaign Monitor for WooCommerce requires at least PHP Version 5.3.0, version: '.phpversion().' detected', 'campaign-monitor-woocommerce');
-		$html .= '</p>';
-		$html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
-		$html .= '</div><!-- /.updated -->';
-		echo $html;
-		deactivate_plugins( __FILE__, true);
-	});
+    if (isset($_GET['activate'])) {
+        unset($_GET['activate']);
+    }
+    add_action('admin_notices', function() {
+        $html = '<div id="message" class="error notice is-dismissible">';
+        $html .= '<p>';
+        $html .= __(' Campaign Monitor for WooCommerce requires at least PHP Version 5.3.0, version: '.phpversion().' detected', 'campaign-monitor-woocommerce');
+        $html .= '</p>';
+        $html .= '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
+        $html .= '</div><!-- /.updated -->';
+        echo $html;
+        deactivate_plugins( __FILE__, true);
+    });
 } else {
-	// Set the version of this plugin
-	if( ! defined( 'CAMPAIGN_MONITOR_WOOCOMMERCE' ) ) {
-		define( 'CAMPAIGN_MONITOR_WOOCOMMERCE','1.0' );
-	} // end if
-	define('CAMPAIGN_MONITOR_WOOCOMMERCE_DIR', plugin_dir_path(__FILE__));
+    // Set the version of this plugin
+    if( ! defined( 'CAMPAIGN_MONITOR_WOOCOMMERCE' ) ) {
+        define( 'CAMPAIGN_MONITOR_WOOCOMMERCE','1.0' );
+    } // end if
+    define('CAMPAIGN_MONITOR_WOOCOMMERCE_DIR', plugin_dir_path(__FILE__));
 
-	spl_autoload_register(function ($class_name) {
+    spl_autoload_register(function ($class_name) {
 
-		$location = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class_name)  . '.php';
-		if (file_exists($location)) {
-			try{
-				require_once $location;
-				return;
-			} catch(Exception $e){
-				throw new Exception($e->getMessage());
-			}
-		}
-	});
+        $location = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class_name)  . '.php';
+        if (file_exists($location)) {
+            try{
+                require_once $location;
+                return;
+            } catch(Exception $e){
+                throw new Exception($e->getMessage());
+            }
+        }
+    });
 
-	add_action('plugins_loaded', function(){
+    add_action('plugins_loaded', function(){
 
-		core\App::$pluginPath = __FILE__;
-		core\App::$pluginDirectory = CAMPAIGN_MONITOR_WOOCOMMERCE_DIR;
-		core\App::run();
+        core\App::$pluginPath = __FILE__;
+        core\App::$pluginDirectory = CAMPAIGN_MONITOR_WOOCOMMERCE_DIR;
+        core\App::run();
 
-	});
+    });
 }
 

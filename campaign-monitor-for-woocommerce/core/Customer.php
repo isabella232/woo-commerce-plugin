@@ -11,9 +11,11 @@ abstract class Customer {
     private static $_query;
     private static $_total;
 
+    /**
+     * @return int total orders in this store disregarding status
+     */
     public static function getTotal(){
-        global $wpdb;
-        $count = $wpdb->get_col( "SELECT COUNT(DISTINCT `order_id`)  FROM `{$wpdb->prefix}woocommerce_order_items`" );
+        $count = Order::getTotal();
 
         if (!empty($count)){
             self::$_total = $count[0];
@@ -24,8 +26,86 @@ abstract class Customer {
         return self::$_total;
     }
 
+    /**
+     *
+     *
+     * @param $orderId
+     * @param bool $filter
+     * @return \stdClass
+     */
+    public static function getDetails( $orderId, $filter = false){
+        global $wpdb;
 
-    public static function getData( $page = 1, $limit = 10, $id = 0 )
+        $sql  = ' SELECT post_id, meta_key, meta_value FROM '.$wpdb->prefix.'postmeta WHERE post_id  = %s';
+        $params = array($orderId);
+
+        if ($filter) {
+            $sql .= ' AND ( meta_key LIKE %s '; // like %_billing%
+            $sql .= ' OR meta_key LIKE %s '; // like %_shipping%
+            $sql .= ' OR meta_key LIKE %s '; // like %_customer%
+            $sql .= ' OR meta_key LIKE %s '; // like %_order_total%
+            $sql .= ' OR meta_key LIKE %s ) '; // like %_order_count%
+            $params[] = "%_billing%";
+            $params[] = "%_shipping%";
+            $params[] = "%_customer%";
+            $params[] = "%_order_total%";
+            $params[] = "%_order_count%";
+        }
+
+        $sql .= ' ORDER BY meta_id ASC ';
+
+        $statement = $wpdb->prepare($sql,$params );
+        $results = $wpdb->get_results( $statement );
+        $orderDetails = new \stdClass();
+
+        $orderDetails->id = '';
+        $orderDetails->name = '';
+        $orderDetails->email = '';
+        $orderDetails->order_total = '';
+        $orderDetails->order_count = '';
+        $orderDetails->order_id = $orderId;
+
+        $orderDetails->billing_first_name = '';
+        $orderDetails->billing_last_name = '';
+        $orderDetails->billing_company = '';
+        $orderDetails->billing_address = '';
+        $orderDetails->billing_address2 = '';
+        $orderDetails->billing_city = '';
+        $orderDetails->billing_postcode = '';
+        $orderDetails->billing_country = '';
+        $orderDetails->billing_state = '';
+        $orderDetails->billing_email = '';
+        $orderDetails->billing_phone = '';
+        $orderDetails->billing_paymethod = '';
+
+        $orderDetails->shipping_first_name = '';
+        $orderDetails->shipping_last_name = '';
+        $orderDetails->shipping_company = '';
+        $orderDetails->shipping_address = '';
+        $orderDetails->shipping_address2 = '';
+        $orderDetails->shipping_city = '';
+        $orderDetails->shipping_postcode = '';
+        $orderDetails->shipping_country = '';
+        $orderDetails->shipping_state = '';
+        $orderDetails->shipping_email = '';
+        $orderDetails->shipping_phone = '';
+        $orderDetails->shipping_paymethod = '';
+
+        if (!empty( $results )) {
+            foreach ($results as $result) {
+                $key = ltrim($result->meta_key,'_');
+                $orderDetails->{$key} = $result->meta_value;
+            }
+
+            $orderDetails->id = (isset($orderDetails->customer_user)) ? $orderDetails->customer_user : 0;
+            $orderDetails->name = $orderDetails->billing_first_name . " " . $orderDetails->billing_last_name;
+            $orderDetails->email = (!empty($orderDetails->billing_email)) ? $orderDetails->billing_email : $orderDetails->shipping_email;
+        }
+
+        return $orderDetails;
+    }
+
+    public static function getData( $page = 1, $limit = 10, $singleOrderID = 0 )
     {
         global $wpdb;
 
@@ -33,10 +113,9 @@ abstract class Customer {
         self::$_limit = $limit;
         self::$_page = $page;
 
-        if ($id > 0){
-            self::$_query .= ' WHERE `order_id` = ' . $id;
+        if ($singleOrderID > 0){
+            self::$_query .= ' WHERE `order_id` = ' . $singleOrderID;
         }
-
 
         if (self::$_limit == 'all') {
             $query = self::$_query;
@@ -46,60 +125,19 @@ abstract class Customer {
         }
 
         $ids = $wpdb->get_col($query);
-
         $data = array();
 
         $in_data = array();
         foreach ($ids as $id) {
+            $details = self::getDetails($id);
 
-            $details = new \stdClass();
-            $email = get_post_meta($id, '_billing_email', true);
-
-            if (in_array($email,$in_data)){
+            if (in_array($details->email,$in_data)){
                 continue;
             }else {
-                $in_data[] = $email;
+                $in_data[] = $details->email;
             }
-
-            $firstName = get_post_meta($id, '_billing_first_name', true);
-            $lastName = get_post_meta($id, '_billing_last_name', true);
-
-            $details->id = get_post_meta($id, '_customer_user', true);
-            $details->name = $firstName . ' ' . $lastName;
-
-            $details->email = $email;
-            $details->order_total = get_post_meta($id, '_order_total', true);
-            $details->order_count = get_post_meta($id, '_order_count', true );
-
-            $details->order_id = $id;
-
-            $details->billing_first_name = get_post_meta($id, '_billing_first_name', true);
-            $details->billing_last_name = get_post_meta($id, '_billing_last_name', true);
-            $details->billing_company = get_post_meta($id, '_billing_company', true);
-            $details->billing_address = get_post_meta($id, '_billing_address_1', true);
-            $details->billing_address2 = get_post_meta($id, '_billing_address_2', true);
-            $details->billing_city = get_post_meta($id, '_billing_city', true);
-            $details->billing_postcode = get_post_meta($id, '_billing_postcode', true);
-            $details->billing_country = get_post_meta($id, '_billing_country', true);
-            $details->billing_state = get_post_meta($id, '_billing_state', true);
-            $details->billing_email = get_post_meta($id, '_billing_email', true);
-            $details->billing_phone = get_post_meta($id, '_billing_phone', true);
-            $details->billing_paymethod = get_post_meta($id, '_payment_method', true);
-
-            $details->shipping_first_name = get_post_meta($id, '_shipping_first_name', true);
-            $details->shipping_last_name = get_post_meta($id, '_shipping_last_name', true);
-            $details->shipping_company = get_post_meta($id, '_shipping_company', true);
-            $details->shipping_address = get_post_meta($id, '_shipping_address_1', true);
-            $details->shipping_address2 = get_post_meta($id, '_shipping_address_2', true);
-            $details->shipping_city = get_post_meta($id, '_shipping_city', true);
-            $details->shipping_postcode = get_post_meta($id, '_shipping_postcode', true);
-            $details->shipping_country = get_post_meta($id, '_shipping_country', true);
-            $details->shipping_state = get_post_meta($id, '_shipping_state', true);
-            $details->shipping_email = get_post_meta($id, '_shipping_email', true);
-            $details->shipping_phone = get_post_meta($id, '_shipping_phone', true);
-            $details->shipping_paymethod = get_post_meta($id, '_payment_method', true);
-
             $data[] = $details;
+
         }
 
 
@@ -162,96 +200,65 @@ abstract class Customer {
     }
 
 
-    public static function format($userDetails, $mappedFields, $isSubscribe = false ){
-
+    public static function format($userDetails, $mappedFields, $isSubscribe = false )
+    {
         $id = $userDetails->id;
         $userToExport = new \stdClass();
         $name = $userDetails->name;
         $email = $userDetails->email;
 
-
-        if ($isSubscribe){
+        if ($isSubscribe) {
             $isSubscribe = 'YES';
-        }else {
+        } else {
             $isSubscribe = 'FALSE';
         }
         $fields = array();
-        $fields['orders_count']  = 1;
-        $fields['total_spent'] = isset($userDetails->order_total) ? $userDetails->order_total : 0 ;
-        $fields['total_price'] = isset($userDetails->order_total) ? $userDetails->order_total : 0  ;
-        $fields['created_at']  = current_time( 'mysql' );
+        $fields['orders_count'] = 1;
+        $fields['total_spent'] = isset( $userDetails->order_total ) ? $userDetails->order_total : 0;
+        $fields['total_price'] = isset( $userDetails->order_total ) ? $userDetails->order_total : 0;
+        $fields['created_at'] = current_time( 'mysql' );
 
+        // this is a customer
         if ($id > 0) {
-            $customer = get_userdata($id);
+            $customer = get_userdata( $id );
 
-            if (empty($name)) {
+            if (empty( $name )) {
                 $name = $customer->user_nicename;
             }
 
-            // Get all customer orders
-            $customer_orders = get_posts(array(
-                'numberposts' => -1,
-                'meta_key' => '_customer_user',
-                'meta_value' => $id,
-                'post_type' => wc_get_order_types(),
-                'post_status' => array_keys(wc_get_order_statuses()),
-                'orderby'          => 'date',
-                'order'            => 'DESC',
-            ));
-
-            $total = 0;
-            $orderCount = 0;
-            $lastOrderSpent = 0;
-
-            if (!empty($customer_orders)){
-                foreach ( $customer_orders as $customer_order ) {
-                    $order = wc_get_order( $customer_order->ID );
-                    $total += $order->get_total();
-                    if ($orderCount == 0){
-                        $lastOrderSpent = $order->get_total();
-                    }
-                    $orderCount++;
-                }
-            }
-
-            $fields['orders_count'] = $orderCount;
-            $fields['total_price'] = $lastOrderSpent;
-            $fields['total_spent'] = $total;
             $fields['created_at'] = $customer->user_registered;
+        }
 
-        } else if ($id == 0) {
+        $ordersPerPage = 100;
+        // count the number of orders for this email
+        $orderCount = Order::getByEmail( $email );
 
-            // TODO patch can optimize
-            $customer_orders = get_posts(array(
-                'numberposts' => -1,
-                'meta_key' => '_billing_email',
-                'meta_value' => $email,
-                'post_type' => wc_get_order_types(),
-                'post_status' => array_keys(wc_get_order_statuses()),
-                'orderby'          => 'date',
-                'order'            => 'DESC',
-            ));
-
-            if (!empty($customer_orders) && count($customer_orders) > 0){
-
+        if ($orderCount > 0) {
+            // calculate the total number of pages.
+            $totalPages = ceil( $orderCount / $ordersPerPage );
+            $lastOrderSpent = 0;
+            $totalSpent = 0;
+            // foreach order paged
+            for ($currentPage = 1; $currentPage <= $totalPages; $currentPage++) {
+                $orderIds = Order::getByEmail( $email, false, $currentPage, $ordersPerPage );
                 $total = 0;
-                $orderCount = 0;
+
                 $lastOrderSpent = 0;
 
-                foreach ( $customer_orders as $customer_order ) {
-                    $order = wc_get_order( $customer_order->ID );
-                    $total += $order->get_total();
-                    if ($orderCount == 0){
+                $index = 0;
+                foreach ($orderIds as $orderId) {
+                    $order = wc_get_order( $orderId );
+                    $totalSpent += $order->get_total();
+                    if ($index == 0) {
                         $lastOrderSpent = $order->get_total();
                     }
-                    $orderCount++;
+                    $index++;
                 }
 
-                $fields['orders_count'] = $orderCount;
-                $fields['total_price'] = $lastOrderSpent;
-                $fields['total_spent'] = $total;
             }
-
+            $fields['total_price'] = $lastOrderSpent;
+            $fields['total_spent'] = $totalSpent;
+            $fields['orders_count'] = $orderCount;
         }
 
         $userToExport->Name = $name;
@@ -277,7 +284,7 @@ abstract class Customer {
         $customFields = array();
 
         foreach ($mappedFields as $mapField => $value) {
-            $customFields[] = array("Key" => $value, 'Value' => $fields[$mapField]);
+            $customFields[] = array( "Key" => $value, 'Value' => $fields[$mapField] );
         }
 
         $userToExport->CustomFields = $customFields;

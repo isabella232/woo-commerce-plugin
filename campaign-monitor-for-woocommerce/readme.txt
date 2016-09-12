@@ -4,7 +4,7 @@ Donate link: N/A
 Tags: Campaign Monitor, Email Marketing, Subscription, Personalization
 Requires at least: 4.0.1
 Tested up to: 4.5.3
-Stable tag: 1.2.8
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,6 +77,11 @@ To connect WordPress to Campaign Monitor:
 
 * Maintenance update.
 * Lock system for cron jobs updated
+
+= 1.3.0 =
+
+* Maintenance update.
+* Optimization update for large amounts of orders.
 
 == Arbitrary section ==
 
