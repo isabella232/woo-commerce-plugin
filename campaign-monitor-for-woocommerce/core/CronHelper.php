@@ -39,23 +39,18 @@ class CronHelper
         $lock_file = LOCK_DIR . $argv[0] . LOCK_SUFFIX;
 
         if (file_exists( $lock_file )) {
-            //return FALSE;
-
             // Is running?
             self::$pid = file_get_contents( $lock_file );
             if (self::isRunning()) {
-                error_log( "==" . self::$pid . "== Already in progress..." );
                 Log::write( "==" . self::$pid . "== Already in progress..." );
                 return FALSE;
             } else {
-                error_log( "==" . self::$pid . "== Previous job died abruptly..." );
                 Log::write( "==" . self::$pid . "== Previous job died abruptly..." );
             }
         }
 
         self::$pid = getmypid();
         file_put_contents( $lock_file, self::$pid );
-        error_log( "==" . self::$pid . "== Lock acquired, processing the job..." );
         Log::write( "==" . self::$pid . "== Lock acquired, processing the job..." );
         return self::$pid;
     }
@@ -69,7 +64,6 @@ class CronHelper
         if (file_exists( $lock_file ))
             unlink( $lock_file );
 
-        error_log( "==" . self::$pid . "== Releasing lock..." );
         Log::write( "==" . self::$pid . "== Releasing lock..." );
         return TRUE;
     }
