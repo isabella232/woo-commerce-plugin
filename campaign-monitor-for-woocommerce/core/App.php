@@ -80,6 +80,7 @@ class App
             add_action('admin_post_nopriv', array(__CLASS__, 'handle_request'));
 
             add_action('woocommerce_review_order_after_submit', array(__CLASS__, 'woocommerce_subscription_box'));
+            add_action('woocommerce_review_order_before_submit', array(__CLASS__, 'woocommerce_subscription_box_before'));
             add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'checkout_process'));
             add_action('woocommerce_order_status_completed', array(__CLASS__, 'checkout_process'));
             add_action('profile_update', array(__CLASS__, 'profile_update'), 12);
@@ -221,6 +222,13 @@ class App
         Log::write($result);
     }
 
+    /**
+     * Change Proceed To Checkout Text in WooCommerce
+     * Place this in your Functions.php file
+     **/
+    public static function woocommerce_subscription_box_before() {
+        echo "<br style='clear:both'>";
+    }
 
     public static function checkout_process($orderId){
 
