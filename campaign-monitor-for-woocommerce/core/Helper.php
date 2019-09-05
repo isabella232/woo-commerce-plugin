@@ -48,6 +48,22 @@ abstract class Helper {
     }
 
     /**
+     * wrapper for the wordpress options
+     *
+     * @param $name
+     * @param array $default
+     * @return default|[]
+     */
+    public static function getArrayOption( $name, $default = []){
+        $optionName = self::$pluginName . '_' . $name;
+        $option = get_option($optionName,$default);
+        if (!is_array($option)) {            
+            $option = [];
+        }
+        return $option;
+    }
+
+    /**
      * @param $name
      */
     public static function deleteOption($name){

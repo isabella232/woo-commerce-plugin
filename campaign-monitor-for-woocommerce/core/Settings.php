@@ -24,13 +24,13 @@ class Settings {
      */
     public static function add($setting, $value)
     {
-        self::$settings = Helper::getOption(self::name);
+        self::$settings = Helper::getArrayOption(self::name);
         self::$settings[$setting] = $value;
         \core\Helper::updateOption(self::name, self::$settings);
     }
 
     public static function clear(){
-        return Helper::updateOption(self::name, null);
+        return Helper::updateOption(self::name, []);
     }
 
     /**
@@ -41,9 +41,9 @@ class Settings {
      */
     public static function get($setting = ''){
         if (null == $setting){
-            return Helper::getOption(self::name);
+            return Helper::getArrayOption(self::name);
         }else {
-            $settings = Helper::getOption(self::name);
+            $settings = Helper::getArrayOption(self::name);
             if (!empty($settings)){
                 if (array_key_exists($setting, $settings)){
                     return $settings[$setting];
