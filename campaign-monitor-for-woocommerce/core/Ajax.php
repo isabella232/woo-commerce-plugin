@@ -470,7 +470,7 @@ abstract class Ajax
 
 
                     $html .= '<option '.$selected .' value="'.$clientId.'" data-id="'.$id.'"  data-url="' . self::$actionUrl . '&' . $viewClientListUrl . '&ClientID=' . $clientId . '&action=get_list_settings">';
-                    $html .= $list->Name;
+                    $html .= Util::htmlDecodeEncode($list->Name);
                     $html .= '</option>';
 
                 }
