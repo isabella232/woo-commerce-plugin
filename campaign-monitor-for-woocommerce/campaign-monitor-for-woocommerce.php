@@ -14,7 +14,7 @@ Stable tag: 4.5.3
 License: GPLv3 or later License
 URI: http://www.gnu.org/licenses/gpl-3.0.html
 WC requires at least: 2.5
-WC tested up to: 2.6
+WC tested up to: 3.7.0
 */
 
 /*
