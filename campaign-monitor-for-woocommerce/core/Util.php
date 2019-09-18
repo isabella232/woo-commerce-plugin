@@ -14,7 +14,6 @@ class Util {
             $str=$decoded;
             $decoded=html_entity_decode($str, ENT_QUOTES);
         }
-        $str=htmlentities($decoded, ENT_QUOTES);
-        return $str;
+        return htmlentities($decoded, ENT_QUOTES);
     }
 }
