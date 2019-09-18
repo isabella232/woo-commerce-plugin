@@ -16,7 +16,8 @@ $authorizationToken = \core\Settings::get('access_token');
 if (!empty($authorizationToken)){
     // we are authorize
     // check if refresh token is still good
-    if (\core\Settings::get('expiry') - time() <  (60*60*24))
+    $expiry = \core\Settings::get('expiry');
+    if ( $expiry !== null && ($expiry - time() <  (60*60*24)))
     {
         $auth = array(
             'access_token' => \core\Settings::get('access_token'),
