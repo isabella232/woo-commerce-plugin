@@ -4,7 +4,7 @@ require_once dirname(__FILE__).'/serialisation.php';
 require_once dirname(__FILE__).'/transport.php';
 require_once dirname(__FILE__).'/log.php';
 
-defined('CM_WOOCOMMERCE_EXTENSION_VERSION') or define('CM_WOOCOMMERCE_EXTENSION_VERSION', '1.3.3');
+defined('CM_WOOCOMMERCE_EXTENSION_VERSION') or define('CM_WOOCOMMERCE_EXTENSION_VERSION', '1.4.0');
 defined('CS_REST_WRAPPER_VERSION') or define('CS_REST_WRAPPER_VERSION', '5.0.1');
 defined('CS_HOST') or define('CS_HOST', 'api.createsend.com');
 defined('CS_OAUTH_BASE_URI') or define('CS_OAUTH_BASE_URI', 'https://'.CS_HOST.'/oauth');
