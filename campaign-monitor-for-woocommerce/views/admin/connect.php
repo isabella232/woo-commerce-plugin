@@ -292,7 +292,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
 
     <?php if (!\core\App::is_connected()) : ?>
-        <p>Campaign Monitor lets you manage your subscriber lists and email campaigns.<a href="https://www.campaignmonitor.com?utm_source=woocommerce-plugin&utm_medium=referralsignup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral"> Send something beautiful today</a></p>
+        <p>Campaign Monitor lets you manage your subscriber lists and email campaigns.<a href="https://www.campaignmonitor.com/signup?utm_source=woocommerce-plugin&utm_medium=referral"> Send something beautiful today</a></p>
         <p> <strong>Campaign Monitor for WooCommerce is almost ready.</strong> To get started, <a id="btnConnect" class="static button  button-primary" target="_blank" href="<?php echo \core\App::getConnectUrl(); ?>">Connect</a></p>
     <?php else : ?>
 
