@@ -11,14 +11,13 @@ $logoSrc = $pluginUrl . '/views/admin/images/campaign-monitor.png';
 $prefix = 'campaign_monitor_woocommerce_';
 $notices = \core\Settings::get('notices');
 
-
-
 // do I have an authorization token
 $authorizationToken = \core\Settings::get('access_token');
 if (!empty($authorizationToken)){
     // we are authorize
     // check if refresh token is still good
-    if (\core\Settings::get('refresh_token') - time() <  (60*60*24))
+    $expiry = \core\Settings::get('expiry');
+    if ( $expiry !== null && ($expiry - time() <  (60*60*24)))
     {
         $auth = array(
             'access_token' => \core\Settings::get('access_token'),
@@ -178,7 +177,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                         <input type="hidden" name="data[app_nonce]" value="<?php echo wp_create_nonce( 'app_nonce' ); ?>">
                         <div class="text-left">
                             <p>&nbsp;&nbsp;You are currently mapping custom fields for <strong>
-                                    <?php echo (isset($currentList->Title)) ? $currentList->Title : ''; ?>
+                                    <?php echo (isset($currentList->Title)) ? \core\Util::htmlDecodeEncode($currentList->Title) : ''; ?>
                                 </strong>.
                             </p>
                         </div>
@@ -272,7 +271,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
     <?php if ((is_array($notices) && !in_array('connected_list_notice',$notices, TRUE ) ) && !empty($currentList)) : ?>
         <div data-method="connected_list_notice" class="updated notice cm-plugin-ad is-dismissible">
-            <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
+            <p>Your WooCommerce customer data can be accessed in the list, <strong><?php echo \core\Util::htmlDecodeEncode($currentList->Title); ?></strong>, in
                 <a href="https://www.campaignmonitor.com/" target="_blank">
                     Campaign Monitor</a>.&nbsp;
                 We've also created 6 segments for you there.
@@ -324,7 +323,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                                             ?>
                                             <?php foreach ($clients as $client) : ?>
                                                 <?php $viewClientListUrl = http_build_query((array)$client); ?>
-                                                <option <?php echo ($client->ClientID == $selectedClient) ? 'selected="selected"' : ''; ?> value="<?php echo $client->ClientID; ?>" data-url="<?php echo $actionUrl . '&' . $viewClientListUrl; ?>&action=view_client_list"><?php echo $client->Name; ?></option>
+                                                <option <?php echo ($client->ClientID == $selectedClient) ? 'selected="selected"' : ''; ?> value="<?php echo $client->ClientID; ?>" data-url="<?php echo $actionUrl . '&' . $viewClientListUrl; ?>&action=view_client_list"><?php echo \core\Util::htmlDecodeEncode($client->Name); ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     </td>
@@ -543,7 +542,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
                 <div class="box main-container text-center">
                     <img class="connected-icon" src="https://live.dev.apps-market.cm/shopifyApp/images/circleCheck.png">
                     <h1>You're Connected</h1>
-                    <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo $currentList->Title; ?></strong>, in
+                    <p>Your Woocommerce customer data can be accessed in the list, <strong><?php echo \core\Util::htmlDecodeEncode($currentList->Title); ?></strong>, in
                         <a href="https://www.campaignmonitor.com/" target="_blank">
                             Campaign Monitor
                         </a>

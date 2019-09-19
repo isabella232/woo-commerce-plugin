@@ -3,34 +3,36 @@ Contributors: vibhorchhabra
 Donate link: N/A
 Tags: Campaign Monitor, Email Marketing, Subscription, Personalization
 Requires at least: 4.0.1
-Tested up to: 4.5.3
-Stable tag: 1.3.1
+Tested up to: 5.2.3
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Easily subscribe customers to your Campaign Monitor mailing list at checkout.
 
 == Description ==
+Campaign Monitor for WooCommerce allows your customers to sign up to a list in your [campaignmonitor.com](https://www.campaignmonitor.com?utm_source=woocommerce-plugin&utm_medium=referral) account at checkout. You can then use your list to send campaigns or automated journeys.
 
-The Campaign Monitor for WooCommerce plugin allows you to subscribe customers who buy from your store to the Campaign Monitor mailing list. You can then use this mailing list to send campaigns, and setup automated workflows.
+Get started with pre-packaged segments. Once connected with your Campaign Monitor account, you’ll automatically be set up with segments, which help you target smaller groups of subscribers:
 
-Get started with pre-packaged segments. Once you’ve completed the simple integration between Campaign Monitor and WooCommerce, you’ll automatically be setup with pre-built segments, which help you focus your email content on smaller, more targeted groups of subscribers:
+* High Spending Customers — Keep your biggest spenders engaged and spending with you, perhaps by offering them an exclusive promotion.
+* Repeat Customers — Recognize and reward your loyal customers with a unique email offer.
+* First-time Customers — Welcome each new customer in a personalized way, and perhaps offer them a discount on their second purchase.
+* Newsletter Subscribers — Immediately add all newsletter subscribers to a list in your campaignmonitor.com account.
 
-* High Spending Customers. Keep your biggest spenders engaged and spending with you, perhaps by offering them an exclusive promotion.
-* Repeat Customers. Recognize and reward your loyal customers with a special email offer.
-* First time customers. Welcome each new customer in a personalized way, and perhaps offer them a discount on their second purchase.
-* Newsletter subscribers. Immediately add all newsletter subscribers to your list within Campaign Monitor without any manual effort.
+== What is Campaign Monitor? ==
+Campaign Monitor makes it radically easy to create, send and measure the impact of your email marketing campaigns. **Don’t have a Campaign Monitor account? [Sign up for free](https://www.campaignmonitor.com/signup?utm_source=woocommerce-plugin&utm_medium=referral)**.
 
 == Installation ==
+1. Log in to your WordPress Admin and go to the Plugins section.
+2. Click “Add New” and search for “Campaign Monitor for WooCommerce.”
+3. From the search results, install and activate our plugin.
+4. In the sidebar, click “Subscribe at checkout” and then “Connect.”
+5. Follow the steps and connect it to your Campaign Monitor account.
+6. Once connected, you will return to the plugin settings page. Now select or create the list where you want your customers to sign up when checking out. You’ll automatically be set up with segments which help you target smaller groups of subscribers.
 
-To connect WordPress to Campaign Monitor:
-
-1. Log in to your WordPress dashboard and click Plugins in the left sidebar.
-2. Click Add New at the top of the page then search for “Campaign Monitor.”
-3. In search results, click the Install Now button on the “Campaign Monitor for WooCommerce” plugin.
-4. Click Activate Plugin.
-5. In the left sidebar, click Campaign Monitor for WooCommerce.
-6. Follow the instructions to connect your WooCommerce store to your Campaign Monitor account.
+= Updating from 1.3.2 and earlier =
+PHP 7 introduced connectivity issues between our plugin and Campaign Monitor when the WordPress site is not running on HTTPS. We are unable to resolve this problem with a regular update from your Admin. If you are experiencing this problem, you will need to disconnect, delete the plugin and install the latest version. We apologize for the inconvenience.
 
 == Frequently Asked Questions ==
 
@@ -87,10 +89,13 @@ To connect WordPress to Campaign Monitor:
 
 * UI patch for subscription button.
 
+= 1.3.2 =
 
-== Arbitrary section ==
+* Resolve some conflicts with Campaign Monitor Forms plugin
 
-What is Campaign Monitor?
-Campaign Monitor makes it radically easy to create, send and measure the impact of your email marketing campaigns.
+= 1.4.0 =
 
-This plugin allows you to import customer data form your WooCommerce store into your Campaign Monitor lists so you can send beautifully designed, personalized emails to your customers. Don’t have a Campaign Monitor account? Sign up for free.
+* Resolve the connectivity issue on HTTP for PHP7.
+* Admin navigation item renamed to "Subscribe at checkout".
+* Improved security.
+* Tested in Wordpress 5.2.3.

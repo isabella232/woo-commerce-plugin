@@ -90,8 +90,9 @@ class App
             $refreshToken = Settings::get('refresh_token');
             self::$CampaignMonitor = new CampaignMonitor($accessToken, $refreshToken);
 
+            $isError = (isset($_GET['error']) && !empty($_GET['error'])) && (isset($_GET['page']) && $_GET['page'] === 'campaign_monitor_woocommerce');
 
-            if (isset($_GET['error']) && !empty($_GET['error'])) {
+            if ($isError) {
 
                 Helper::updateOption('no_ssl', true);
                 $_GET   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
@@ -507,7 +508,7 @@ class App
 
         //create new top-level menu
         $pageTitle = "Campaign Monitor for WooCommerce";
-        $menuTitle = "Campaign Monitor<br> for  WooCommerce";
+        $menuTitle = "Subscribe at checkout";
         $capability = 'administrator';
         $menuSlug = 'campaign_monitor_woocommerce';
         $callable = 'register_settings_page';
