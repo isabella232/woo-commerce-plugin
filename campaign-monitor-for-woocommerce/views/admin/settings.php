@@ -34,7 +34,7 @@ $notices = \core\Settings::get('notices');
 
                 <?php if (!in_array('show_ad',$notices )) : ?>
                     <div id="cmPlugin" data-method="show_ad" class="updated notice cm-plugin-ad is-dismissible">
-                        <p>Campaign Monitor lets you manage your subscriber lists and email campaigns. <a href="https://www.campaignmonitor.com/signup/?utm_campaign=signup&utm_source=shopifyintegration&utm_medium=referral">Send something beautiful today!</a></p>
+                        <p>Campaign Monitor lets you manage your subscriber lists and email campaigns. <a href="https://www.campaignmonitor.com/signup?utm_source=woocommerce-plugin&utm_medium=referral">Send something beautiful today!</a></p>
                     </div>
                 <?php endif; ?>
             <h2>Campaign Monitor Client ID and Client Secret</h2>
