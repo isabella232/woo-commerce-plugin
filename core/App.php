@@ -287,11 +287,27 @@ class App
                     }
                 }
 
+                $expiry = Settings::get('expiry');
+                $auth = array(
+                    'access_token' => Settings::get('access_token'),
+                    'refresh_token' => Settings::get('refresh_token')
+                );
+                if ($expiry !== null && ($expiry - time() <  (60*60*24)))
+                {
+                    list($new_access_token, $new_expires_in, $new_refresh_token) = self::$CampaignMonitor->refresh_token($auth);
 
+                    Settings::add('access_token',$new_access_token);
+                    Settings::add('refresh_token',$new_refresh_token);
+                    Settings::add('expiry',$new_expires_in + time());
+                    $auth = array(
+                        'access_token' => $new_access_token,
+                        'refresh_token' => $new_refresh_token
+                    );
+                }
 
                 $userToExport = Customer::format($details, $mappedFields, $isSubscribe);
                 $userToExport = (array)$userToExport;
-                $result = self::$CampaignMonitor->add_subscriber($listId, $userToExport);
+                $result = self::$CampaignMonitor->add_subscriber($listId, $userToExport, $auth);
                 Log::write($result);
 
             }
