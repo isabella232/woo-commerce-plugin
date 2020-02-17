@@ -13,11 +13,11 @@ $notices = \core\Settings::get('notices');
 
 // do I have an authorization token
 $authorizationToken = \core\Settings::get('access_token');
-if (!empty($authorizationToken)){
+if (!empty($authorizationToken)) {
     // we are authorize
     // check if refresh token is still good
     $expiry = \core\Settings::get('expiry');
-    if ( $expiry !== null && ($expiry - time() <  (60*60*24)))
+    if ($expiry !== null && ($expiry - time() <  (60*60*24)))
     {
         $auth = array(
             'access_token' => \core\Settings::get('access_token'),
@@ -27,12 +27,11 @@ if (!empty($authorizationToken)){
 
         \core\Settings::add('access_token',$new_access_token);
         \core\Settings::add('refresh_token',$new_refresh_token);
-        \core\Settings::add('expiry',$new_expires_in);
+        \core\Settings::add('expiry',$new_expires_in + time());
+        $appSettings = \core\Settings::get();
     }
-
 } else {
-
-    if (isset($_GET['error']) && !empty($_GET['error'])){
+    if (isset($_GET['error']) && !empty($_GET['error'])) {
         $_GET   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
         // there was something wrong
         $html = '<div class="wrap">';
@@ -44,11 +43,8 @@ if (!empty($authorizationToken)){
 
         echo $html;
         exit;
-
-    }else {
-
-
-        if (isset($_GET['code']) && !empty($_GET['code'])){
+    } else {
+        if (isset($_GET['code']) && !empty($_GET['code'])) {
             $_GET   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
             $code = $_GET['code'];
 
@@ -64,13 +60,11 @@ if (!empty($authorizationToken)){
             $endpoint = 'https://api.createsend.com/oauth/token';
             $results =  \core\Connect::request($params,$endpoint);
 
-
             // Let's authenticate the user
-            if (!empty($results)){
+            if (!empty($results)) {
                 $credentials = json_decode($results);
 
-
-                if (isset($credentials->error)){
+                if (isset($credentials->error)) {
                     $html = '<div id="message" class="error notice is-dismissible">';
                     $html .= '<p>';
                     $html .= __($credentials->error_description);
@@ -85,15 +79,13 @@ if (!empty($authorizationToken)){
                 } else {
                     \core\Settings::add('access_token', $credentials->access_token);
                     \core\Settings::add('refresh_token', $credentials->refresh_token);
-                    \core\Settings::add('expiry', $credentials->expires_in);
+                    \core\Settings::add('expiry', $credentials->expires_in + time());
                     $appSettings = \core\Settings::get();
                     // we are connected
                     \core\Helper::updateOption('connected', TRUE );
                     unset($_GET['code']);
                 }
-
             }
-
         }
     }
 }
@@ -108,17 +100,16 @@ $defaultClient = \core\Settings::get('default_client');
 $accessToken = \core\Settings::get('access_token');
 $code = \core\Helper::getOption('code');
 $clients = array();
-if (!empty($appSettings) && !empty($accessToken)){
+if (!empty($appSettings) && !empty($accessToken)) {
     $appSettings = (object)$appSettings;
     $auth = array('access_token' => $appSettings->access_token,
         'refresh_token' => $appSettings->refresh_token);
     $clients = \core\App::$CampaignMonitor->get_clients($auth);
 
-    if (count($clients) == 1){
+    if (count($clients) == 1) {
         $CID = $clients[0]->ClientID;
         \core\Settings::add('default_client', $CID);
     }
-
 }
 
 $clientListSettings = \core\ClientList::get($defaultList);
