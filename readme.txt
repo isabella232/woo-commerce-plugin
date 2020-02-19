@@ -3,8 +3,8 @@ Contributors: vibhorchhabra
 Donate link: N/A
 Tags: Campaign Monitor, Email Marketing, Subscription, Personalization
 Requires at least: 4.0.1
-Tested up to: 5.2.3
-Stable tag: 1.4.0
+Tested up to: 5.4
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,3 +99,7 @@ PHP 7 introduced connectivity issues between our plugin and Campaign Monitor whe
 * Admin navigation item renamed to "Subscribe at checkout".
 * Improved security.
 * Tested in Wordpress 5.2.3.
+
+= 1.4.1 =
+
+* Resolve intermittent connection issues
