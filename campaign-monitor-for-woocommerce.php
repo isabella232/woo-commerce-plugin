@@ -3,13 +3,13 @@
 Plugin Name: Campaign Monitor for WooCommerce
 Plugin URI: https://www.campaignmonitor.com/integrations/
 Description: Email marketing with all the features you want. With <strong>Campaign Monitor</strong>, you have everything you need to run beautifully designed, professional email marketing campaigns to grow your business.
-Version: 1.4.0
+Version: 1.4.1
 Author: Campaign Monitor
 Author URI: https://www.campaignmonitor.com/integrations/
 Text Domain: campaign-monitor-for-woocommerce
 Tags: email, marketing
 Requires at least: 4.0.1
-Tested up to: 5.2.3
+Tested up to: 5.4
 Stable tag: 4.5.3
 License: GPLv3 or later License
 URI: http://www.gnu.org/licenses/gpl-3.0.html
