@@ -45,7 +45,7 @@ PHP 7 introduced connectivity issues between our plugin and Campaign Monitor whe
 == Changelog ==
 
 = 1.4.2 =
-* Update the styling on where the checkbox is located
+* Moved the subscribe checkbox before the place order button
 = 1.4.1 =
 * Resolve intermittent connection issues
 = 1.4.0 =
