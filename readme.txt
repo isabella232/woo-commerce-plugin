@@ -4,7 +4,7 @@ Donate link: N/A
 Tags: Campaign Monitor, Email Marketing, Subscription, Personalization
 Requires at least: 4.0.1
 Tested up to: 5.4
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,62 +44,56 @@ PHP 7 introduced connectivity issues between our plugin and Campaign Monitor whe
 
 == Changelog ==
 
-= 1.0.0 =
-* Launched Campaign Monitor for WooCommerce plugin.
-
-= 1.1.0 =
-
-= 1.2.0 =
-
-= 1.2.1 =
-
-= 1.2.2 =
-
-= 1.2.3 =
-
-= 1.2.4 =
-
-= 1.2.5 =
-
-* Fix folder name.
-
-= 1.2.6 =
-
-* Fix file name.
-
-= 1.2.7 =
-
-* Fix connect class.
-
-= 1.2.8 =
-
-* Maintenance update.
-
-= 1.2.9 =
-
-* Maintenance update.
-* Lock system for cron jobs updated
-
-= 1.3.0 =
-
-* Maintenance update.
-* Optimization update for large amounts of orders.
-
-= 1.3.1 =
-
-* UI patch for subscription button.
-
-= 1.3.2 =
-
-* Resolve some conflicts with Campaign Monitor Forms plugin
-
+= 1.4.2 =
+* Moved the subscribe checkbox before the place order button
+= 1.4.1 =
+* Resolve intermittent connection issues
 = 1.4.0 =
-
 * Resolve the connectivity issue on HTTP for PHP7.
 * Admin navigation item renamed to "Subscribe at checkout".
 * Improved security.
 * Tested in Wordpress 5.2.3.
+= 1.3.2 =
+* Resolve some conflicts with Campaign Monitor Forms plugin
+= 1.3.1 =
+* UI patch for subscription button.
+= 1.3.0 =
+* Maintenance update.
+* Optimization update for large amounts of orders.
+= 1.2.9 =
+* Maintenance update.
+* Lock system for cron jobs updated
+= 1.2.8 =
+* Maintenance update.
+= 1.2.7 =
+* Fix connect class.
+= 1.2.6 =
+* Fix file name.
+= 1.2.5 =
+* Fix folder name.
+= 1.2.4 =
+= 1.2.3 =
+= 1.2.2 =
+= 1.2.1 =
+= 1.2.0 =
+= 1.1.0 =
+= 1.0.0 =
+* Launched Campaign Monitor for WooCommerce plugin.
 
-= 1.4.1 =
 
-* Resolve intermittent connection issues
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
