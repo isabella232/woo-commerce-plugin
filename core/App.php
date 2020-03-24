@@ -228,7 +228,26 @@ class App
      * Place this in your Functions.php file
      **/
     public static function woocommerce_subscription_box_before() {
-        echo "<br style='clear:both'>";
+        $legend = Helper::getOption('subscribe_text');
+        $autoSubscribe = Helper::getOption('automatic_subscription');
+
+        $isChecked = '';
+        if (!empty($autoSubscribe) && $autoSubscribe ){
+            $isChecked = 'checked="checked"';
+        }
+        if (empty($legend)){
+            $legend = 'Subscribe to our newsletter';
+        }
+
+        $html = '';
+        $html .= '<input id="subscriptionNonce" type="hidden" name="subscription_nonce" value="'.wp_create_nonce('app_nonce').'">';
+        $html .= '<label for="cmw_register_email" style="margin-bottom: 7px;">';
+        $html .= '<input id="cmw_register_email" name="cmw_register_email" style="margin-right: 7px;" value="on" '.$isChecked.' type="checkbox">'.$legend.'</label>';
+        $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
+
+        if ($subscriptionBox){
+            echo $html;
+        }
     }
 
     public static function checkout_process($orderId){
@@ -314,27 +333,7 @@ class App
         }
     }
     public static function woocommerce_subscription_box(){
-
-        $legend = Helper::getOption('subscribe_text');
-        $autoSubscribe = Helper::getOption('automatic_subscription');
-
-        $isChecked = '';
-        if (!empty($autoSubscribe) && $autoSubscribe ){
-            $isChecked = 'checked="checked"';
-        }
-        if (empty($legend)){
-            $legend = 'Subscribe to our newsletter';
-        }
-
-        $html = '';
-        $html .= '<input id="subscriptionNonce" type="hidden" name="subscription_nonce" value="'.wp_create_nonce('app_nonce').'">';
-        $html .= '<label for="cmw_register_email">';
-        $html .= '<input id="cmw_register_email" name="cmw_register_email" value="on" '.$isChecked.' type="checkbox">'.$legend.'</label>';
-        $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
-
-        if ($subscriptionBox){
-            echo $html;
-        }
+        echo '<br></br>';
     }
     /**
      * @return bool true if connected false otherwise
