@@ -44,6 +44,8 @@ PHP 7 introduced connectivity issues between our plugin and Campaign Monitor whe
 
 == Changelog ==
 
+= 1.4.3 =
+* Fixed issue when connecting with empty-client account at Campaign Monitor
 = 1.4.2 =
 * Moved the subscribe checkbox before the place order button
 = 1.4.1 =
