@@ -494,7 +494,7 @@ $subscriptionBox = \core\Helper::getOption('toggle_subscription_box');
 
             <?php else : ?>
                 <?php if (empty($defaultList)) : ?>
-                    <form action="<?php echo get_admin(); ?>/wp-admin/admin-post.php" method="post">
+                    <form action="<?php echo get_admin_url(); ?>/wp-admin/admin-post.php" method="post">
                         <table>
                             <tr>
                                 <td>
