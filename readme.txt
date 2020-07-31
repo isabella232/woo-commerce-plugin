@@ -3,8 +3,8 @@ Contributors: vibhorchhabra
 Donate link: N/A
 Tags: Campaign Monitor, Email Marketing, Subscription, Personalization
 Requires at least: 4.0.1
-Tested up to: 5.4
-Stable tag: 1.4.3
+Tested up to: 5.5
+Stable tag: 1.4.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,8 @@ PHP 7 introduced connectivity issues between our plugin and Campaign Monitor whe
 
 == Changelog ==
 
+= 1.4.4 =
+* Minor Fixes for Wordpress 5.5
 = 1.4.3 =
 * Fixed issue when connecting with empty-client account at Campaign Monitor
 = 1.4.2 =
