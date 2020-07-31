@@ -16,8 +16,8 @@ jQuery(document).ready(function($) {
 
     $(document).on('click', '#btnSaveSettings', function (e) {
 
-         var clientSecret = $('#client_secret').attr('value');
-         var clientId = $('#client_id').attr('value');
+         var clientSecret = $('#client_secret').val();
+         var clientId = $('#client_id').val();
 
             if (clientSecret == ''){
                 $('#client_secret').css('border', '1px solid red');

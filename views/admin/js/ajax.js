@@ -41,11 +41,11 @@ jQuery(document).ready(function($) {
         $('.campaign-monitor-woocommerce .progress-notice').slideDown();
         var subscribe = $('#autoNewsletter').is(':checked');
         var debug = $('#logToggle').is(':checked');
-        var subscribeText = $('#subscriptionText').attr('value');
+        var subscribeText = $('#subscriptionText').val();
         var subscriptionBox =  $('#subscriptionBox').is(':checked');
 
-        var listToCreate = newList.attr('value');
-        var listType = $('#listType').attr('value');
+        var listToCreate = newList.val();
+        var listType = $('#listType').val();
         
         dataToSend.debug = debug;
         dataToSend.subscribe = subscribe;
