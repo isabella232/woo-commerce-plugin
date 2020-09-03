@@ -262,8 +262,7 @@ class App
             $email = '';
             if (array_key_exists('billing_email',$_POST ) && !empty($_POST['billing_email']))
             {
-                $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-                $email = $_POST['billing_email'];
+                $email = filter_input(INPUT_POST, 'billing_email', FILTER_SANITIZE_STRING);
 
                 if (is_email($email)) {
                     $email = sanitize_email($email);
