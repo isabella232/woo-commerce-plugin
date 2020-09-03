@@ -44,6 +44,9 @@ PHP 7 introduced connectivity issues between our plugin and Campaign Monitor whe
 
 == Changelog ==
 
+= 1.4.5 =
+* Increase connection time before timing out
+* Sanitize only required fields during check-out 
 = 1.4.4 =
 * Minor Fixes for Wordpress 5.5
 = 1.4.3 =
