@@ -7,8 +7,8 @@ defined('CS_REST_GET') or define('CS_REST_GET', 'GET');
 defined('CS_REST_POST') or define('CS_REST_POST', 'POST');
 defined('CS_REST_PUT') or define('CS_REST_PUT', 'PUT');
 defined('CS_REST_DELETE') or define('CS_REST_DELETE', 'DELETE');
-defined('CS_REST_SOCKET_TIMEOUT') or define('CS_REST_SOCKET_TIMEOUT', 20);
-defined('CS_REST_CALL_TIMEOUT') or  define('CS_REST_CALL_TIMEOUT', 20);
+defined('CS_REST_SOCKET_TIMEOUT') or define('CS_REST_SOCKET_TIMEOUT', 45);
+defined('CS_REST_CALL_TIMEOUT') or  define('CS_REST_CALL_TIMEOUT', 45
 
 
 if (!function_exists('CS_REST_TRANSPORT_get_available')){

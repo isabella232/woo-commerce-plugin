@@ -4,7 +4,7 @@ Donate link: N/A
 Tags: Campaign Monitor, Email Marketing, Subscription, Personalization
 Requires at least: 4.0.1
 Tested up to: 5.5
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,8 @@ PHP 7 introduced connectivity issues between our plugin and Campaign Monitor whe
 
 == Changelog ==
 
+= 1.4.6 =
+* Further increase connection time before timing out
 = 1.4.5 =
 * Increase connection time before timing out
 * Sanitize only required fields during check-out 
