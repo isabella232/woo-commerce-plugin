@@ -8,22 +8,22 @@ defined('CS_REST_POST') or define('CS_REST_POST', 'POST');
 defined('CS_REST_PUT') or define('CS_REST_PUT', 'PUT');
 defined('CS_REST_DELETE') or define('CS_REST_DELETE', 'DELETE');
 defined('CS_REST_SOCKET_TIMEOUT') or define('CS_REST_SOCKET_TIMEOUT', 45);
-defined('CS_REST_CALL_TIMEOUT') or  define('CS_REST_CALL_TIMEOUT', 45
+defined('CS_REST_CALL_TIMEOUT') or  define('CS_REST_CALL_TIMEOUT', 45);
 
 
 if (!function_exists('CS_REST_TRANSPORT_get_available')){
 	function CS_REST_TRANSPORT_get_available($requires_ssl, $log) {
-    if(function_exists('curl_init') && function_exists('curl_exec')) {
-        return new CS_REST_CurlTransport($log);
-    } else if(CS_REST_TRANSPORT_can_use_raw_socket($requires_ssl)) {
-        return new CS_REST_SocketTransport($log);
-    } else { 
-        $log->log_message('No transport is available', __FUNCTION__, CS_REST_LOG_ERROR);
-        trigger_error('No transport is available.'.
-            ($requires_ssl ? ' Try using non-secure (http) mode or ' : ' Please ').
-            'ensure the cURL extension is loaded', E_USER_ERROR);
-    }    
-}
+        if(function_exists('curl_init') && function_exists('curl_exec')) {
+            return new CS_REST_CurlTransport($log);
+        } else if(CS_REST_TRANSPORT_can_use_raw_socket($requires_ssl)) {
+            return new CS_REST_SocketTransport($log);
+        } else { 
+            $log->log_message('No transport is available', __FUNCTION__, CS_REST_LOG_ERROR);
+            trigger_error('No transport is available.'.
+                ($requires_ssl ? ' Try using non-secure (http) mode or ' : ' Please ').
+                'ensure the cURL extension is loaded', E_USER_ERROR);
+        }    
+    }
 }
 
 if (!function_exists('CS_REST_TRANSPORT_can_use_raw_socket')){
